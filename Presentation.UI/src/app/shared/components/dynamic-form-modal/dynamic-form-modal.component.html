@@ -1,0 +1,238 @@
+@if (isVisible) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+    (click)="onBackdropClick()">
+    <div [class]="'bg-surface rounded-lg shadow-xl w-full ' + getModalWidthClass() + ' max-h-[90vh] flex flex-col'"
+      (click)="$event.stopPropagation()" style="display: flex; flex-direction: column; max-height: 90vh;">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-border bg-primary-100">
+        <div>
+          <h2 class="text-xl font-semibold text-on-surface">
+            {{ getModalTitle() }}
+          </h2>
+          @if (getModalDescription()) {
+            <p class="text-sm text-on-surface-variant mt-1">
+              {{ getModalDescription() }}
+            </p>
+          }
+        </div>
+        <button (click)="onClose()" class="btn-ghost p-2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Modal Content -->
+      <div class="flex-1 overflow-y-auto p-6 min-h-0">
+        <form [formGroup]="form" (ngSubmit)="onSave()" class="space-y-6">
+          @for (section of sections(); track section) {
+            <!-- Section Header -->
+            @if (section.title || section.description) {
+              <div class="space-y-4">
+                @if (section.title || section.description) {
+                  <div class="mb-4">
+                    @if (section.title) {
+                      <h3 class="text-lg font-semibold text-on-surface">
+                        {{ section.title }}
+                      </h3>
+                    }
+                    @if (section.description) {
+                      <p class="text-sm text-on-surface-variant mt-1">
+                        {{ section.description }}
+                      </p>
+                    }
+                  </div>
+                }
+                <!-- Fields in Grid -->
+                <!-- Fields in Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                  @for (fieldKey of section.fields; track fieldKey) {
+                    @if (getFieldByKey(fieldKey); as field) {
+                      @if (!field.hidden) {
+                        <div [class]="getGridColsClass(field, section.gridCols)">
+                          <!-- Text/Email/Password/Number/Tel/Url/Date/Time Inputs -->
+                          @if (['text', 'email', 'password', 'number', 'tel', 'url', 'date', 'time', 'datetime-local'].includes(field.type)) {
+                            <label class="form-label">
+                              {{ field.label }}
+                              @if (field.required) {
+                                <span class="text-error-600 ml-1">*</span>
+                              }
+                            </label>
+                            <input [type]="field.type" [formControlName]="field.key" [placeholder]="field.placeholder || ''"
+                              [readonly]="field.readonly || false" [min]="field.min" [max]="field.max"
+                              [minLength]="field.minLength"
+                              [maxLength]="field.maxLength  && field.maxLength > 0 ? field.maxLength : undefined"
+                              class="form-input" [class.error]="isFieldInvalid(field.key)" />
+                              @if (isFieldInvalid(field.key)) {
+                                <div class="form-error">
+                                  {{ getFieldError(field.key) }}
+                                </div>
+                              }
+                              @if (field.helpText) {
+                                <p class="text-xs text-on-surface-variant mt-1">
+                                  {{ field.helpText }}
+                                </p>
+                              }
+                            }
+                            <!-- Textarea -->
+                            @if (field.type === 'textarea') {
+                              <label class="form-label">
+                                {{ field.label }}
+                                @if (field.required) {
+                                  <span class="text-error-600 ml-1">*</span>
+                                }
+                              </label>
+                              <textarea [formControlName]="field.key" [placeholder]="field.placeholder || ''"
+                                [readonly]="field.readonly || false" [rows]="field.rows || 3" [minLength]="field.minLength"
+                                [maxLength]="field.maxLength" class="form-input resize-none"
+                              [class.error]="isFieldInvalid(field.key)"></textarea>
+                              @if (isFieldInvalid(field.key)) {
+                                <div class="form-error">
+                                  {{ getFieldError(field.key) }}
+                                </div>
+                              }
+                              @if (field.helpText) {
+                                <p class="text-xs text-on-surface-variant mt-1">
+                                  {{ field.helpText }}
+                                </p>
+                              }
+                            }
+                            <!-- Select -->
+                            @if (field.type === 'select'  && field.searchable) {
+                              <label class="form-label">
+                                {{ field.label }}
+                                @if (field.required) {
+                                  <span class="text-error-600 ml-1">*</span>
+                                }
+                              </label>
+                              <input type="text" [value]="getFieldDisplayValue(field.key)"
+                                (input)="onFieldSearch($event, field.key)" (focus)="onFieldFocus(field.key)"
+                                (blur)="onFieldBlur(field.key)" (keydown)="onFieldKeyDown($event, field.key)"
+                                placeholder="{{ field.placeholder }}" class="form-input" />
+                                @if (showDropdown()[field.key] && filteredOptions(field.key).length) {
+                                  <div
+                                    [id]="'dropdown-' + field.key"
+                                    class="absolute z-50 w-100 bg-surface border rounded shadow max-h-40 overflow-y-auto">
+                                    @for (opt of filteredOptions(field.key); track opt; let i = $index) {
+                                      <div
+                                        [id]="'dropdown-' + field.key + '-option-' + i"
+                                        (mousedown)="selectFieldOption(field.key, opt)"
+                                        [class.bg-primary-100]="highlightedIndex()[field.key] === i" class="px-4 py-2 cursor-pointer">
+                                        {{ opt.label }}
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                                @if (isFieldInvalid(field.key)) {
+                                  <div class="form-error">
+                                    {{ getFieldError(field.key) }}
+                                  </div>
+                                }
+                                @if (field.helpText) {
+                                  <p class="text-xs text-on-surface-variant mt-1">
+                                    {{ field.helpText }}
+                                  </p>
+                                }
+                              }
+                              <!-- Checkbox -->
+                              @if (field.type === 'checkbox') {
+                                <div class="flex items-start gap-3">
+                                  <input type="checkbox" [formControlName]="field.key"
+                                    class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-border rounded mt-0.5" />
+                                    <div class="flex-1">
+                                      <label class="text-sm font-medium text-on-surface block">
+                                        {{ field.label }}
+                                        @if (field.required) {
+                                          <span class="text-error-600 ml-1">*</span>
+                                        }
+                                      </label>
+                                      @if (field.helpText) {
+                                        <p class="text-xs text-on-surface-variant mt-1">
+                                          {{ field.helpText }}
+                                        </p>
+                                      }
+                                    </div>
+                                  </div>
+                                  @if (isFieldInvalid(field.key)) {
+                                    <div class="form-error">
+                                      {{ getFieldError(field.key) }}
+                                    </div>
+                                  }
+                                }
+                                <!-- Radio Group -->
+                                @if (field.type === 'radio') {
+                                  <label class="form-label">
+                                    {{ field.label }}
+                                    @if (field.required) {
+                                      <span class="text-error-600 ml-1">*</span>
+                                    }
+                                  </label>
+                                  <div [ngClass]="field.layout === 'horizontal' ? 'flex gap-6' : 'flex flex-col gap-2'">
+                                    @for (option of getFieldOptions(field); track option) {
+                                      <div class="flex items-center gap-2">
+                                        <input type="radio" [formControlName]="field.key" [value]="option.value"
+                                          [id]="field.key + '_' + option.value"
+                                          class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-border" />
+                                          <label [for]="field.key + '_' + option.value" class="text-sm text-on-surface">
+                                            {{ option.label }}
+                                          </label>
+                                        </div>
+                                      }
+                                    </div>
+                                    @if (isFieldInvalid(field.key)) {
+                                      <div class="form-error">
+                                        {{ getFieldError(field.key) }}
+                                      </div>
+                                    }
+                                    @if (field.helpText) {
+                                      <p class="text-xs text-on-surface-variant mt-1">
+                                        {{ field.helpText }}
+                                      </p>
+                                    }
+                                  }
+                                  <!-- switch -->
+                                  @if (field.type === 'switch') {
+                                    <label class="form-label mb-1 block">{{ field.label }}</label>
+                                    <div class="flex items-center gap-3">
+                                      <!-- Switch -->
+                                      <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" [formControlName]="field.key" class="sr-only peer" />
+                                        <div
+                                          class="w-12 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:bg-primary-600 transition-colors duration-200">
+                                        </div>
+                                        <div
+                                          class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md peer-checked:translate-x-6 transform transition-transform duration-200">
+                                        </div>
+                                      </label>
+                                      <!-- Dynamic Label -->
+                                      <span class="text-sm font-medium text-on-surface">
+                                        {{ form.get(field.key)?.value ? field.onText : field.offText }}
+                                      </span>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            }
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                </form>
+              </div>
+              <!-- Modal Actions -->
+              <div class="p-6 border-t border-border bg-primary-50">
+                <div class="flex gap-3">
+                  <button (click)="onClose()" class="btn-outline flex-1">
+                    {{ getCancelLabel() }}
+                  </button>
+                  <button (click)="onSave()" [disabled]="!form.valid || loading()" class="btn-primary flex-1">
+                    @if (loading()) {
+                      <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                    }
+                    {{ getSubmitLabel() }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }

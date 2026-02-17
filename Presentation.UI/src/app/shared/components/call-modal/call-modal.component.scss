@@ -1,0 +1,300 @@
+.call-modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.call-modal {
+  @apply bg-surface rounded-lg shadow-xl max-w-md w-full mx-4;
+}
+
+/* Incoming Call Screen */
+.incoming-call-screen {
+  @apply p-8 text-center;
+}
+
+.call-header {
+  @apply mb-8;
+}
+
+.call-title {
+  @apply text-2xl font-bold text-on-surface mb-2;
+}
+
+.call-subtitle {
+  @apply text-lg text-on-surface-variant;
+}
+
+.call-avatar {
+  @apply relative mb-8 flex justify-center;
+}
+
+.avatar-circle-large {
+  @apply w-24 h-24 bg-primary-500 rounded-full flex items-center justify-center text-white text-2xl font-bold;
+}
+
+.avatar-wave {
+  @apply absolute inset-0 flex items-center justify-center;
+}
+
+.wave-ring {
+  @apply absolute w-24 h-24 border-2 border-primary-500 rounded-full animate-ping;
+}
+
+.wave-ring:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.wave-ring:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.call-actions {
+  @apply flex justify-center gap-6;
+}
+
+.call-action-button {
+  @apply w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-200;
+}
+
+.accept-button {
+  @apply bg-success-500 hover:bg-success-600;
+}
+
+.reject-button {
+  @apply bg-error-500 hover:bg-error-600;
+}
+
+.end-button {
+  @apply bg-error-500 hover:bg-error-600;
+}
+
+/* Connected Call Screen */
+.connected-call-screen {
+  @apply p-6;
+}
+
+.call-info {
+  @apply text-center mb-6;
+}
+
+.call-duration {
+  @apply text-sm text-on-surface-variant;
+}
+
+.call-quality {
+  @apply flex items-center gap-1 text-xs;
+}
+
+.quality-text {
+  @apply capitalize;
+}
+
+.participants-grid {
+  @apply grid grid-cols-2 gap-4 mb-6;
+}
+
+.participant-tile {
+  @apply bg-surface-variant rounded-lg p-4 text-center transition-all duration-200;
+}
+
+.participant-tile.speaking {
+  @apply ring-2 ring-primary-500 bg-primary-50;
+}
+
+.participant-tile.muted {
+  @apply opacity-60;
+}
+
+.participant-avatar {
+  @apply relative mb-3 flex justify-center;
+}
+
+.avatar-circle {
+  @apply w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center text-white text-sm font-medium;
+}
+
+.speaking-indicator {
+  @apply absolute -bottom-1 left-1/2 transform -translate-x-1/2;
+}
+
+.audio-level {
+  @apply flex gap-1;
+}
+
+.level-bar {
+  @apply w-1 bg-primary-500 rounded-full;
+  height: 4px;
+}
+
+.audio-level-high .level-bar {
+  height: 8px;
+}
+
+.audio-level-medium .level-bar {
+  height: 6px;
+}
+
+.audio-level-low .level-bar {
+  height: 4px;
+}
+
+.muted-indicator {
+  @apply absolute -bottom-1 -right-1 w-4 h-4 bg-error-500 rounded-full flex items-center justify-center text-white;
+}
+
+.participant-info {
+  @apply space-y-1;
+}
+
+.participant-name {
+  @apply text-sm font-medium text-on-surface;
+}
+
+.participant-status {
+  @apply text-xs capitalize;
+}
+
+.status-excellent {
+  @apply text-success-600;
+}
+
+.status-good {
+  @apply text-primary-600;
+}
+
+.status-fair {
+  @apply text-warning-600;
+}
+
+.status-poor {
+  @apply text-error-600;
+}
+
+.call-controls {
+  @apply flex justify-center gap-4;
+}
+
+.control-button {
+  @apply w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface transition-colors;
+}
+
+.control-button.active {
+  @apply bg-primary-500 text-white;
+}
+
+.control-button.end-call-button {
+  @apply bg-error-500 text-white hover:bg-error-600;
+}
+
+/* Add Participant Form */
+.add-participant-form {
+  @apply absolute inset-0 bg-surface rounded-lg p-6;
+}
+
+.form-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.form-title {
+  @apply text-lg font-semibold text-on-surface;
+}
+
+.close-button {
+  @apply p-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors;
+}
+
+.form-content {
+  @apply space-y-4;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-border rounded-lg text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+.add-button {
+  @apply w-full py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors;
+}
+
+/* Device Settings */
+.device-settings {
+  @apply absolute inset-0 bg-surface rounded-lg p-6;
+}
+
+.settings-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.settings-title {
+  @apply text-lg font-semibold text-on-surface;
+}
+
+.settings-content {
+  @apply space-y-4;
+}
+
+.device-group {
+  @apply space-y-2;
+}
+
+.device-label {
+  @apply text-sm font-medium text-on-surface;
+}
+
+.device-select {
+  @apply w-full px-3 py-2 border border-border rounded-lg text-on-surface bg-surface focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+/* Animations */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .call-modal {
+    @apply mx-2;
+  }
+  
+  .participants-grid {
+    @apply grid-cols-1;
+  }
+  
+  .call-controls {
+    @apply gap-2;
+  }
+  
+  .control-button {
+    @apply w-10 h-10;
+  }
+}
+
+/* Dark Mode Support */
+.dark .call-modal {
+  @apply bg-surface-dark;
+}
+
+.dark .participant-tile {
+  @apply bg-surface-variant-dark;
+}
+
+.dark .participant-tile.speaking {
+  @apply bg-primary-900;
+}
+
+.dark .control-button {
+  @apply bg-surface-variant-dark text-on-surface-variant-dark hover:text-on-surface-dark hover:bg-surface-dark;
+}
+
+.dark .form-input {
+  @apply bg-surface-dark border-border-dark text-on-surface-dark placeholder-on-surface-variant-dark;
+}
+
+.dark .device-select {
+  @apply bg-surface-dark border-border-dark text-on-surface-dark;
+}

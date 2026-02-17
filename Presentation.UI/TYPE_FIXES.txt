@@ -1,0 +1,28 @@
+// This file contains type fixes for prescription-related components
+// Apply these changes to fix TypeScript errors
+
+// File: src/app/features/admin/prescription-monitoring/prescription-list/prescription-list.component.ts
+// Line 55: Add type annotation
+// Change: .subscribe(prescriptions => {
+// To: .subscribe((prescriptions: any) => {
+
+// Line 120: Add type annotation  
+// Change: next: (filtered) => {
+// To: next: (filtered: any) => {
+
+// File: src/app/features/doctor/prescription/prescription-list/prescription-list.component.ts
+// Line 49: Add type annotation
+// Change: .subscribe(prescriptions => {
+// To: .subscribe((prescriptions: any) => {
+
+// Line 53: Add type annotation
+// Change: prescriptions.filter(p => !currentDoctorId || p.docto...
+// To: prescriptions.filter((p: any) => !currentDoctorId || p.docto...
+
+// Line 106: Add type annotation
+// Change: next: (filtered) => {
+// To: next: (filtered: any) => {
+
+// Line 110: Add type annotation
+// Change: filtered.filter(p => !currentDoctorId || p.doct...
+// To: filtered.filter((p: any) => !currentDoctorId || p.doct...

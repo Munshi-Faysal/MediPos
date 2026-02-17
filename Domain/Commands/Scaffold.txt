@@ -1,0 +1,2 @@
+﻿//Sacaffolding DB First
+1. Scaffold-DbContext "Name=ConnectionStrings:DbConnection" Microsoft.EntityFrameworkCore.SqlServer -ContextDir DEMODATA -OutputDir DEMODATA -UseDatabaseNames -Tables DrugDetail, SubTest, MainTest -force

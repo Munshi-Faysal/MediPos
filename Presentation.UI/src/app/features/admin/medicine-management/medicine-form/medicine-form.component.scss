@@ -1,0 +1,15 @@
+// Medicine form specific styles
+.container {
+  max-width: 1200px;
+}
+
+// Form field focus states
+input:focus,
+select:focus {
+  outline: none;
+}
+
+// Required field indicator
+.text-red-500 {
+  color: #ef4444;
+}

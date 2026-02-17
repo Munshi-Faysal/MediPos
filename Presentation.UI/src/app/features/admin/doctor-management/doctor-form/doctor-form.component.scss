@@ -1,0 +1,16 @@
+// Doctor form specific styles
+.container {
+  max-width: 1200px;
+}
+
+// Form field focus states
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+// Date input styling
+input[type="date"] {
+  color-scheme: light;
+}

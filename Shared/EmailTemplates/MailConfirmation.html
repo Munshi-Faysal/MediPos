@@ -1,0 +1,71 @@
+﻿<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: lightblue;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .confirmation-section {
+            background-color: #092444;
+            color: white;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .footer {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+            color: gray;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        @CompanyName
+    </div>
+    <div class="content">
+        <p>Dear @UserName,</p>
+
+        <p>Thank you for registering with us. To complete your registration, please confirm your email address by clicking the button below:</p>
+
+        <div class="confirmation-section">
+            <a href="@ConfirmationLink" class="btn">Confirm Email</a>
+        </div>
+
+        <p>If you did not sign up for this account, you can safely ignore this email.</p>
+    </div>
+    <hr />
+    <div class="footer">
+        <p>Generated on: @Time</p>
+    </div>
+</body>
+</html>

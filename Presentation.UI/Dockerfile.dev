@@ -1,0 +1,22 @@
+# ---- build ----
+FROM node:20-alpine AS build
+WORKDIR /app
+
+COPY Presentation.UI/package*.json ./
+RUN npm ci
+
+COPY Presentation.UI/ .
+RUN npm run build -- --configuration production
+
+# ---- run ----
+FROM nginx:alpine
+COPY Presentation.UI/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Copy dist (auto-detect Angular project dir name)
+COPY --from=build /app/dist /tmp/dist
+RUN set -eux; \
+    APP_DIR="$(find /tmp/dist -maxdepth 1 -mindepth 1 -type d | head -n 1)"; \
+    cp -a "$APP_DIR/." /usr/share/nginx/html/; \
+    rm -rf /tmp/dist
+
+EXPOSE 80

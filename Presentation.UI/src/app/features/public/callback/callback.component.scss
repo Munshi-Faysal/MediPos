@@ -1,0 +1,68 @@
+// Callback Component Styles
+.callback-container {
+  @apply min-h-screen flex items-center justify-center bg-background;
+}
+
+.callback-content {
+  @apply text-center;
+}
+
+.callback-icon {
+  @apply w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4;
+}
+
+.callback-spinner {
+  @apply w-8 h-8 text-white animate-spin;
+}
+
+.callback-title {
+  @apply text-2xl font-bold text-on-surface mb-2;
+}
+
+.callback-message {
+  @apply text-on-surface-variant;
+}
+
+// Loading animation enhancements
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.callback-icon {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .callback-icon {
+    @apply w-12 h-12;
+  }
+  
+  .callback-spinner {
+    @apply w-6 h-6;
+  }
+  
+  .callback-title {
+    @apply text-xl;
+  }
+}
+
+// Dark mode support
+.dark {
+  .callback-container {
+    @apply bg-gray-900;
+  }
+  
+  .callback-title {
+    @apply text-gray-100;
+  }
+  
+  .callback-message {
+    @apply text-gray-400;
+  }
+}

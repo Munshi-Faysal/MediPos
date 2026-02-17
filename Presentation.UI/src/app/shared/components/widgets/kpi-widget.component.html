@@ -1,0 +1,48 @@
+<div class="kpi-widget">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="widget-loading">
+      <div class="animate-pulse space-y-4">
+        <div class="h-4 bg-surface-variant rounded w-3/4"></div>
+        <div class="h-8 bg-surface-variant rounded w-1/2"></div>
+        <div class="h-4 bg-surface-variant rounded w-1/4"></div>
+      </div>
+    </div>
+  }
+
+  <!-- KPI Content -->
+  @if (!isLoading && data) {
+    <div class="kpi-content">
+      <!-- Value -->
+      <div class="kpi-value" [class]="getColorClass(data.color || 'primary')">
+        {{ formatValue(data.value) }}
+        @if (data.unit) {
+          <span class="kpi-unit">{{ data.unit }}</span>
+        }
+      </div>
+      <!-- Change and Trend -->
+      @if (showChange && data.change !== undefined) {
+        <div class="kpi-change" [class]="getTrendColor(data.trend || 'neutral')">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getTrendIcon(data.trend || 'neutral')"></path>
+          </svg>
+          <span class="kpi-change-value">{{ Math.abs(data.change) }}%</span>
+        </div>
+      }
+      <!-- Label -->
+      @if (data.label) {
+        <div class="kpi-label">{{ data.label }}</div>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading && !data) {
+    <div class="widget-empty">
+      <svg class="h-12 w-12 text-on-surface-variant mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+      </svg>
+      <p class="text-sm text-on-surface-variant">No data available</p>
+    </div>
+  }
+</div>

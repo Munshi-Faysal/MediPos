@@ -1,0 +1,230 @@
+@if (isVisible) {
+<div class="call-modal-overlay">
+  <div class="call-modal">
+    <!-- Incoming Call Screen -->
+    @if (isIncomingCall()) {
+    <div class="incoming-call-screen">
+      <div class="call-header">
+        <h2 class="call-title">Incoming Call</h2>
+        <p class="call-subtitle">{{ remoteParticipantName() }}</p>
+      </div>
+      <div class="call-avatar">
+        <div class="avatar-circle-large">
+          {{ remoteParticipantInitials() }}
+        </div>
+        <div class="avatar-wave">
+          <div class="wave-ring"></div>
+          <div class="wave-ring"></div>
+          <div class="wave-ring"></div>
+        </div>
+      </div>
+      <div class="call-actions">
+        <button (click)="onReject()" class="call-action-button reject-button" title="Decline">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <button (click)="onAccept()" class="call-action-button accept-button" title="Accept">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    }
+    <!-- Outgoing Call Screen -->
+    @if (isOutgoingCall()) {
+    <div class="outgoing-call-screen">
+      <div class="call-header">
+        <h2 class="call-title">Calling...</h2>
+        <p class="call-subtitle">{{ remoteParticipantName() }}</p>
+      </div>
+      <div class="call-avatar">
+        <div class="avatar-circle-large">
+          {{ remoteParticipantInitials() }}
+        </div>
+        <div class="avatar-wave">
+          <div class="wave-ring"></div>
+          <div class="wave-ring"></div>
+          <div class="wave-ring"></div>
+        </div>
+      </div>
+      <div class="call-actions">
+        <button (click)="onEnd()" class="call-action-button end-button" title="End Call">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    }
+    <!-- Connected Call Screen -->
+    @if (isConnected()) {
+    <div class="connected-call-screen">
+      <!-- Call Header -->
+      <div class="call-header">
+        <div class="call-info">
+          <h2 class="call-title">{{ remoteParticipantName() }}</h2>
+          <p class="call-duration">{{ callDuration() }}</p>
+        </div>
+        <div class="call-quality" [class]="connectionQualityColor()">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+          <span class="quality-text">{{ callSession?.connectionQuality }}</span>
+        </div>
+      </div>
+      <!-- Participants Grid -->
+      <div class="participants-grid">
+        @for (participant of callSession?.participants; track participant.userId) {
+        <div class="participant-tile" [class.speaking]="participant.isSpeaking" [class.muted]="participant.isMuted">
+          <div class="participant-avatar">
+            <div class="avatar-circle">
+              {{ getParticipantInitials(participant) }}
+            </div>
+            @if (participant.isSpeaking) {
+            <div class="speaking-indicator">
+              <div class="audio-level" [class]="getAudioLevelClass(participant.audioLevel)">
+                <div class="level-bar"></div>
+                <div class="level-bar"></div>
+                <div class="level-bar"></div>
+                <div class="level-bar"></div>
+              </div>
+            </div>
+            }
+            @if (participant.isMuted) {
+            <div class="muted-indicator">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+                </path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+              </svg>
+            </div>
+            }
+          </div>
+          <div class="participant-info">
+            <h3 class="participant-name">{{ participant.userName }}</h3>
+            <p class="participant-status" [class]="'status-' + participant.connectionQuality">
+              {{ participant.connectionQuality }}
+            </p>
+          </div>
+        </div>
+        }
+      </div>
+      <!-- Call Controls -->
+      <div class="call-controls">
+        <button (click)="onToggleMute()" class="control-button" [class.active]="callSession?.isMuted" title="Mute">
+          @if (!callSession?.isMuted) {
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+            </path>
+          </svg>
+          }
+          @if (callSession?.isMuted) {
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+            </path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+          </svg>
+          }
+        </button>
+        <button (click)="onToggleSpeaker()" class="control-button" [class.active]="callSession?.isSpeakerOn"
+          title="Speaker">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+            </path>
+          </svg>
+        </button>
+        <button (click)="onToggleHold()" class="control-button" [class.active]="callSession?.isOnHold" title="Hold">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </button>
+        <button (click)="showAddParticipant.set(!showAddParticipant())" class="control-button" title="Add Participant">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+        </button>
+        <button (click)="onToggleScreenShare()" class="control-button" [class.active]="callSession?.isScreenSharing"
+          title="Screen Share">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+            </path>
+          </svg>
+        </button>
+        <button (click)="onEnd()" class="control-button end-call-button" title="End Call">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Add Participant Form -->
+      @if (showAddParticipant()) {
+      <div class="add-participant-form">
+        <div class="form-header">
+          <h3 class="form-title">Add Participant</h3>
+          <button (click)="showAddParticipant.set(false)" class="close-button">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="form-content">
+          <input type="email" placeholder="Enter email address" class="form-input" [value]="newParticipantEmail()"
+            (input)="onInputChange($event)" />
+          <button (click)="onAddParticipant()" class="add-button">
+            Add
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+    }
+    <!-- Device Settings -->
+    @if (showDeviceSettings()) {
+    <div class="device-settings">
+      <div class="settings-header">
+        <h3 class="settings-title">Device Settings</h3>
+        <button (click)="showDeviceSettings.set(false)" class="close-button">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="settings-content">
+        <div class="device-group">
+          <label class="device-label">Microphone</label>
+          <select class="device-select" (change)="onDeviceChangeVal($event, 'audio')">
+            @for (device of audioInputDevices(); track device.deviceId) {
+            <option [value]="device.deviceId">
+              {{ device.label }}
+            </option>
+            }
+          </select>
+        </div>
+        <div class="device-group">
+          <label class="device-label">Speaker</label>
+          <select class="device-select" (change)="onAudioOutputChange($event)">
+            @for (device of audioOutputDevices(); track device.deviceId) {
+            <option [value]="device.deviceId">
+              {{ device.label }}
+            </option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+}

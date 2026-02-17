@@ -1,0 +1,58 @@
+﻿<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: lightblue;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .otp-section {
+            background-color: #092444;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .footer {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+            color: gray;
+        }
+
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    @CompanyName
+</div>
+
+<div class="content">
+    <p>Dear @UserName,</p>
+
+    <p>Your One-Time Password (OTP) for authentication is: <strong>@OTPCode</strong></p>
+
+    <p>This OTP expires in <strong>@OTPLifetime minutes</strong>. Please use it before it expires.</p>
+
+    <p>Do not share this code with anyone.</p>
+
+</div>
+
+<hr />
+
+<div class="footer">
+    <p>Generated on: @Time</p>
+</div>
+
+</body>
+</html>

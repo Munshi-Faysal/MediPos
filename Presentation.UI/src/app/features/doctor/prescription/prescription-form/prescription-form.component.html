@@ -1,0 +1,198 @@
+<div class="bg-gray-100 min-h-screen pb-10 print:bg-white print:pb-0">
+
+  <!-- Toolbar (Screen Only) -->
+  <div
+    class="bg-white sticky top-0 z-10 shadow-sm border-b border-gray-200 px-6 py-3 mb-8 print:hidden flex justify-between items-center">
+    <div class="flex items-center gap-4">
+      <button routerLink="/doctor/prescriptions" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+      </button>
+      <h1 class="text-lg font-bold text-gray-800">{{ isEditMode ? 'Edit' : 'New' }} Prescription</h1>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Patient Selector Display -->
+      @if (selectedPatient) {
+      <div class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+        <span class="text-xs font-bold text-blue-800">{{ selectedPatient.name }}</span>
+        <button
+          (click)="selectedPatient = null; prescriptionForm.patchValue({ patientId: '' }); selectedAppointment = null"
+          class="text-blue-400 hover:text-blue-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      }
+      @if (!selectedPatient) {
+      <button (click)="openPatientForm()"
+        class="text-sm bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1.5 rounded-md font-medium transition-colors">
+        + Select Patient
+      </button>
+      }
+
+      <div class="h-6 w-px bg-gray-300 mx-2"></div>
+
+      <!-- Preview -->
+      <button (click)="onPreview()"
+        class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        Preview
+      </button>
+
+      <!-- Save & Print -->
+      <button (click)="onSave('print')" [disabled]="submitting"
+        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+          </path>
+        </svg>
+        @if (submitting) { <span>Saving...</span> } @else { <span>Save & Print</span> }
+      </button>
+
+      <!-- Save & Print Without Header -->
+      <button (click)="onSave('printWithoutHeader')" [disabled]="submitting"
+        class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+          </path>
+        </svg>
+        @if (submitting) { <span>Saving...</span> } @else { <span>No Header</span> }
+      </button>
+
+      <!-- Save Only -->
+      <button (click)="onSave('save')" [disabled]="submitting"
+        class="flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50">
+        @if (submitting) { <span>Saving...</span> } @else { <span>Save Only</span> }
+      </button>
+    </div>
+  </div>
+
+  <!-- A4 Paper Layout -->
+  <div
+    class="mx-auto bg-white shadow-xl print:shadow-none w-[210mm] min-h-[297mm] print:h-[297mm] print:overflow-hidden flex flex-col relative"
+    id="prescription-paper">
+
+    <!-- Header Module -->
+    <app-prescription-header [parentForm]="prescriptionForm" [patient]="selectedPatient" [config]="headerConfig"
+      [isPrintHeaderHidden]="hideHeaderOnPrint"></app-prescription-header>
+
+    <!-- Body Module -->
+    <div class="flex-1">
+      <app-prescription-body [parentForm]="prescriptionForm" [config]="bodyConfig" [patient]="selectedPatient"
+        [doseTemplates]="doseTemplates()" [adviceTemplates]="adviceTemplates()"
+        [durationTemplates]="durationTemplates()" [ccTemplates]="ccTemplates()" [oeTemplates]="oeTemplates()"
+        [ixTemplates]="ixTemplates()" [dxTemplates]="dxTemplates()" (addMedicineStr)="openMedicineSearch()"
+        (removeMedicineIdx)="removeMedicine($event)"></app-prescription-body>
+    </div>
+
+    <!-- Footer Module -->
+    <app-prescription-footer [config]="footerConfig"></app-prescription-footer>
+
+  </div>
+
+  <!-- Modals -->
+  <app-medicine-search [showModal]="showMedicineSearch" (medicineSelected)="onMedicineSelected($event)"
+    (closeModal)="showMedicineSearch = false"></app-medicine-search>
+
+  <app-patient-form-modal [showModal]="showPatientForm" (patientCreated)="onPatientCreated($event)"
+    (closeModal)="showPatientForm = false"></app-patient-form-modal>
+
+  <!-- Patient / Appointment Search Overlay -->
+  @if (!isEditMode && !selectedPatient && !showPatientForm && !isLoading) {
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-xl w-full text-center">
+      <!-- New selection toggle -->
+      <div class="flex justify-center mb-6 bg-gray-100 rounded-lg p-1 inline-flex mx-auto">
+        <button (click)="setSelectionMode('patient')"
+          [class]="selectionMode === 'patient' ? 'bg-white shadow-sm text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'"
+          class="px-6 py-2 rounded-md text-sm transition-all">From Patients</button>
+        <button (click)="setSelectionMode('appointment')"
+          [class]="selectionMode === 'appointment' ? 'bg-white shadow-sm text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'"
+          class="px-6 py-2 rounded-md text-sm transition-all">From Appointments</button>
+      </div>
+
+
+      <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Select {{ selectionMode === 'patient' ? 'Patient' :
+        'Appointment' }}</h2>
+      <p class="text-gray-500 mb-6">Start by selecting {{ selectionMode === 'patient' ? 'or creating a patient' : 'an
+        appointment' }} for this prescription.</p>
+
+      <div class="space-y-3">
+
+        <!-- Dynamic Search Input -->
+        <div class="relative">
+          <input type="text"
+            (input)="selectionMode === 'patient' ? searchPatient($any($event.target).value) : searchAppointment($any($event.target).value)"
+            [placeholder]="selectionMode === 'patient' ? 'Search Name or Mobile...' : 'Search Appt No, Patient, or Mobile...'"
+            class="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-blue-500 focus:border-blue-500">
+
+          <!-- Patient List -->
+          @if (selectionMode === 'patient' && patients().length > 0) {
+          <div
+            class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-y-auto text-left z-10">
+            @for (p of patients(); track p) {
+            <div (click)="selectPatient(p)"
+              class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 flex justify-between group">
+              <div>
+                <div class="font-bold text-gray-800">{{ p.name }}</div>
+                <div class="text-xs text-gray-500">{{ p.phone }}</div>
+              </div>
+              <span class="text-blue-500 opacity-0 group-hover:opacity-100 self-center text-sm font-bold">Select</span>
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Appointment List -->
+          @if (selectionMode === 'appointment' && appointments().length > 0) {
+          <div
+            class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-y-auto text-left z-10">
+            @for (apt of appointments(); track apt.encryptedId) {
+            <div (click)="selectAppointment(apt)"
+              class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 flex justify-between group">
+              <div>
+                <div class="font-bold text-gray-800">
+                  <span class="text-xs text-gray-500 mr-2">#{{ apt.encryptedId | slice:0:6 }}</span>
+                  {{ apt.patientName }}
+                </div>
+                <div class="text-xs text-gray-500">{{ apt.patientPhone }}</div>
+              </div>
+              <span class="text-blue-500 opacity-0 group-hover:opacity-100 self-center text-sm font-bold">Select</span>
+            </div>
+            }
+          </div>
+          }
+        </div>
+
+        @if (selectionMode === 'patient') {
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-gray-300"></div>
+          <span class="flex-shrink mx-4 text-gray-400 text-sm">Or</span>
+          <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+        <button (click)="openPatientForm()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+          Create New Patient
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+</div>

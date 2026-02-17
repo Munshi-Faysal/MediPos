@@ -1,0 +1,14 @@
+// Medicine list specific styles
+.container {
+  max-width: 1400px;
+}
+
+// Table row hover effect
+:host ::ng-deep .hover\:bg-surface-variant:hover {
+  background-color: #f5f5f5;
+}
+
+// Action buttons
+button {
+  transition: all 0.2s ease;
+}

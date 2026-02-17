@@ -1,0 +1,23 @@
+// Doctor list specific styles
+.container {
+  max-width: 1400px;
+}
+
+// Alert styles
+.bg-yellow-50 {
+  background-color: #fffbeb;
+}
+
+.bg-blue-50 {
+  background-color: #eff6ff;
+}
+
+// Status badge styles
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}

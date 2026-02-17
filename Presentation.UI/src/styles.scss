@@ -1,0 +1,443 @@
+@import 'font-awesome/css/font-awesome.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles for dynamic buttons with custom colors from database */
+/* This ensures ActionColor from database overrides all Tailwind classes */
+app-dynamic-button button.has-custom-color,
+app-dynamic-button button[data-custom-color],
+app-dynamic-button button.has-custom-color.bg-error-600,
+app-dynamic-button button.has-custom-color.bg-success-600,
+app-dynamic-button button.has-custom-color.bg-primary-600,
+app-dynamic-button button.has-custom-color.bg-secondary-600,
+app-dynamic-button button.has-custom-color.bg-primary-700,
+app-dynamic-button button.has-custom-color.bg-error-700,
+app-dynamic-button button.has-custom-color.bg-success-700,
+app-dynamic-button button[data-custom-color].bg-error-600,
+app-dynamic-button button[data-custom-color].bg-success-600,
+app-dynamic-button button[data-custom-color].bg-primary-600,
+app-dynamic-button button[data-custom-color].bg-secondary-600,
+app-dynamic-button button[data-custom-color].bg-primary-700,
+app-dynamic-button button[data-custom-color].bg-error-700,
+app-dynamic-button button[data-custom-color].bg-success-700 {
+  background-color: var(--custom-bg) !important;
+  border-color: var(--custom-border) !important;
+  color: var(--custom-text) !important;
+}
+app-dynamic-button button.has-custom-color:hover,
+app-dynamic-button button[data-custom-color]:hover {
+  opacity: 0.9 !important;
+  filter: brightness(0.9) !important;
+}
+
+/* Custom CSS Variables for Theming */
+:root {
+  --color-primary: 59 130 246;
+  --color-secondary: 100 116 139;
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-error: 239 68 68;
+  
+  --color-background: 255 255 255;
+  --color-surface: 248 250 252;
+  --color-surface-variant: 241 245 249;
+  --color-on-background: 15 23 42;
+  --color-on-surface: 30 41 59;
+  --color-on-surface-variant: 71 85 105;
+  
+  --color-border: 226 232 240;
+  --color-border-variant: 203 213 225;
+  
+  --shadow-soft: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  --shadow-medium: 0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-strong: 0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --color-background: 15 23 42;
+  --color-surface: 30 41 59;
+  --color-surface-variant: 51 65 85;
+  --color-on-background: 248 250 252;
+  --color-on-surface: 226 232 240;
+  --color-on-surface-variant: 148 163 184;
+  
+  --color-border: 51 65 85;
+  --color-border-variant: 71 85 105;
+}
+
+/* Base Styles */
+@layer base {
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-background text-on-background transition-colors duration-300;
+    @apply text-sm sm:text-base;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+  
+  /* Focus Styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-background;
+  }
+  
+  /* Skip Links */
+  .skip-link {
+    @apply absolute -top-10 left-4 bg-primary-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200;
+  }
+  
+  .skip-link:focus {
+    @apply top-4;
+  }
+
+  /* Responsive Typography */
+  h1 {
+    @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl;
+  }
+
+  h2 {
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl;
+  }
+
+  h4 {
+    @apply text-sm sm:text-base md:text-lg lg:text-xl;
+  }
+
+  /* Responsive Images */
+  img {
+    @apply max-w-full h-auto;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Button Variants */
+  .btn {
+    @apply inline-flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply min-h-[44px] sm:min-h-[40px]; /* Better touch target on mobile */
+    @apply touch-manipulation; /* Better touch response */
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500 dark:bg-secondary-800 dark:text-secondary-100 dark:hover:bg-secondary-700;
+  }
+  
+  .btn-outline {
+    @apply btn border border-secondary-300 text-secondary-700 hover:bg-secondary-50 focus:ring-secondary-500 dark:border-secondary-600 dark:text-secondary-300 dark:hover:bg-secondary-800;
+  }
+  
+  .btn-ghost {
+    @apply btn text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-500 dark:text-secondary-300 dark:hover:bg-secondary-800;
+  }
+  
+  /* Card Styles */
+  .card {
+    @apply bg-surface rounded-lg border border-border shadow-soft;
+  }
+  
+  .card-elevated {
+    @apply bg-surface rounded-lg border border-border shadow-medium;
+  }
+  
+  .card-floating {
+    @apply bg-surface rounded-lg border border-border shadow-strong;
+  }
+  
+  /* Form Styles */
+  .form-input {
+    @apply block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-on-surface-variant;
+    @apply min-h-[44px] sm:min-h-[42px]; /* Better touch target on mobile */
+    font-size: 16px; /* Prevents zoom on iOS */
+    @apply text-sm sm:text-base;
+  }
+  
+  /* Fix for Initial Deposit inputs in dark mode */
+  .dark .form-input.initial-deposit-input,
+  .dark .form-input.initial-deposit-words-input {
+    color: #ffffff !important;
+  }
+
+  .dark .form-input.initial-deposit-input:focus,
+  .dark .form-input.initial-deposit-words-input:focus {
+    color: #ffffff !important;
+  }
+
+  .dark .form-input.initial-deposit-input:not(:placeholder-shown),
+  .dark .form-input.initial-deposit-words-input:not(:placeholder-shown) {
+    color: #ffffff !important;
+  }
+  
+  .form-label {
+    @apply block text-xs sm:text-sm font-medium text-on-surface mb-1;
+  }
+  
+  .form-error {
+    @apply text-error-600 text-xs sm:text-sm mt-1;
+  }
+  
+  /* Loading Skeleton */
+  .skeleton {
+    @apply animate-pulse bg-surface-variant rounded;
+  }
+  
+  /* Status Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-success {
+    @apply badge bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning-100 text-warning-800 dark:bg-warning-900 dark:text-warning-200;
+  }
+  
+  .badge-error {
+    @apply badge bg-error-100 text-error-800 dark:bg-error-900 dark:text-error-200;
+  }
+  
+  .badge-info {
+    @apply badge bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm dark:bg-gray-900/80;
+  }
+  
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary-500 to-primary-700;
+  }
+  
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-secondary-500 to-secondary-700;
+  }
+
+  /* Responsive Table Wrapper */
+  .table-responsive {
+    @apply overflow-x-auto -mx-2 sm:mx-0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-border)) transparent;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-border));
+    border-radius: 4px;
+  }
+
+  .table-responsive table {
+    @apply min-w-full;
+  }
+
+  /* Mobile table cell adjustments */
+  @media (max-width: 640px) {
+    .table-responsive table {
+      font-size: 0.875rem;
+    }
+    
+    .table-responsive th,
+    .table-responsive td {
+      @apply px-2 py-2;
+      white-space: nowrap;
+    }
+  }
+
+  /* Responsive Container */
+  .container-responsive {
+    @apply w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Responsive Container with max-width */
+  .container-responsive-max {
+    @apply container-responsive;
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Mobile-First Card */
+  .card-responsive {
+    @apply bg-surface rounded-lg border border-border shadow-soft;
+    @apply p-3 sm:p-4 md:p-5 lg:p-6;
+  }
+
+  /* Responsive Grid */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6;
+  }
+
+  /* Responsive Grid - 2 columns */
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6;
+  }
+
+  /* Responsive Grid - 3 columns */
+  .grid-responsive-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6;
+  }
+
+  /* Responsive Text */
+  .text-responsive {
+    @apply text-xs sm:text-sm md:text-base;
+  }
+
+  /* Responsive Spacing */
+  .space-responsive {
+    @apply space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6;
+  }
+
+  /* Mobile-first button sizes */
+  .btn-mobile {
+    @apply min-h-[44px] px-4 py-2 text-sm sm:text-base;
+    @apply touch-manipulation; /* Better touch response */
+  }
+
+  /* Responsive text truncation */
+  .text-truncate-mobile {
+    @apply truncate;
+    max-width: 100%;
+  }
+
+  /* Responsive images */
+  .img-responsive {
+    @apply max-w-full h-auto;
+    @apply object-contain;
+  }
+
+  /* Responsive modal/dialog */
+  .modal-responsive {
+    @apply w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl;
+    @apply mx-auto my-4 sm:my-8;
+  }
+
+  /* Touch-friendly interactive elements */
+  @media (hover: none) and (pointer: coarse) {
+    button, a, [role="button"] {
+      @apply min-h-[44px] min-w-[44px];
+    }
+  }
+}
+
+/* Print Styles for A4 Prescription */
+/* Print Styles for A4 Prescription */
+/* Print Styles for A4 Prescription */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  /* Reset global page settings */
+  html, body {
+    width: 210mm;
+    min-height: 297mm;
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Visibility Approach: Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* But show the app-root and the layout containers (so they take up space/structure) */
+  app-root,
+  app-doctor-layout,
+  main,
+  #main-content,
+  app-prescription-form,
+  .h-screen,
+  .overflow-hidden,
+  .flex-1 {
+    visibility: visible;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  /* Explicitly hide the UI chrome we don't want */
+  app-top-bar, 
+  aside, 
+  footer,
+  .no-print,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Target the paper and make it and its children visible */
+  #prescription-paper,
+  #prescription-paper * {
+    visibility: visible !important;
+  }
+
+  /* Ensure paper layout */
+  #prescription-paper {
+    width: 210mm !important;
+    height: 297mm !important; /* Fixed height to ensure vertical lines stretch fully */
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    
+    /* Absolute position to ensure it starts at top of page */
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    
+    /* Flow layout for contents */
+    display: flex !important; 
+    flex-direction: column !important;
+  }
+
+  /* Force background colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

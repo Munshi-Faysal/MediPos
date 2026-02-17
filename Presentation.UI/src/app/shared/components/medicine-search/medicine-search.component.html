@@ -1,0 +1,100 @@
+<!-- Modal Overlay -->
+@if (showModal) {
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="close()">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+    (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <h2 class="text-2xl font-bold text-gray-900">Search Medicine</h2>
+      <button (click)="close()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div class="relative">
+        <input type="text" [value]="searchQuery()" (input)="onSearchChange($any($event.target).value)"
+          placeholder="Search by Brand Name, Generic or Company..."
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+          autofocus />
+        @if (loading()) {
+        <div class="absolute right-3 top-3">
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Medicine List -->
+    <div class="flex-1 overflow-y-auto px-6 py-4 min-h-[300px]">
+      <!-- Empty State / Welcome State -->
+      @if (!loading() && searchQuery().length < 2) { <div class="text-center py-12">
+        <svg class="w-16 h-16 text-blue-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <p class="text-gray-400">Type at least 2 characters to search medicines...</p>
+    </div>
+    }
+
+    <!-- No Results State -->
+    @if (!loading() && searchQuery().length >= 2 && drugMasters().length === 0) {
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="text-gray-500">No medicines found matching "{{searchQuery()}}"</p>
+    </div>
+    }
+
+    <!-- Master-Details List -->
+    @if (!loading() && drugMasters().length > 0) {
+    <div class="space-y-4">
+      @for (master of drugMasters(); track master.encryptedId) {
+      <div
+        class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <!-- Master Header -->
+        <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 flex flex-wrap items-center gap-2">
+          <h3 class="font-bold text-gray-900 text-lg">{{ master.name }}</h3>
+          <span class="text-gray-400 mx-1">•</span>
+          <span class="text-blue-600 font-medium">{{ master.drugGenericName }}</span>
+          <span class="text-gray-400 mx-1">•</span>
+          <span class="text-gray-500 text-sm">{{ master.drugCompanyName }}</span>
+        </div>
+
+        <!-- Details (Sub-items) -->
+        <div class="p-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          @for (detail of master.drugDetailList; track detail.encryptedId) {
+          <div (click)="selectDetail(master, detail)"
+            class="group flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-blue-200 hover:bg-blue-50 cursor-pointer transition-all">
+            <div class="flex flex-col">
+              <span class="text-blue-800 font-bold group-hover:text-blue-700">
+                {{ detail.drugTypeName }} {{ detail.strengthName }}
+              </span>
+              @if (detail.description) {
+              <span class="text-xs text-gray-400 truncate max-w-[150px]">{{ detail.description }}</span>
+              }
+            </div>
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+              <span class="text-xs bg-blue-600 text-white px-2 py-1 rounded">Select</span>
+            </div>
+          </div>
+          }
+          @if (master.drugDetailList.length === 0) {
+          <div class="col-span-full p-3 text-center text-gray-400 text-sm italic">
+            No forms/strengths available for this medicine.
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+</div>
+}

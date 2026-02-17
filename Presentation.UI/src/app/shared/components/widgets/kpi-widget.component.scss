@@ -1,0 +1,131 @@
+.kpi-widget {
+  @apply text-center;
+}
+
+.kpi-content {
+  @apply space-y-2;
+}
+
+.kpi-value {
+  @apply text-3xl font-bold mb-2;
+}
+
+.kpi-unit {
+  @apply text-lg font-normal;
+  color: rgb(var(--color-on-surface-variant));
+}
+
+.kpi-change {
+  @apply flex items-center justify-center gap-1 text-sm;
+}
+
+.kpi-change-value {
+  @apply font-medium;
+}
+
+.kpi-label {
+  @apply text-sm;
+  color: rgb(var(--color-on-surface-variant));
+}
+
+.widget-loading {
+  @apply p-4;
+}
+
+.widget-empty {
+  @apply flex flex-col items-center justify-center py-8 text-center;
+}
+
+/* Color Classes */
+.kpi-value.text-primary-600 {
+  color: rgb(37 99 235); /* text-primary-600 equivalent */
+}
+
+.kpi-value.text-success-600 {
+  color: rgb(22 163 74); /* text-success-600 equivalent */
+}
+
+.kpi-value.text-warning-600 {
+  color: rgb(217 119 6); /* text-warning-600 equivalent */
+}
+
+.kpi-value.text-error-600 {
+  color: rgb(220 38 38); /* text-error-600 equivalent */
+}
+
+.kpi-value.text-on-surface {
+  color: rgb(var(--color-on-surface));
+}
+
+/* Trend Colors */
+
+
+
+
+.kpi-change.text-on-surface-variant {
+  color: rgb(var(--color-on-surface-variant));
+}
+
+/* Dark Mode Support */
+.dark .kpi-value.text-primary-600 {
+  @apply text-primary-400;
+}
+
+.dark .kpi-value.text-success-600 {
+  @apply text-success-400;
+}
+
+.dark .kpi-value.text-warning-600 {
+  @apply text-warning-400;
+}
+
+.dark .kpi-value.text-error-600 {
+  @apply text-error-400;
+}
+
+.dark .kpi-value.text-on-surface {
+  color: rgb(var(--color-on-surface));
+}
+
+.dark .kpi-change.text-success-600 {
+  @apply text-success-400;
+}
+
+.dark .kpi-change.text-error-600 {
+  @apply text-error-400;
+}
+
+.dark .kpi-change.text-on-surface-variant {
+  color: rgb(var(--color-on-surface-variant));
+}
+
+.dark .kpi-unit {
+  color: rgb(var(--color-on-surface-variant));
+}
+
+.dark .kpi-label {
+  color: rgb(var(--color-on-surface-variant));
+}
+
+/* Animation */
+.kpi-widget {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.kpi-widget:hover {
+  @apply transform scale-105;
+}
+
+/* Loading Animation */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}

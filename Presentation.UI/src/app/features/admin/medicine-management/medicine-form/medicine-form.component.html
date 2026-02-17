@@ -1,0 +1,270 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">
+          {{ isEditMode ? 'Edit Medicine' : 'Add New Medicine' }}
+        </h1>
+        <p class="text-gray-600 mt-2">
+          {{ isEditMode ? 'Update medicine information' : 'Add a new medicine to the database' }}
+        </p>
+      </div>
+      <a
+        routerLink="/admin/medicines"
+        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+        >
+        Back to List
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600">Loading medicine...</p>
+    </div>
+  }
+
+  <!-- Form -->
+  @if (!loading) {
+    <form [formGroup]="medicineForm" (ngSubmit)="onSubmit()" class="bg-white rounded-lg shadow p-6">
+      <div class="space-y-6">
+        <!-- Basic Information -->
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Generic Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Generic Name <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                formControlName="genericName"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="isFieldInvalid('genericName')"
+                placeholder="e.g., Paracetamol"
+                />
+                @if (isFieldInvalid('genericName')) {
+                  <p class="text-red-500 text-sm mt-1">
+                    {{ getErrorMessage('genericName') }}
+                  </p>
+                }
+              </div>
+              <!-- Company Name -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Company Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="companyName"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  [class.border-red-500]="isFieldInvalid('companyName')"
+                  placeholder="e.g., Beximco Pharmaceuticals Ltd"
+                  />
+                  @if (isFieldInvalid('companyName')) {
+                    <p class="text-red-500 text-sm mt-1">
+                      {{ getErrorMessage('companyName') }}
+                    </p>
+                  }
+                </div>
+                <!-- Medicine Name (Brand) -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Medicine Name (Brand) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    formControlName="medicineName"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    [class.border-red-500]="isFieldInvalid('medicineName')"
+                    placeholder="e.g., Napa"
+                    />
+                    @if (isFieldInvalid('medicineName')) {
+                      <p class="text-red-500 text-sm mt-1">
+                        {{ getErrorMessage('medicineName') }}
+                      </p>
+                    }
+                  </div>
+                  <!-- Category -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select
+                      formControlName="category"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                      <option value="">Select Category</option>
+                      @for (category of categories; track category) {
+                        <option [value]="category">{{ category }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <!-- Medicine Details -->
+              <div>
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Medicine Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Variation/Strength -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Variation/Strength <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="variation"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      [class.border-red-500]="isFieldInvalid('variation')"
+                      placeholder="e.g., 500 mg"
+                      />
+                      @if (isFieldInvalid('variation')) {
+                        <p class="text-red-500 text-sm mt-1">
+                          {{ getErrorMessage('variation') }}
+                        </p>
+                      }
+                    </div>
+                    <!-- Form -->
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Form <span class="text-red-500">*</span>
+                      </label>
+                      <select
+                        formControlName="form"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        [class.border-red-500]="isFieldInvalid('form')"
+                        >
+                        <option value="">Select Form</option>
+                        @for (form of medicineForms; track form) {
+                          <option [value]="form">{{ form }}</option>
+                        }
+                      </select>
+                      @if (isFieldInvalid('form')) {
+                        <p class="text-red-500 text-sm mt-1">
+                          {{ getErrorMessage('form') }}
+                        </p>
+                      }
+                    </div>
+                    <!-- Pack -->
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Pack <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        formControlName="pack"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        [class.border-red-500]="isFieldInvalid('pack')"
+                        placeholder="e.g., 10 tablets, 50ml"
+                        />
+                        @if (isFieldInvalid('pack')) {
+                          <p class="text-red-500 text-sm mt-1">
+                            {{ getErrorMessage('pack') }}
+                          </p>
+                        }
+                      </div>
+                      <!-- Price -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                        <input
+                          type="number"
+                          formControlName="price"
+                          step="0.01"
+                          min="0"
+                          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          [class.border-red-500]="isFieldInvalid('price')"
+                          placeholder="0.00"
+                          />
+                          @if (isFieldInvalid('price')) {
+                            <p class="text-red-500 text-sm mt-1">
+                              {{ getErrorMessage('price') }}
+                            </p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Additional Information -->
+                    <div>
+                      <h2 class="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Stock Quantity -->
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                          <input
+                            type="number"
+                            formControlName="stockQuantity"
+                            min="0"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            [class.border-red-500]="isFieldInvalid('stockQuantity')"
+                            placeholder="0"
+                            />
+                            @if (isFieldInvalid('stockQuantity')) {
+                              <p class="text-red-500 text-sm mt-1">
+                                {{ getErrorMessage('stockQuantity') }}
+                              </p>
+                            }
+                          </div>
+                          <!-- Expiry Date -->
+                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                            <input
+                              type="date"
+                              formControlName="expiryDate"
+                              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              />
+                            </div>
+                            <!-- Batch Number -->
+                            <div>
+                              <label class="block text-sm font-medium text-gray-700 mb-2">Batch Number</label>
+                              <input
+                                type="text"
+                                formControlName="batchNumber"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., BATCH001"
+                                />
+                              </div>
+                              <!-- Manufacturer Details -->
+                              <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Manufacturer Details</label>
+                                <input
+                                  type="text"
+                                  formControlName="manufacturerDetails"
+                                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Additional manufacturer information"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <!-- Form Actions -->
+                            <div class="flex items-center justify-end gap-4 pt-4 border-t">
+                              <a
+                                routerLink="/admin/medicines"
+                                class="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                                >
+                                Cancel
+                              </a>
+                              <button
+                                type="submit"
+                                [disabled]="submitting || medicineForm.invalid"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                @if (!submitting) {
+                                  <span>{{ isEditMode ? 'Update' : 'Create' }} Medicine</span>
+                                }
+                                @if (submitting) {
+                                  <span class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    {{ isEditMode ? 'Updating...' : 'Creating...' }}
+                                  </span>
+                                }
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      }
+                    </div>

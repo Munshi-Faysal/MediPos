@@ -1,0 +1,57 @@
+// Prescription form specific styles
+.container {
+  max-width: 1400px;
+}
+
+// Patient list scroll
+.max-h-48 {
+  max-height: 12rem;
+}
+
+// Medicine card styles
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+// Print styles
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    background-color: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .bg-gray-100, .min-h-screen {
+    background-color: white !important;
+    min-height: auto !important;
+  }
+
+  .pb-10 {
+    padding-bottom: 0 !important;
+  }
+
+  #prescription-paper {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,192 @@
+.notifications-widget {
+  @apply w-full;
+}
+
+.notifications-content {
+  @apply space-y-4;
+}
+
+.unread-badge {
+  @apply flex items-center gap-2 p-2 bg-warning-50 border border-warning-200 rounded-lg;
+}
+
+.unread-count {
+  @apply text-lg font-bold text-warning-600;
+}
+
+.unread-label {
+  @apply text-sm text-warning-700;
+}
+
+.notifications-list {
+  @apply space-y-2;
+}
+
+.notification-item {
+  @apply flex items-start gap-3 p-3 rounded-lg hover:bg-surface-variant cursor-pointer transition-colors;
+}
+
+.notification-item.unread {
+  @apply bg-primary-50 border border-primary-200;
+}
+
+.notification-icon {
+  @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0;
+}
+
+.notification-content {
+  @apply flex-1 min-w-0;
+}
+
+.notification-header {
+  @apply flex items-center justify-between mb-1;
+}
+
+.notification-title {
+  @apply text-sm font-medium text-on-surface;
+}
+
+.notification-time {
+  @apply text-xs text-on-surface-variant;
+}
+
+.notification-message {
+  @apply text-sm text-on-surface-variant line-clamp-2;
+}
+
+.unread-indicator {
+  @apply w-2 h-2 bg-primary-500 rounded-full flex-shrink-0 mt-2;
+}
+
+.view-all-link {
+  @apply text-center pt-2 border-t border-border;
+}
+
+.widget-loading {
+  @apply p-4;
+}
+
+.widget-empty {
+  @apply flex flex-col items-center justify-center py-8 text-center;
+}
+
+/* Color Classes */
+.notification-icon.text-success-600 {
+  color: rgb(22 163 74); /* text-success-600 equivalent */
+  @apply bg-success-100;
+}
+
+.notification-icon.text-warning-600 {
+  color: rgb(217 119 6); /* text-warning-600 equivalent */
+  @apply bg-warning-100;
+}
+
+.notification-icon.text-error-600 {
+  color: rgb(220 38 38); /* text-error-600 equivalent */
+  @apply bg-error-100;
+}
+
+.notification-icon.text-primary-600 {
+  color: rgb(37 99 235); /* text-primary-600 equivalent */
+  @apply bg-primary-100;
+}
+
+/* Dark Mode Support */
+.dark .unread-badge {
+  @apply bg-warning-900 border-warning-700;
+}
+
+.dark .unread-count {
+  @apply text-warning-400;
+}
+
+.dark .unread-label {
+  @apply text-warning-300;
+}
+
+.dark .notification-item.unread {
+  @apply bg-primary-900 border-primary-700;
+}
+
+.dark .notification-title {
+  @apply text-on-surface-dark;
+}
+
+.dark .notification-time {
+  @apply text-on-surface-variant-dark;
+}
+
+.dark .notification-message {
+  @apply text-on-surface-variant-dark;
+}
+
+.dark .notification-icon.text-success-600 {
+  @apply text-success-400 bg-success-900;
+}
+
+.dark .notification-icon.text-warning-600 {
+  @apply text-warning-400 bg-warning-900;
+}
+
+.dark .notification-icon.text-error-600 {
+  @apply text-error-400 bg-error-900;
+}
+
+.dark .notification-icon.text-primary-600 {
+  @apply text-primary-400 bg-primary-900;
+}
+
+.dark .unread-indicator {
+  @apply bg-primary-400;
+}
+
+/* Loading Animation */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Line Clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hover Effects */
+.notification-item {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.notification-item:hover {
+  @apply transform translate-x-1;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .notification-item {
+    @apply p-2;
+  }
+  
+  .notification-icon {
+    @apply w-6 h-6;
+  }
+  
+  .notification-title {
+    @apply text-xs;
+  }
+  
+  .notification-message {
+    @apply text-xs;
+  }
+}

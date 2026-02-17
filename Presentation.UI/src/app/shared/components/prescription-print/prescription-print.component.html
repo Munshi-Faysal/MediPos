@@ -1,0 +1,163 @@
+<div class="prescription-print bg-white p-8 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="text-center mb-8 border-b pb-4">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ clinicName }}</h1>
+    @if (clinicAddress) {
+      <p class="text-gray-600">{{ clinicAddress }}</p>
+    }
+    <div class="flex justify-center gap-4 mt-2 text-sm text-gray-600">
+      @if (clinicPhone) {
+        <span>Phone: {{ clinicPhone }}</span>
+      }
+      @if (clinicEmail) {
+        <span>Email: {{ clinicEmail }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Prescription Info -->
+  <div class="mb-6">
+    <div class="grid grid-cols-2 gap-6 mb-4">
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Prescription Date</p>
+        <p class="font-semibold">{{ formatDate(prescription.prescriptionDate) }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Prescription #</p>
+        <p class="font-semibold">{{ prescription.id.substring(0, 8) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doctor Information -->
+  @if (doctor) {
+    <div class="mb-6 border-b pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2">Doctor Information</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-gray-600">Name:</span>
+          <span class="ml-2 font-medium">{{ doctor.name }}</span>
+        </div>
+        <div>
+          <span class="text-gray-600">License:</span>
+          <span class="ml-2 font-medium">{{ doctor.licenseNumber }}</span>
+        </div>
+        @if (doctor.specialization) {
+          <div>
+            <span class="text-gray-600">Specialization:</span>
+            <span class="ml-2 font-medium">{{ doctor.specialization }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Patient Information -->
+  @if (patient) {
+    <div class="mb-6 border-b pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2">Patient Information</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-gray-600">Name:</span>
+          <span class="ml-2 font-medium">{{ patient.name }}</span>
+        </div>
+        <div>
+          <span class="text-gray-600">Age:</span>
+          <span class="ml-2 font-medium">{{ patient.age }} years</span>
+        </div>
+        <div>
+          <span class="text-gray-600">Gender:</span>
+          <span class="ml-2 font-medium">{{ patient.gender }}</span>
+        </div>
+        <div>
+          <span class="text-gray-600">Phone:</span>
+          <span class="ml-2 font-medium">{{ patient.phone }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Diagnosis -->
+  @if (prescription.diagnosis) {
+    <div class="mb-6 border-b pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2">Diagnosis</h2>
+      <p class="text-gray-700">{{ prescription.diagnosis }}</p>
+    </div>
+  }
+
+  <!-- Medicines -->
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Prescribed Medicines</h2>
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="border-b-2 border-gray-300">
+          <th class="text-left py-2 px-4 font-semibold text-gray-900">#</th>
+          <th class="text-left py-2 px-4 font-semibold text-gray-900">Medicine</th>
+          <th class="text-left py-2 px-4 font-semibold text-gray-900">Dosage</th>
+          <th class="text-left py-2 px-4 font-semibold text-gray-900">Frequency</th>
+          <th class="text-left py-2 px-4 font-semibold text-gray-900">Duration</th>
+          <th class="text-left py-2 px-4 font-semibold text-gray-900">Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (medicine of prescription.medicines; track medicine; let i = $index) {
+          <tr class="border-b border-gray-200">
+            <td class="py-3 px-4">{{ i + 1 }}</td>
+            <td class="py-3 px-4">
+              <div>
+                <p class="font-medium">{{ medicine.medicine?.medicineName || 'Medicine ' + (i + 1) }}</p>
+                <p class="text-sm text-gray-600">{{ medicine.medicine?.genericName || '' }}</p>
+                <p class="text-xs text-gray-500">{{ medicine.medicine?.variation || '' }} ({{ medicine.medicine?.form ||
+                '' }})</p>
+              </div>
+            </td>
+            <td class="py-3 px-4">{{ medicine.dosage }}</td>
+            <td class="py-3 px-4">{{ medicine.frequency }}</td>
+            <td class="py-3 px-4">{{ medicine.duration }}</td>
+            <td class="py-3 px-4">{{ medicine.quantity }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Instructions/Notes -->
+  @if (prescription.notes) {
+    <div class="mb-6 border-b pb-4">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2">Notes</h2>
+      <p class="text-gray-700">{{ prescription.notes }}</p>
+    </div>
+  }
+
+  <!-- Medicine Instructions -->
+  @if (hasInstructions) {
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Special Instructions</h2>
+      <ul class="list-disc list-inside space-y-2">
+        @for (medicine of prescription.medicines; track medicine) {
+          <li>
+            @if (medicine.instructions) {
+              <span class="text-gray-700">
+                <strong>{{ medicine.medicine?.medicineName || 'Medicine' }}:</strong> {{ medicine.instructions }}
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <!-- Footer -->
+  <div class="mt-8 pt-4 border-t text-center text-sm text-gray-600">
+    <p>This is a computer-generated prescription. Please consult your doctor for any questions.</p>
+    <p class="mt-2">Generated on: {{ formatDate(today) }}</p>
+  </div>
+
+  <!-- Print Button (hidden when printing) -->
+  <div class="no-print mt-6 text-center">
+    <button (click)="onPrint()"
+      class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+      Print Prescription
+    </button>
+  </div>
+</div>

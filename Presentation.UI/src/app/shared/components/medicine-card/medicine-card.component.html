@@ -1,0 +1,54 @@
+<div [class]="'border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all ' + getSizeClasses()">
+  <div class="flex items-start justify-between mb-3">
+    <div class="flex-1">
+      <h3 class="font-semibold text-gray-900">{{ medicine.medicineName }}</h3>
+      <p class="text-sm text-gray-600 mt-1">{{ medicine.genericName }}</p>
+      <p class="text-xs text-gray-500 mt-1">{{ medicine.companyName }}</p>
+    </div>
+    @if (medicine.category) {
+      <div class="ml-2">
+        <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">{{ medicine.category }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+    <div>
+      <span class="font-medium">Form:</span> {{ medicine.form }}
+    </div>
+    <div>
+      <span class="font-medium">Strength:</span> {{ medicine.variation }}
+    </div>
+    <div>
+      <span class="font-medium">Pack:</span> {{ medicine.pack }}
+    </div>
+    @if (medicine.price) {
+      <div>
+        <span class="font-medium">Price:</span> ৳{{ medicine.price }}
+      </div>
+    }
+  </div>
+
+  @if (showActions) {
+    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-gray-200">
+      <button
+        (click)="onSelect()"
+        class="flex-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+        >
+        Select
+      </button>
+      <button
+        (click)="onView()"
+        class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+        >
+        View
+      </button>
+      <button
+        (click)="onEdit()"
+        class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+        >
+        Edit
+      </button>
+    </div>
+  }
+</div>

@@ -1,0 +1,25 @@
+// Prescription print component styles
+.prescription-print {
+  font-family: 'Arial', sans-serif;
+}
+
+// Print styles
+@media print {
+  .prescription-print {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+}
