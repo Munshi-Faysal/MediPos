@@ -1,8 +1,8 @@
-# ---- build stage ----
+# -------- BUILD STAGE --------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy all project files to leverage Docker cache
+# Copy csproj files first (for better caching)
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Presentation.API/Presentation.API.csproj", "Presentation.API/"]
@@ -12,18 +12,28 @@ COPY ["Services.Concretes/Services.Concretes.csproj", "Services.Concretes/"]
 COPY ["Services.Contracts/Services.Contracts.csproj", "Services.Contracts/"]
 COPY ["Shared/Shared.csproj", "Shared/"]
 
-# Restore
-RUN dotnet restore "Application/Application.csproj"
+# Restore ONLY API project
+RUN dotnet restore "Presentation.API/Presentation.API.csproj"
 
-# Copy everything else and build
+# Copy full source
 COPY . .
-RUN dotnet publish "Application/Application.csproj" -c Release -o /app/publish --no-restore
 
-# ---- runtime stage ----
+# Publish API
+WORKDIR "/src/Presentation.API"
+RUN dotnet publish "Presentation.API.csproj" \
+    -c Release \
+    -o /app/publish \
+    /p:UseAppHost=false
+
+
+# -------- RUNTIME STAGE --------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
+
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Application.dll"]
+
+ENTRYPOINT ["dotnet", "Presentation.API.dll"]

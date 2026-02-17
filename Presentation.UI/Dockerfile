@@ -1,48 +1,37 @@
-# Build stage
+# -------- BUILD STAGE --------
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copy package files, lock file, and npmrc
+# Copy package files first (better caching)
 COPY package*.json ./
 COPY .npmrc ./
 COPY angular.json ./
 COPY tsconfig*.json ./
 
-# Install dependencies (using --legacy-peer-deps to handle peer dependency conflicts)
-# Try npm ci first, fallback to npm install if lock file is out of sync
 RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
-# Copy source code
+# Copy full source
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build production
+RUN npm run build --configuration production
 
-# Production stage
-FROM nginx:alpine AS final
 
-# Copy built app to nginx
-COPY --from=build /app/dist/workflow-client/browser /usr/share/nginx/html
+# -------- RUNTIME STAGE --------
+FROM nginx:alpine
 
-# Copy nginx configuration
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port
+# ⚠ IMPORTANT: adjust this path to match your dist folder
+COPY --from=build /app/dist/workflow-client/browser /usr/share/nginx/html
+
 EXPOSE 80
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
 
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
-
-
-
-
-
-
-
-
-
-

@@ -9,24 +9,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
     ports:
-      - "8080:8080"
-    networks:
-      - gbs_web
+      - "8087:8080"
 
   medipos-frontend:
     build:
-      context: .
-      dockerfile: Presentation.UI/Dockerfile
+      context: ./Presentation.UI
+      dockerfile: Dockerfile
     container_name: medipos-frontend
     restart: unless-stopped
     depends_on:
       - medipos-backend
     ports:
-      - "80:80"
-    networks:
-      - gbs_web
-
-networks:
-  gbs_web:
-    external: true
-    name: gbs-stack_web
+      - "8088:80"
