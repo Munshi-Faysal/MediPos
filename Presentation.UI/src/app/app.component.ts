@@ -24,7 +24,7 @@ import { RealtimeService } from './core/services/realtime.service';
                 </svg>
               </div>
             </div>
-            <h2 class="text-xl font-semibold text-on-surface mb-2">Workflow Engine</h2>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">MediPOS</h2>
             <p class="text-on-surface-variant">Loading your workspace...</p>
           </div>
         </div>

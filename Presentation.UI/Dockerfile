@@ -27,7 +27,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # ⚠ IMPORTANT: adjust this path to match your dist folder
-COPY --from=build /app/dist/workflow-client/browser /usr/share/nginx/html
+COPY --from=build /app/dist/medipos/browser /usr/share/nginx/html
 
 EXPOSE 80
 

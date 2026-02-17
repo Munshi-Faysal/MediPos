@@ -127,7 +127,7 @@ src/app/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd workflow.client
+cd medipos
 
 # Install dependencies
 npm install

@@ -171,7 +171,7 @@ export interface MenuItem {
         <div class="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 py-2 xs:py-3 sm:py-4">
           <div class="flex flex-col xs:flex-col sm:flex-row justify-between items-center gap-2 xs:gap-3 sm:gap-4">
             <div class="text-xs xs:text-xs sm:text-sm text-on-surface-variant text-center sm:text-left">
-              <p>&copy; {{ currentYear }} Workflow Engine. All rights reserved.</p>
+              <p>&copy; {{ currentYear }} MediPOS. All rights reserved.</p>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-2 xs:gap-3 sm:gap-4 text-xs sm:text-sm text-on-surface-variant">
               <a href="#" class="hover:text-on-surface transition-colors">Privacy Policy</a>

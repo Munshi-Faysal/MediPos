@@ -60,7 +60,7 @@ export interface NavigationItem {
                 </svg>
               </div>
               <div class="hidden xs:block min-w-0">
-                <h1 class="text-sm xs:text-base sm:text-lg font-semibold text-on-surface truncate">Workflow Engine</h1>
+                <h1 class="text-sm xs:text-base sm:text-lg font-semibold text-on-surface truncate">MediPOS</h1>
                 <p class="text-xs text-on-surface-variant truncate">{{ companyName() }}</p>
               </div>
             </div>

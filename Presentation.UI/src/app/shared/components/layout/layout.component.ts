@@ -214,7 +214,7 @@ export interface MenuItem {
         <div class="px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
           <div class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
             <div class="text-xs sm:text-sm text-on-surface-variant text-center sm:text-left">
-              <p>&copy; {{ currentYear }} Workflow Engine. All rights reserved.</p>
+              <p>&copy; {{ currentYear }} MediPOS. All rights reserved.</p>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-on-surface-variant">
               <a href="#" class="hover:text-on-surface transition-colors">Privacy Policy</a>
@@ -295,7 +295,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   public menuLoadError = signal<string | null>(null);
   public confirmationDialogVisible = signal(false);
   public confirmationDialogData = signal<any>(null);
-  public companyName = signal('Workflow Engine');
+  public companyName = signal('MediPOS');
   public unreadCount = signal(3);
   public currentUser = signal<any>(null);
   public expandedUserManager = signal(false);
@@ -353,7 +353,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     this.authService.getCurrentUserObservable().subscribe(user => {
       this.currentUser.set(user);
       this.cdr.detectChanges(); // Force change detection when user updates
-      
+
       // Only reload menu if user changed and we don't have menus yet
       // Don't reload on every user update to avoid clearing menu during token refresh
       if (user && this.menuItems().length === 0) {
@@ -366,19 +366,19 @@ export class LayoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialize permissions when layout loads (centralized permission loading)
     this.permissionCheckService.loadPermissions();
-    
+
     // Ensure user is loaded from auth service
     const user = this.authService.getCurrentUser();
     if (user) {
       this.currentUser.set(user);
     }
-    
+
     // Load menu items from JSON
     this.loadMenuItems();
-    
+
     // Auto-expand menu items based on current route
     this.checkAndExpandMenus();
-    
+
     // Listen for route changes to auto-expand menu items
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -389,34 +389,34 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   loadMenuItems(): void {
     console.log('🔄 Starting to load menu items...');
-    
+
     // Don't reload if already loading or if we have menu items
     if (this.isMenuLoading() || (this.menuItems().length > 0 && !this.menuLoadError())) {
       console.log('⏭️ Menu already loaded or loading, skipping...');
       return;
     }
-    
+
     this.isMenuLoading.set(true);
     this.menuLoadError.set(null);
-    
+
     // Load menu from database API (will wait for permissions and filter by view permissions)
     this.menuService.getSidebarMenus()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sidebarMenus) => {
           console.log('📋 Received sidebar menus:', sidebarMenus?.length || 0, 'items');
-          
+
           // Log children count for each menu
           sidebarMenus.forEach(menu => {
             if (menu.children && menu.children.length > 0) {
               console.log(`   Menu "${menu.label}" has ${menu.children.length} children:`, menu.children.map(c => c.label));
             }
           });
-          
+
           // Map SidebarMenuItem to MenuItem format
           const menuItems = this.mapSidebarMenusToMenuItems(sidebarMenus);
           console.log('🗺️ Mapped to MenuItem format:', menuItems?.length || 0, 'items');
-          
+
           // Log final menu structure with children
           menuItems.forEach(item => {
             if (item.children && item.children.length > 0) {
@@ -425,12 +425,12 @@ export class LayoutComponent implements OnInit, OnDestroy {
               console.warn(`   ⚠️ Menu "${item.label}" is type 'dropdown' but has no children!`);
             }
           });
-          
+
           // Sort by order
           const sortedItems = menuItems.sort((a, b) => a.order - b.order);
           this.menuItems.set(sortedItems);
           this.isMenuLoading.set(false);
-          
+
           console.log('✅ Menu items loaded successfully:', sortedItems.length, 'items');
           this.cdr.detectChanges();
         },
@@ -445,7 +445,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
           });
           this.menuLoadError.set('Failed to load menu. Please try again.');
           this.isMenuLoading.set(false);
-          
+
           // Fallback to static menu config if API fails
           console.log('🔄 Attempting to load fallback menu...');
           this.loadFallbackMenu();
@@ -482,13 +482,13 @@ export class LayoutComponent implements OnInit, OnDestroy {
       const mappedChildren = menu.children && menu.children.length > 0
         ? this.mapSidebarMenusToMenuItems(menu.children)
         : undefined;
-      
+
       // Determine type: if it has children (even after mapping), it's a dropdown
       // Otherwise use the original type
-      const finalType = (mappedChildren && mappedChildren.length > 0) 
-        ? 'dropdown' 
+      const finalType = (mappedChildren && mappedChildren.length > 0)
+        ? 'dropdown'
         : (menu.type === 'dropdown' && !mappedChildren ? 'link' : menu.type);
-      
+
       const menuItem: MenuItem = {
         id: menu.id,
         label: menu.label,
@@ -499,7 +499,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
         roles: menu.roles,
         children: mappedChildren && mappedChildren.length > 0 ? mappedChildren : undefined
       };
-      
+
       // Debug logging for menus with children
       if (menu.children && menu.children.length > 0) {
         console.log(`🔄 Layout: Menu "${menu.label}" has ${menu.children.length} children, mapped to ${mappedChildren?.length || 0} children, type: ${menuItem.type}`);
@@ -509,7 +509,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
           console.warn(`   ⚠️ All children were filtered out for menu "${menu.label}"`);
         }
       }
-      
+
       return menuItem;
     });
   }
@@ -536,28 +536,28 @@ export class LayoutComponent implements OnInit, OnDestroy {
   filterMenuItemsByRole(items: MenuItem[]): MenuItem[] {
     const userRole = this.getUserRole();
     const isSpecificRole = this.isSpecificRole();
-    
+
     return items.filter(item => {
       // If no roles specified, include item
       if (!item.roles || item.roles.length === 0) {
         return true;
       }
-      
+
       // If roles includes '*', include for all
       if (item.roles.includes('*')) {
         return true;
       }
-      
+
       // Check if user role matches
       if (item.roles.includes(userRole)) {
         return true;
       }
-      
+
       // For 'default' role items, show only if user doesn't have a specific role
       if (item.roles.includes('default')) {
         return !isSpecificRole;
       }
-      
+
       return false;
     }).map(item => {
       // Recursively filter children
@@ -568,13 +568,13 @@ export class LayoutComponent implements OnInit, OnDestroy {
         };
       }
       return item;
-      });
+    });
   }
 
   checkAndExpandMenus(): void {
     const url = this.router.url;
     const expanded = new Set(this.expandedMenuItems());
-    
+
     // Check each menu item to see if any child route matches current URL
     this.menuItems().forEach(item => {
       if (item.type === 'dropdown' && item.children) {
@@ -584,7 +584,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
           }
           return false;
         });
-        
+
         if (hasActiveChild) {
           expanded.add(item.id);
         }
@@ -594,9 +594,9 @@ export class LayoutComponent implements OnInit, OnDestroy {
         }
       }
     });
-    
+
     this.expandedMenuItems.set(expanded);
-    
+
     // Legacy support for old expanded signals
     if (url.includes('/settings') || url.includes('/admin/settings')) {
       this.expandedSettings.set(true);
@@ -651,13 +651,13 @@ export class LayoutComponent implements OnInit, OnDestroy {
   toggleMenuItem(itemId: string): void {
     const expanded = this.expandedMenuItems();
     const newExpanded = new Set(expanded);
-    
+
     if (newExpanded.has(itemId)) {
       newExpanded.delete(itemId);
     } else {
       newExpanded.add(itemId);
     }
-    
+
     this.expandedMenuItems.set(newExpanded);
   }
 
@@ -680,10 +680,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
     if (this.isMobile()) {
       this.closeMobileMenu();
     }
-    
+
     // Navigate to the admin settings page
     const targetUrl = `/admin/settings/${page}`;
-    
+
     // Use router.navigateByUrl for more reliable navigation
     this.router.navigateByUrl(targetUrl)
       .then(success => {
@@ -707,10 +707,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
     if (this.isMobile()) {
       this.closeMobileMenu();
     }
-    
+
     // Navigate to the admin settings page - allow all authenticated users
     const targetUrl = `/admin/settings/${page}`;
-    
+
     // Navigate directly - access control removed
     this.router.navigateByUrl(targetUrl)
       .then(success => {
@@ -767,10 +767,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
   getUserInitials(): string {
     const user = this.currentUser();
     if (!user) return 'U';
-    
+
     const firstName = user.userFName || '';
     const lastName = user.userLName || '';
-    
+
     if (firstName && lastName) {
       return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     } else if (firstName) {
@@ -778,14 +778,14 @@ export class LayoutComponent implements OnInit, OnDestroy {
     } else if (user.userName) {
       return user.userName.charAt(0).toUpperCase();
     }
-    
+
     return 'U';
   }
 
   getUserDisplayName(): string {
     const user = this.currentUser();
     if (!user) return 'User';
-    
+
     if (user.userFName && user.userLName) {
       return `${user.userFName} ${user.userLName}`;
     } else if (user.userFName) {
@@ -793,14 +793,14 @@ export class LayoutComponent implements OnInit, OnDestroy {
     } else if (user.userName) {
       return user.userName;
     }
-    
+
     return 'User';
   }
 
   getUserRole(): string {
     const user = this.currentUser();
     if (!user || !user.roles || user.roles.length === 0) return 'Employee';
-    
+
     // Return the first role or the highest priority role
     return user.roles[0] || 'Employee';
   }
