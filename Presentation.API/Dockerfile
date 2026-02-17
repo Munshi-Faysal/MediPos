@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy csproj files first (for better caching)
+# Copy csproj files for caching
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Presentation.API/Presentation.API.csproj", "Presentation.API/"]
@@ -12,15 +12,15 @@ COPY ["Services.Concretes/Services.Concretes.csproj", "Services.Concretes/"]
 COPY ["Services.Contracts/Services.Contracts.csproj", "Services.Contracts/"]
 COPY ["Shared/Shared.csproj", "Shared/"]
 
-# Restore ONLY API project
-RUN dotnet restore "Presentation.API/Presentation.API.csproj"
+# Restore using APPLICATION project (startup project)
+RUN dotnet restore "Application/Application.csproj"
 
 # Copy full source
 COPY . .
 
-# Publish API
-WORKDIR "/src/Presentation.API"
-RUN dotnet publish "Presentation.API.csproj" \
+# Publish Application (the real Web API host)
+WORKDIR "/src/Application"
+RUN dotnet publish "Application.csproj" \
     -c Release \
     -o /app/publish \
     /p:UseAppHost=false
@@ -36,4 +36,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "Presentation.API.dll"]
+ENTRYPOINT ["dotnet", "Application.dll"]
