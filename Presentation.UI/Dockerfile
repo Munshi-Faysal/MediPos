@@ -14,7 +14,7 @@ RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 COPY . .
 
 # Build production
-RUN npm run build --configuration production
+RUN npm run build
 
 
 # -------- RUNTIME STAGE --------

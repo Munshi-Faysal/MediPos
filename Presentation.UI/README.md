@@ -1,6 +1,6 @@
-# GB Account Frontend - Angular 18 Application
+# MediPOS Frontend - Angular 18 Application
 
-A modern, responsive General Banking Account Portal frontend application built with Angular 18, featuring strict mode, Tailwind CSS, and comprehensive functionality.
+A modern, responsive MediPOS Portal frontend application built with Angular 18, featuring strict mode, Tailwind CSS, and comprehensive functionality.
 
 ## 🚀 Features
 
