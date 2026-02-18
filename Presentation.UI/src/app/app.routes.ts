@@ -317,6 +317,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/doctor/patient/patient.component').then(m => m.PatientComponent)
       },
       {
+        path: 'quick-prescription',
+        loadComponent: () => import('./features/doctor/quick-prescription/quick-prescription.component').then(m => m.QuickPrescriptionComponent)
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/doctor/profile/doctor-profile.component').then(m => m.DoctorProfileComponent)
       }

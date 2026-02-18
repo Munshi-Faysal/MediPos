@@ -13,6 +13,7 @@ export interface Package {
   featureList: string[];
   description: string;
   isPopular?: boolean;
+  isExpanded?: boolean;
 }
 
 @Component({
@@ -67,7 +68,7 @@ export class LandingComponent implements OnInit {
       organizationName: ['', [Validators.required, Validators.minLength(2)]],
       // Password fields - required
       password: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.minLength(8),
         Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
       ]],
@@ -78,11 +79,11 @@ export class LandingComponent implements OnInit {
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
-    
+
     if (!password || !confirmPassword) {
       return null;
     }
-    
+
     return password.value === confirmPassword.value ? null : { passwordMismatch: true };
   }
 
@@ -99,6 +100,11 @@ export class LandingComponent implements OnInit {
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  toggleFeatures(pkg: Package, event: Event): void {
+    event.stopPropagation();
+    pkg.isExpanded = !pkg.isExpanded;
   }
 
   selectPackage(pkg: Package): void {
@@ -127,7 +133,7 @@ export class LandingComponent implements OnInit {
     const cardHolder = this.paymentForm.get('cardHolder')?.value || '';
     const expiryDate = this.paymentForm.get('expiryDate')?.value || '';
     const cvv = this.paymentForm.get('cvv')?.value || '';
-    
+
     return !!(cardNumber.trim() || cardHolder.trim() || expiryDate.trim() || cvv.trim());
   }
 
@@ -158,29 +164,29 @@ export class LandingComponent implements OnInit {
     if (!this.hasPaymentInfo()) {
       return true; // No payment info is valid (optional)
     }
-    
+
     const cardNumber = this.paymentForm.get('cardNumber');
     const cardHolder = this.paymentForm.get('cardHolder');
     const expiryDate = this.paymentForm.get('expiryDate');
     const cvv = this.paymentForm.get('cvv');
-    
+
     // If any payment field is filled, all must be valid
     const hasCardNumber = cardNumber?.value?.trim();
     const hasCardHolder = cardHolder?.value?.trim();
     const hasExpiryDate = expiryDate?.value?.trim();
     const hasCvv = cvv?.value?.trim();
-    
+
     if (hasCardNumber || hasCardHolder || hasExpiryDate || hasCvv) {
       return !cardNumber?.invalid && !cardHolder?.invalid && !expiryDate?.invalid && !cvv?.invalid;
     }
-    
+
     return true;
   }
 
   processPayment(): void {
     this.isProcessingPayment = true;
     this.paymentCompleted = false;
-    
+
     // Simulate payment processing
     setTimeout(() => {
       this.isProcessingPayment = false;
@@ -192,7 +198,7 @@ export class LandingComponent implements OnInit {
   submitWithoutPayment(): void {
     this.isSubmitting = true;
     this.paymentCompleted = false;
-    
+
     // Simulate form submission
     setTimeout(() => {
       this.isSubmitting = false;
@@ -235,7 +241,7 @@ export class LandingComponent implements OnInit {
       next: (response) => {
         this.showPaymentForm = false;
         this.showWelcomeMessage = true;
-        
+
         // Scroll to welcome message
         setTimeout(() => {
           const welcomeSection = document.getElementById('welcome-section');
@@ -246,10 +252,10 @@ export class LandingComponent implements OnInit {
       },
       error: (error) => {
         console.error('Registration error:', error);
-        const errorMessage = error.error?.message || 
-                            (error.error?.errors && Array.isArray(error.error.errors) 
-                              ? error.error.errors.map((e: any) => e.description || e).join(', ')
-                              : error.message || 'Registration failed. Please try again.');
+        const errorMessage = error.error?.message ||
+          (error.error?.errors && Array.isArray(error.error.errors)
+            ? error.error.errors.map((e: any) => e.description || e).join(', ')
+            : error.message || 'Registration failed. Please try again.');
         alert(errorMessage);
         this.isProcessingPayment = false;
         this.isSubmitting = false;
@@ -282,7 +288,7 @@ export class LandingComponent implements OnInit {
   getErrorMessage(controlName: string): string {
     const control = this.paymentForm.get(controlName);
     const isPaymentField = ['cardNumber', 'cardHolder', 'expiryDate', 'cvv'].includes(controlName);
-    
+
     if (control?.hasError('required')) {
       return `${this.getFieldLabel(controlName)} is required`;
     }

@@ -1,394 +1,408 @@
-<div
-  class="min-h-screen bg-background bg-gradient-to-b from-surface to-background text-on-background transition-colors duration-300">
-  <!-- Navigation Bar -->
-  <nav class="bg-surface border-b border-border sticky top-0 z-50 transition-colors">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div class="min-h-screen bg-slate-50 relative overflow-x-hidden font-sans selection:bg-violet-500 selection:text-white">
+
+  <!-- Dynamic Background Effects -->
+  <div class="fixed inset-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+    <div
+      class="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-violet-400/20 blur-[120px] mix-blend-multiply filter opacity-70 animate-blob">
+    </div>
+    <div
+      class="absolute top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-indigo-400/20 blur-[120px] mix-blend-multiply filter opacity-70 animate-blob animation-delay-2000">
+    </div>
+    <div
+      class="absolute -bottom-[20%] left-[20%] w-[70vw] h-[70vw] rounded-full bg-fuchsia-400/20 blur-[120px] mix-blend-multiply filter opacity-70 animate-blob animation-delay-4000">
+    </div>
+    <!-- Grid Pattern Overlay -->
+    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+  </div>
+
+  <!-- Glass Navbar -->
+  <nav
+    class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-white/70 backdrop-blur-xl border-b border-white/40 shadow-sm">
+    <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center">
-          <span class="text-2xl font-bold text-primary-600">MediPos</span>
-          <span class="ml-2 text-sm text-on-surface-variant">Prescription Management</span>
+        <div class="flex items-center gap-2 group cursor-pointer">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-500/30 group-hover:scale-105 transition-transform duration-300">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span
+              class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-indigo-700 tracking-tight">MediPos</span>
+            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Prescription Mgmt</span>
+          </div>
         </div>
 
         <!-- Login Button -->
         <a routerLink="/auth/login"
-          class="px-6 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-all shadow-soft hover:shadow-medium">
-          Login
+          class="relative overflow-hidden group px-6 py-2.5 rounded-full bg-slate-900 text-white font-medium shadow-lg shadow-slate-900/20 hover:shadow-slate-900/40 hover:-translate-y-0.5 transition-all duration-300">
+          <span class="relative z-10 flex items-center gap-2">
+            Login
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </span>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          </div>
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="text-center mb-16">
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-on-surface mb-4">
-        Prescription Management System
-      </h1>
-      <p class="text-xl text-on-surface-variant max-w-3xl mx-auto">
-        Streamline your healthcare practice with our comprehensive prescription management solution.
-        Choose the perfect plan for your needs.
-      </p>
-    </div>
+  <!-- Main Content Wrapper -->
+  <main class="pt-32 pb-20 px-4 sm:px-6">
 
-    <!-- Packages Section -->
-    @if (packages.length > 0) {
-      <div class="mb-16">
-        <h2 class="text-3xl font-bold text-center text-on-surface mb-8">Choose Your Package</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    <!-- VIEW: HERO & PACKAGES -->
+    @if (!showPaymentForm && !showWelcomeMessage) {
+    <div class="container mx-auto">
+
+      <!-- Hero Section -->
+      <div class="text-center max-w-4xl mx-auto mb-24 animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+
+        <h1 class="text-5xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
+          Prescription Management System
+        </h1>
+
+        <p class="text-lg md:text-xl text-slate-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+          Streamline your healthcare practice with our comprehensive prescription management solution. Choose the
+          perfect plan for your needs.
+        </p>
+      </div>
+
+
+
+      <!-- Packages Section -->
+      @if (packages.length > 0) {
+      <div id="pricing" class="mb-20">
+
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
           @for (pkg of packages; track pkg) {
-            <div
-              [ngClass]="pkg.isPopular ? 'border-primary-500 ring-2 ring-primary-500/20' : 'border-border'"
-              class="bg-surface rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 border-2">
-              <!-- Popular Badge -->
-              @if (pkg.isPopular) {
-                <div class="relative">
-                  <div
-                    class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md">
-                    Most Popular
-                  </div>
-                </div>
-              }
-              <div class="p-6">
-                <h3 class="text-2xl font-bold text-on-surface mb-2">{{ pkg.name }}</h3>
-                <p class="text-on-surface-variant mb-4 text-sm">{{ pkg.description }}</p>
-                <div class="mb-6">
-                  @if (pkg.price === 0) {
-                    <span class="text-4xl font-bold text-primary-600">Free</span>
-                  }
-                  @if (pkg.price > 0) {
-                    <span class="text-4xl font-bold text-primary-600">${{ pkg.price }}</span>
-                  }
-                  <span class="text-on-surface-variant">/{{ pkg.duration }}</span>
-                </div>
-                <ul class="space-y-3 mb-6">
-                  @for (feature of pkg.featureList; track feature) {
-                    <li class="flex items-start">
-                      <svg class="w-5 h-5 text-success-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                      <span class="text-on-surface">{{ feature }}</span>
-                    </li>
-                  }
-                </ul>
-                <button (click)="selectPackage(pkg)" class="w-full py-3 px-6 rounded-lg font-semibold transition-all"
-                  [class.bg-primary-600]="pkg.isPopular" [class.text-white]="pkg.isPopular"
-                  [class.hover:bg-primary-700]="pkg.isPopular" [class.bg-secondary-100]="!pkg.isPopular"
-                  [class.text-secondary-900]="!pkg.isPopular" [class.hover:bg-secondary-200]="!pkg.isPopular"
-                  [class.dark:bg-secondary-800]="!pkg.isPopular" [class.dark:text-secondary-100]="!pkg.isPopular">
-                  Select Plan
+          <!-- Pricing Card -->
+          <div
+            class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden transition-all duration-300 group h-full cursor-pointer hover:shadow-2xl shadow-xl shadow-slate-100/50 border border-slate-100"
+            [ngClass]="pkg.isPopular ? 'z-10 scale-105 shadow-2xl shadow-violet-200/50 md:-my-4' : ''">
+
+            <!-- Header Section (White with Purple Text) -->
+            <div class="w-full relative pt-12 pb-6 px-4 text-center bg-white">
+
+              <!-- Title -->
+              <h3 class="text-xs font-bold uppercase tracking-[0.2em] mb-4 text-[#6A11CB]">
+                {{ pkg.name }}
+              </h3>
+
+              <!-- Price -->
+              <div class="flex justify-center items-baseline gap-0.5 text-[#6A11CB]">
+                @if (pkg.price === 0) {
+                <span class="text-5xl font-black tracking-tight">Free</span>
+                } @else {
+                <span class="text-3xl font-bold self-start mt-2">$</span>
+                <span class="text-7xl font-black tracking-tighter">{{ pkg.price }}</span>
+                <span class="text-2xl font-bold self-end mb-2">.90</span>
+                }
+              </div>
+
+              <!-- Frequency -->
+              <p class="text-sm font-medium mt-1 text-slate-400">
+                per month
+              </p>
+            </div>
+
+            <!-- Features List -->
+            <div class="px-8 py-4 flex-grow w-full">
+              <ul class="space-y-3">
+                @for (feature of (pkg.isExpanded ? pkg.featureList : pkg.featureList.slice(0, 10)); track feature) {
+                <li class="flex items-start gap-3 animate-in fade-in duration-300">
+                  <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span class="text-[15px] text-slate-700 font-medium leading-tight text-left">{{ feature }}</span>
+                </li>
+                }
+              </ul>
+
+              <!-- View More Button -->
+              @if (pkg.featureList.length > 10) {
+              <div class="mt-4 text-center">
+                <button (click)="toggleFeatures(pkg, $event)"
+                  class="text-sm font-bold text-violet-600 hover:text-violet-800 hover:underline transition-colors focus:outline-none flex items-center justify-center gap-1 mx-auto">
+                  {{ pkg.isExpanded ? 'View Less' : 'View More' }}
+                  <svg class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="pkg.isExpanded" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
                 </button>
               </div>
+              }
             </div>
+
+            <!-- Action Button -->
+            <div class="pb-12 w-full px-10">
+              <button (click)="selectPackage(pkg)"
+                class="w-full py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all duration-300 transform hover:scale-105 active:scale-95 bg-white text-[#6A11CB] border-2 border-[#6A11CB] hover:bg-violet-50 shadow-sm hover:shadow-violet-200">
+                Select Plan
+              </button>
+            </div>
+
+          </div>
           }
         </div>
       </div>
+      }
+    </div>
     }
 
-    <!-- Payment Form Section -->
+    <!-- VIEW: PAYMENT FORM -->
     @if (showPaymentForm && !showWelcomeMessage) {
-      <div id="payment-section" class="max-w-2xl mx-auto">
-        <div class="bg-surface rounded-xl shadow-strong p-8 border border-border">
-          <!-- Selected Package Summary -->
-          @if (selectedPackage) {
-            <div class="mb-8 p-6 bg-primary-500/5 rounded-lg border border-primary-500/20">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <h3 class="text-xl font-bold text-on-surface">{{ selectedPackage.name }}</h3>
-                  <p class="text-on-surface-variant text-sm mt-1">{{ selectedPackage.description }}</p>
+    <div id="payment-section" class="max-w-3xl mx-auto animate-in zoom-in-95 duration-500">
+      <div
+        class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+
+        <!-- Selected Package Header -->
+        @if (selectedPackage) {
+        <div class="bg-slate-900 text-white p-8 relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20"></div>
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <p class="text-violet-200 font-medium text-sm uppercase tracking-wider mb-2">Selected Plan</p>
+              <h2 class="text-3xl font-black">{{ selectedPackage.name }}</h2>
+              <p class="text-slate-400 mt-1">{{ selectedPackage.description }}</p>
+            </div>
+            <div class="text-right">
+              @if (selectedPackage.price === 0) {
+              <p class="text-4xl font-black">Free</p>
+              } @else {
+              <p class="text-4xl font-black">${{ selectedPackage.price }}</p>
+              <p class="text-sm text-slate-400">/{{ selectedPackage.duration }}</p>
+              }
+            </div>
+          </div>
+        </div>
+        }
+
+        <div class="p-8 md:p-10">
+          <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()" class="space-y-8">
+
+            <!-- Org Details -->
+            <div class="space-y-6">
+              <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-sm">1</span>
+                Organization Details
+              </h3>
+
+              <div class="grid grid-cols-1 gap-6">
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700">Organization Name <span
+                      class="text-red-500">*</span></label>
+                  <input type="text" formControlName="organizationName"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
+                    placeholder="e.g. City Medical Center" [class.border-red-500]="isFieldInvalid('organizationName')">
+                  @if (isFieldInvalid('organizationName')) { <p class="text-xs text-red-500 font-medium mt-1">{{
+                    getErrorMessage('organizationName') }}</p> }
                 </div>
-                <button (click)="changePackage()"
-                  class="text-primary-600 hover:text-primary-700 text-sm font-medium transition-colors">
-                  Change Package
-                </button>
-              </div>
-              <div class="flex justify-between items-center pt-4 border-t border-border">
-                <div>
-                  @if (selectedPackage.price > 0) {
-                    <span class="text-on-surface font-medium">Monthly Price:</span>
-                  }
-                  @if (selectedPackage.price === 0) {
-                    <span class="text-on-surface font-medium">Trial Period:</span>
-                  }
-                  @if (selectedPackage.price > 0) {
-                    <p class="text-xs text-on-surface-variant mt-1">Payment is optional -
-                    you can pay later</p>
-                  }
-                  @if (selectedPackage.price === 0) {
-                    <p class="text-xs text-on-surface-variant mt-1">No payment required
-                    for free trial</p>
-                  }
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Email Address <span
+                        class="text-red-500">*</span></label>
+                    <input type="email" formControlName="email"
+                      class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
+                      placeholder="admin@clinic.com" [class.border-red-500]="isFieldInvalid('email')">
+                    @if (isFieldInvalid('email')) { <p class="text-xs text-red-500 font-medium mt-1">{{
+                      getErrorMessage('email') }}</p> }
+                  </div>
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Phone Number <span
+                        class="text-red-500">*</span></label>
+                    <input type="tel" formControlName="phone"
+                      class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
+                      placeholder="+1 (555) 000-0000" [class.border-red-500]="isFieldInvalid('phone')">
+                    @if (isFieldInvalid('phone')) { <p class="text-xs text-red-500 font-medium mt-1">{{
+                      getErrorMessage('phone') }}</p> }
+                  </div>
                 </div>
-                @if (selectedPackage.price === 0) {
-                  <span class="text-2xl font-bold text-success-600">Free</span>
-                }
-                @if (selectedPackage.price > 0) {
-                  <span class="text-2xl font-bold text-primary-600">${{
-                  selectedPackage.price }}</span>
-                }
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Password <span
+                        class="text-red-500">*</span></label>
+                    <input type="password" formControlName="password"
+                      class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
+                      placeholder="••••••••" [class.border-red-500]="isFieldInvalid('password')">
+                    @if (isFieldInvalid('password')) { <p class="text-xs text-red-500 font-medium mt-1">{{
+                      getErrorMessage('password') }}</p> }
+                  </div>
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Confirm Password <span
+                        class="text-red-500">*</span></label>
+                    <input type="password" formControlName="confirmPassword"
+                      class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
+                      placeholder="••••••••" [class.border-red-500]="isFieldInvalid('confirmPassword')">
+                    @if (isFieldInvalid('confirmPassword')) { <p class="text-xs text-red-500 font-medium mt-1">{{
+                      getErrorMessage('confirmPassword') }}</p> }
+                  </div>
+                </div>
               </div>
             </div>
-          }
-          <h2 class="text-2xl font-bold text-on-surface mb-6 border-b border-border pb-2">Payment Information</h2>
-          <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
-            <!-- Organization Details -->
-            <div class="mb-8">
-              <h3 class="text-sm font-bold text-primary-500 uppercase tracking-wider mb-4">Organization Details</h3>
-              <div class="space-y-4">
-                <div>
-                  <label class="form-label">
-                    Organization Name <span class="text-error-500">*</span>
-                  </label>
-                  <input type="text" formControlName="organizationName" class="form-input"
-                    [class.border-error-500]="isFieldInvalid('organizationName')"
-                    placeholder="Enter your organization name" />
-                    @if (isFieldInvalid('organizationName')) {
-                      <p class="form-error">
-                        {{ getErrorMessage('organizationName') }}
-                      </p>
-                    }
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="form-label">
-                        Email <span class="text-error-500">*</span>
-                      </label>
-                      <input type="email" formControlName="email" class="form-input"
-                        [class.border-error-500]="isFieldInvalid('email')" placeholder="your@email.com" />
-                        @if (isFieldInvalid('email')) {
-                          <p class="form-error">
-                            {{ getErrorMessage('email') }}
-                          </p>
-                        }
-                      </div>
-                      <div>
-                        <label class="form-label">
-                          Phone Number <span class="text-error-500">*</span>
-                        </label>
-                        <input type="tel" formControlName="phone" class="form-input"
-                          [class.border-error-500]="isFieldInvalid('phone')" placeholder="+1 (555) 123-4567" />
-                          @if (isFieldInvalid('phone')) {
-                            <p class="form-error">
-                              {{ getErrorMessage('phone') }}
-                            </p>
-                          }
-                        </div>
-                      </div>
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label class="form-label">
-                            Password <span class="text-error-500">*</span>
-                          </label>
-                          <input type="password" formControlName="password" class="form-input"
-                            [class.border-error-500]="isFieldInvalid('password')" placeholder="Enter password" />
-                            @if (isFieldInvalid('password')) {
-                              <p class="form-error">
-                                {{ getErrorMessage('password') }}
-                              </p>
-                            }
-                            <p class="text-[10px] text-on-surface-variant mt-1">
-                              Must contain: uppercase, lowercase, number, and special character
-                            </p>
-                          </div>
-                          <div>
-                            <label class="form-label">
-                              Confirm Password <span class="text-error-500">*</span>
-                            </label>
-                            <input type="password" formControlName="confirmPassword" class="form-input"
-                              [class.border-error-500]="isFieldInvalid('confirmPassword')" placeholder="Confirm password" />
-                              @if (isFieldInvalid('confirmPassword')) {
-                                <p class="form-error">
-                                  {{ getErrorMessage('confirmPassword') }}
-                                </p>
-                              }
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Payment Details -->
-                      <div class="mb-8 p-6 bg-surface-variant/50 rounded-xl border border-border">
-                        <div class="flex items-center justify-between mb-4">
-                          <h3 class="text-sm font-bold text-primary-500 uppercase tracking-wider">Payment Details</h3>
-                          <span class="text-xs text-on-surface-variant italic">(Optional)</span>
-                        </div>
-                        <p class="text-xs text-on-surface-variant mb-6">
-                          You can complete payment now or skip and pay later. Your account will be set up regardless.
-                        </p>
-                        <div class="space-y-4">
-                          <div>
-                            <label class="form-label">Card Number</label>
-                            <input type="text" formControlName="cardNumber" (input)="formatCardNumber($event)" maxlength="19"
-                              class="form-input" [class.border-error-500]="isPaymentFieldInvalid('cardNumber')"
-                              placeholder="1234 5678 9012 3456" />
-                              @if (isPaymentFieldInvalid('cardNumber')) {
-                                <p class="form-error">
-                                  {{ getErrorMessage('cardNumber') }}
-                                </p>
-                              }
-                            </div>
-                            <div>
-                              <label class="form-label">Card Holder Name</label>
-                              <input type="text" formControlName="cardHolder" class="form-input"
-                                [class.border-error-500]="isPaymentFieldInvalid('cardHolder')" placeholder="John Doe" />
-                                @if (isPaymentFieldInvalid('cardHolder')) {
-                                  <p class="form-error">
-                                    {{ getErrorMessage('cardHolder') }}
-                                  </p>
-                                }
-                              </div>
-                              <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label class="form-label">Expiry Date</label>
-                                  <input type="text" formControlName="expiryDate" (input)="formatExpiryDate($event)" maxlength="5"
-                                    class="form-input" [class.border-error-500]="isPaymentFieldInvalid('expiryDate')"
-                                    placeholder="MM/YY" />
-                                    @if (isPaymentFieldInvalid('expiryDate')) {
-                                      <p class="form-error">
-                                        {{ getErrorMessage('expiryDate') }}
-                                      </p>
-                                    }
-                                  </div>
-                                  <div>
-                                    <label class="form-label">CVV</label>
-                                    <input type="text" formControlName="cvv" maxlength="4" class="form-input"
-                                      [class.border-error-500]="isPaymentFieldInvalid('cvv')" placeholder="123" />
-                                      @if (isPaymentFieldInvalid('cvv')) {
-                                        <p class="form-error">
-                                          {{ getErrorMessage('cvv') }}
-                                        </p>
-                                      }
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <!-- Submit Buttons -->
-                              <div class="space-y-3">
-                                <div class="flex gap-4">
-                                  <button type="button" (click)="changePackage()"
-                                    class="flex-1 py-3 px-6 bg-surface-variant text-on-surface rounded-lg font-semibold hover:bg-border transition-all border border-border">
-                                    Back
-                                  </button>
-                                  <button type="submit"
-                                    [disabled]="paymentForm.get('email')?.invalid || paymentForm.get('phone')?.invalid || paymentForm.get('organizationName')?.invalid || paymentForm.get('password')?.invalid || paymentForm.get('confirmPassword')?.invalid || paymentForm.hasError('passwordMismatch') || isProcessingPayment || isSubmitting"
-                                    class="flex-1 py-3 px-6 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-950/20">
-                                    @if (!isProcessingPayment && !isSubmitting) {
-                                      <span>
-                                        @if (hasPaymentInfo()) {
-                                          <span>Complete Payment</span>
-                                        }
-                                        @if (!hasPaymentInfo()) {
-                                          <span>Submit Registration</span>
-                                        }
-                                      </span>
-                                    }
-                                    @if (isProcessingPayment || isSubmitting) {
-                                      <span class="flex items-center justify-center">
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                          <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                          </path>
-                                        </svg>
-                                        @if (isProcessingPayment) {
-                                          <span>Processing Payment...</span>
-                                        }
-                                        @if (isSubmitting) {
-                                          <span>Submitting...</span>
-                                        }
-                                      </span>
-                                    }
-                                  </button>
-                                </div>
-                                <button type="button" (click)="skipPayment()"
-                                  [disabled]="paymentForm.get('email')?.invalid || paymentForm.get('phone')?.invalid || paymentForm.get('organizationName')?.invalid || paymentForm.get('password')?.invalid || paymentForm.get('confirmPassword')?.invalid || paymentForm.hasError('passwordMismatch') || isProcessingPayment || isSubmitting"
-                                  class="w-full py-3 px-6 bg-surface border-2 border-border text-on-surface rounded-lg font-semibold hover:bg-surface-variant transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                                  Skip Payment & Submit
-                                </button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                      }
 
-                      <!-- Welcome Message Section -->
-                      @if (showWelcomeMessage) {
-                        <div id="welcome-section" class="max-w-3xl mx-auto">
-                          <div
-                            class="bg-gradient-to-br from-primary-500/10 to-success-500/10 rounded-2xl shadow-strong p-8 md:p-12 text-center border border-primary-500/20">
-                            <div class="mb-6">
-                              <div
-                                class="w-20 h-20 bg-success-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-success-500/20">
-                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              </div>
-                            </div>
-                            <h2 class="text-4xl font-bold text-on-surface mb-4">Welcome to MediPos!</h2>
-                            <p class="text-xl text-on-surface mb-2">
-                              Thank you for choosing <strong>{{ selectedPackage?.name }}</strong>
-                            </p>
-                            @if (paymentCompleted) {
-                              <p class="text-lg text-on-surface-variant mb-4">
-                                Your payment has been processed successfully. You're all set to start managing prescriptions!
-                              </p>
-                            }
-                            @if (!paymentCompleted) {
-                              <p class="text-lg text-on-surface-variant mb-4">
-                                Your registration has been submitted successfully! You can complete payment later from your account dashboard.
-                              </p>
-                            }
-                            @if (!paymentCompleted) {
-                              <div class="mb-8 p-4 bg-warning-500/10 border border-warning-500/20 rounded-lg">
-                                <p class="text-sm text-warning-600 dark:text-warning-400">
-                                  <strong>Note:</strong> Your account will be activated once payment is completed. You can make the payment
-                                  anytime from your account settings.
-                                </p>
-                              </div>
-                            }
-                            <div class="bg-surface rounded-xl p-6 mb-8 text-left border border-border shadow-soft">
-                              <h3 class="text-lg font-semibold text-on-surface mb-4">What's Next?</h3>
-                              <ul class="space-y-4">
-                                <li class="flex items-start">
-                                  <svg class="w-5 h-5 text-primary-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                  </svg>
-                                  <span class="text-on-surface-variant text-balance">Check your email (<strong>{{
-                                  paymentForm.get('email')?.value }}</strong>) for account setup instructions</span>
-                                </li>
-                                <li class="flex items-start">
-                                  <svg class="w-5 h-5 text-primary-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                  </svg>
-                                  <span class="text-on-surface-variant">Log in to your account to access all features</span>
-                                </li>
-                                <li class="flex items-start">
-                                  <svg class="w-5 h-5 text-primary-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                  </svg>
-                                  <span class="text-on-surface-variant">Explore our comprehensive documentation and tutorials</span>
-                                </li>
-                              </ul>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                              <a routerLink="/auth/login"
-                                class="px-8 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md shadow-primary-500/20">
-                                Go to Login
-                              </a>
-                              <button
-                                (click)="selectedPackage = null; showPaymentForm = false; showWelcomeMessage = false; paymentForm.reset();"
-                                class="px-8 py-3 bg-surface border-2 border-primary-600 text-primary-600 rounded-lg font-semibold hover:bg-surface-variant transition-all">
-                                Back to Packages
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      }
+            <div class="h-px bg-slate-200"></div>
+
+            <!-- Payment Details (Optional) -->
+            <div class="space-y-6">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <span
+                    class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
+                  Payment Details
+                </h3>
+                <span
+                  class="text-xs font-semibold bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase tracking-wide">Optional</span>
+              </div>
+
+              <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                <div class="grid grid-cols-1 gap-6">
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Card Number</label>
+                    <div class="relative">
+                      <input type="text" formControlName="cardNumber" (input)="formatCardNumber($event)" maxlength="19"
+                        class="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
+                        placeholder="0000 0000 0000 0000" [class.border-red-500]="isPaymentFieldInvalid('cardNumber')">
+                      <svg class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    @if (isPaymentFieldInvalid('cardNumber')) { <p class="text-xs text-red-500 font-medium mt-1">{{
+                      getErrorMessage('cardNumber') }}</p> }
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Card Holder Name</label>
+                    <input type="text" formControlName="cardHolder"
+                      class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
+                      placeholder="Enter name on card" [class.border-red-500]="isPaymentFieldInvalid('cardHolder')">
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                      <label class="block text-sm font-semibold text-slate-700">Expiry</label>
+                      <input type="text" formControlName="expiryDate" (input)="formatExpiryDate($event)" maxlength="5"
+                        class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
+                        placeholder="MM/YY" [class.border-red-500]="isPaymentFieldInvalid('expiryDate')">
+                    </div>
+                    <div class="space-y-2">
+                      <label class="block text-sm font-semibold text-slate-700">CVV</label>
+                      <input type="text" formControlName="cvv" maxlength="4"
+                        class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
+                        placeholder="123" [class.border-red-500]="isPaymentFieldInvalid('cvv')">
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+              <button type="button" (click)="changePackage()"
+                class="px-8 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                Back
+              </button>
+              <div class="flex-1 flex gap-4">
+                <button type="button" (click)="skipPayment()"
+                  [disabled]="paymentForm.get('email')?.invalid || paymentForm.get('phone')?.invalid || paymentForm.get('organizationName')?.invalid || paymentForm.get('password')?.invalid"
+                  class="flex-1 px-6 py-3 rounded-xl font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors disabled:opacity-50">
+                  Skip Payment
+                </button>
+                <button type="submit"
+                  [disabled]="paymentForm.get('email')?.invalid || paymentForm.get('phone')?.invalid || paymentForm.get('organizationName')?.invalid || paymentForm.get('password')?.invalid || isProcessingPayment || isSubmitting"
+                  class="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-500/30 transition-all disabled:opacity-50 flex items-center justify-center">
+
+                  @if (isProcessingPayment || isSubmitting) {
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                  </svg>
+                  Processing...
+                  } @else {
+                  {{ hasPaymentInfo() ? 'Pay & Register' : 'Complete Registration' }}
+                  }
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- VIEW: WELCOME SUCCESS -->
+    @if (showWelcomeMessage) {
+    <div id="welcome-section" class="max-w-3xl mx-auto py-10 animate-in zoom-in-95 duration-700">
+      <div
+        class="bg-white/90 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-2xl p-12 text-center relative overflow-hidden">
+
+        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-indigo-500/5"></div>
+
+        <div class="relative z-10">
+          <div
+            class="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-500/30 animate-bounce-slow">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+
+          <h2 class="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">Welcome to MediPos!</h2>
+          <p class="text-xl text-slate-600 mb-8 max-w-xl mx-auto">
+            Your account has been successfully created. You're now part of the future of healthcare.
+          </p>
+
+          <div class="bg-slate-50 rounded-2xl p-8 mb-10 max-w-xl mx-auto border border-slate-100 text-left">
+            <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Next Steps
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-start gap-3 text-slate-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-violet-500 mt-2"></span>
+                <span>Check your email <strong>{{ paymentForm.get('email')?.value }}</strong> for verification.</span>
+              </li>
+              <li class="flex items-start gap-3 text-slate-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-violet-500 mt-2"></span>
+                <span>Login using the credentials you just created.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a routerLink="/auth/login"
+              class="px-8 py-4 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all">
+              Go to Login
+            </a>
+            <button
+              (click)="selectedPackage = null; showPaymentForm = false; showWelcomeMessage = false; paymentForm.reset();"
+              class="px-8 py-4 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all">
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+  </main>
+</div>

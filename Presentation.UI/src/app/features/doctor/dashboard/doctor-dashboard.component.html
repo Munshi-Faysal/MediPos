@@ -2,12 +2,14 @@
   <!-- Header with Greeting -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Welcome back, Dr. Arnob</h1>
+      <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+        Welcome back, Dr. {{ currentUser()?.userFName || 'Doctor' }}
+      </h1>
       <p class="text-gray-500 mt-1">Here is what's happening in your clinic today.</p>
     </div>
     <div class="flex items-center gap-3">
       <button routerLink="/doctor/prescriptions/new"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-full shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95">
+        class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-full shadow-lg shadow-primary-200 transition-all flex items-center gap-2 active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -18,82 +20,143 @@
 
   <!-- Stats Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <!-- Today's Appointment -->
-    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-soft hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Today's Visits</p>
-          <p class="text-3xl font-black text-blue-600 mt-2">{{ stats().todayAppointments }}</p>
-        </div>
-        <div
-          class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-          <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
+    <!-- Today's Appointment (Styled like 'Startup' / Active Card) -->
+    <div
+      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-2xl shadow-violet-200/50 transition-all duration-300 group hover:-translate-y-1 h-full border-2 border-primary-100">
+
+      <!-- Curved Header Section -->
+      <div class="w-full relative py-6 px-4 text-center bg-primary-600 group-hover:bg-primary-700 transition-colors"
+        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
+
+        <h3 class="text-xs font-bold uppercase tracking-widest text-white/80 mb-2">
+          Today's Visits
+        </h3>
+
+        <div class="flex justify-center items-baseline gap-1 text-white">
+          <span class="text-4xl font-black tracking-tighter">{{ stats().todayAppointments }}</span>
         </div>
       </div>
-      <div class="mt-4 flex items-center text-xs text-blue-600">
-        <span class="font-bold">+12%</span>
-        <span class="ml-1 text-gray-400">from yesterday</span>
+
+      <!-- Content -->
+      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
+        <div
+          class="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 mb-2 shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <p
+          class="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 mb-1">
+          +12% Increase
+        </p>
+        <p class="text-xs text-slate-400">from yesterday</p>
       </div>
     </div>
 
-    <!-- Total Patients -->
-    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-soft hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Patients</p>
-          <p class="text-3xl font-black text-indigo-600 mt-2">{{ stats().totalPatients }}</p>
+    <!-- Total Patients (Styled like 'Basic' / White Card) -->
+    <div
+      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-100 hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 group hover:-translate-y-1 h-full border border-slate-100">
+
+      <!-- Curved Header Section -->
+      <div class="w-full relative py-6 px-4 text-center bg-slate-50"
+        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
+
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+          Total Patients
+        </h3>
+
+        <div class="flex justify-center items-baseline gap-1 text-primary-700">
+          <span class="text-4xl font-black tracking-tighter">{{ stats().totalPatients }}</span>
         </div>
+      </div>
+
+      <!-- Content -->
+      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
         <div
-          class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-          <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-600 mb-2 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
             </path>
           </svg>
         </div>
+        <p
+          class="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1 rounded-full border border-primary-100 mb-1">
+          Lifetime
+        </p>
+        <p class="text-xs text-slate-400">All Records</p>
       </div>
-      <div class="mt-4 text-xs text-indigo-600 font-bold">Lifetime Records</div>
     </div>
 
-    <!-- Total Prescriptions -->
-    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-soft hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Prescriptions</p>
-          <p class="text-3xl font-black text-emerald-600 mt-2">{{ stats().totalPrescriptions }}</p>
+    <!-- Total Prescriptions (Styled like 'Basic' / White Card) -->
+    <div
+      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-100 hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 group hover:-translate-y-1 h-full border border-slate-100">
+
+      <!-- Curved Header Section -->
+      <div class="w-full relative py-6 px-4 text-center bg-slate-50"
+        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
+
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+          Prescriptions
+        </h3>
+
+        <div class="flex justify-center items-baseline gap-1 text-primary-700">
+          <span class="text-4xl font-black tracking-tighter">{{ stats().totalPrescriptions }}</span>
         </div>
+      </div>
+
+      <!-- Content -->
+      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
         <div
-          class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-          <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-600 mb-2 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
             </path>
           </svg>
         </div>
+        <p
+          class="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1 rounded-full border border-primary-100 mb-1">
+          Total
+        </p>
+        <p class="text-xs text-slate-400">Across all platforms</p>
       </div>
-      <div class="mt-4 text-xs text-emerald-600 font-bold">Across all platforms</div>
     </div>
 
-    <!-- Reports -->
-    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-soft hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Pending Tasks</p>
-          <p class="text-3xl font-black text-rose-600 mt-2">{{ stats().pendingReports }}</p>
+    <!-- Pending Tasks (Styled like 'Basic' / White Card) -->
+    <div
+      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-100 hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 group hover:-translate-y-1 h-full border border-slate-100">
+
+      <!-- Curved Header Section -->
+      <div class="w-full relative py-6 px-4 text-center bg-slate-50"
+        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
+
+        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+          Pending Tasks
+        </h3>
+
+        <div class="flex justify-center items-baseline gap-1 text-primary-700">
+          <span class="text-4xl font-black tracking-tighter">{{ stats().pendingTasks }}</span>
         </div>
+      </div>
+
+      <!-- Content -->
+      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
         <div
-          class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-          <svg class="w-7 h-7 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-rose-600 mb-2 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
             </path>
           </svg>
         </div>
+        <p
+          class="text-sm font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100 mb-1 animate-pulse">
+          Action Items
+        </p>
+        <p class="text-xs text-slate-400">Attention needed</p>
       </div>
-      <div class="mt-4 text-xs text-rose-600 font-bold animate-pulse">Needs Attention</div>
     </div>
   </div>
 
@@ -103,12 +166,14 @@
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-bold text-gray-800">Recent Prescriptions</h2>
         <a routerLink="/doctor/prescriptions"
-        class="text-sm font-bold text-blue-600 hover:text-blue-700 underline underline-offset-4">View All</a>
+          class="text-sm font-bold text-primary-600 hover:text-primary-700 underline underline-offset-4">View All</a>
       </div>
-      <div class="bg-white border border-gray-100 rounded-2xl shadow-soft overflow-hidden">
+      <div
+        class="bg-white border border-primary-100 rounded-3xl shadow-lg shadow-primary-100/40 overflow-hidden ring-1 ring-primary-50">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-gray-50/50 text-xs font-bold text-gray-400 uppercase tracking-tight border-b border-gray-100">
+            <tr
+              class="bg-primary-50/50 text-xs font-bold text-primary-600 uppercase tracking-tight border-b border-primary-100">
               <th class="px-6 py-4">Patient</th>
               <th class="px-6 py-4">Date</th>
               <th class="px-6 py-4">Status</th>
@@ -117,26 +182,26 @@
           </thead>
           <tbody class="divide-y divide-gray-50">
             @for (p of recentPrescriptions(); track p) {
-              <tr class="hover:bg-blue-50/30 transition-colors group">
-                <td class="px-6 py-4">
-                  <div class="font-bold text-gray-800">{{ p.patientName }}</div>
-                  <div class="text-xs text-gray-500">{{ p.age }} years old</div>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-600 font-medium">{{ p.date | date:'mediumDate' }}</td>
-                <td class="px-6 py-4">
-                  <span
-                    [class]="p.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
-                    class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    {{ p.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <button [routerLink]="['/doctor/prescriptions', p.id]"
-                    class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                    Open
-                  </button>
-                </td>
-              </tr>
+            <tr class="hover:bg-primary-50/30 transition-colors group">
+              <td class="px-6 py-4">
+                <div class="font-bold text-gray-800">{{ p.patientName }}</div>
+                <div class="text-xs text-gray-500">{{ p.age }} years old</div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600 font-medium">{{ p.date | date:'mediumDate' }}</td>
+              <td class="px-6 py-4">
+                <span
+                  [class]="p.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
+                  class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                  {{ p.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <button [routerLink]="['/doctor/prescriptions', p.id]"
+                  class="text-primary-600 hover:text-primary-800 font-bold text-sm bg-primary-50 hover:bg-primary-100 px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                  Open
+                </button>
+              </td>
+            </tr>
             }
           </tbody>
         </table>
@@ -145,30 +210,37 @@
 
     <!-- Today's Schedule -->
     <div class="space-y-4">
-      <h2 class="text-xl font-bold text-gray-800">Today's Schedule</h2>
-      <div class="bg-gray-900 rounded-3xl p-6 text-white shadow-xl min-h-[400px]">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">Today's Schedule</h2>
+      <div
+        class="bg-gradient-to-b from-primary-50/50 via-white to-white dark:bg-gray-900 dark:from-gray-900 border border-primary-100 dark:border-gray-800 rounded-3xl p-6 text-gray-900 dark:text-white shadow-lg shadow-primary-50/40 min-h-[400px]">
         <div class="space-y-6">
           @for (appt of upcomingAppointments(); track appt) {
-            <div class="flex gap-4 group cursor-pointer">
-              <div class="flex flex-col items-center">
-                <div class="w-3 h-3 rounded-full bg-blue-500 border-4 border-gray-800 ring-1 ring-blue-500/50"></div>
-                <div class="w-0.5 h-full bg-gray-700 mt-1 mb-1"></div>
+          <div class="flex gap-4 group cursor-pointer">
+            <div class="flex flex-col items-center">
+              <div
+                class="w-3 h-3 rounded-full bg-primary-500 border-4 border-white dark:border-gray-900 ring-1 ring-primary-500/50">
               </div>
-              <div class="pb-6 w-full">
-                <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">{{ appt.time }}</p>
-                <p class="font-bold text-gray-100 group-hover:text-blue-300 transition-colors">{{ appt.patientName }}</p>
-                <p class="text-xs text-gray-500 mt-1">{{ appt.type }}</p>
-              </div>
+              <div class="w-0.5 h-full bg-gray-100 dark:bg-gray-700 mt-1 mb-1"></div>
             </div>
+            <div class="pb-6 w-full">
+              <p class="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-widest mb-1">{{
+                appt.time
+                }}</p>
+              <p
+                class="font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
+                {{ appt.patientName }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ appt.type }}</p>
+            </div>
+          </div>
           }
           @if (upcomingAppointments().length === 0) {
-            <div class="text-center py-20 text-gray-600">
-              No more appointments for today.
-            </div>
+          <div class="text-center py-20 text-gray-500 dark:text-gray-400">
+            No more appointments for today.
+          </div>
           }
         </div>
-        <button
-          class="w-full mt-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-bold text-sm transition-colors border border-gray-700">
+        <button routerLink="/doctor/appointments"
+          class="w-full mt-4 py-3 bg-white/60 dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-gray-700 text-primary-950 dark:text-white rounded-xl font-bold text-sm transition-colors border border-primary-200 dark:border-gray-700 shadow-sm">
           Full Calendar View
         </button>
       </div>
@@ -176,28 +248,29 @@
   </div>
 
   <!-- Quick Templates Access -->
-  <div class="bg-blue-600 rounded-3xl p-8 relative overflow-hidden group">
+  <div
+    class="bg-gradient-to-r from-primary-50/40 via-white to-primary-50/40 border border-primary-100 rounded-3xl p-8 relative overflow-hidden group shadow-lg shadow-primary-50/40">
     <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="text-center md:text-left">
-        <h2 class="text-2xl font-black text-white">Optimize Your Workflow</h2>
-        <p class="text-blue-100 mt-2 max-w-md font-medium">Use standardized templates for C/C, O/E and Treatments to
-        generate prescriptions in seconds.</p>
+        <h2 class="text-2xl font-black text-gray-900">Optimize Your Workflow</h2>
+        <p class="text-gray-500 mt-2 max-w-md font-medium">Use standardized templates for C/C, O/E and Treatments to
+          generate prescriptions in seconds.</p>
       </div>
       <div class="flex flex-wrap justify-center gap-3">
         <button routerLink="/doctor/templates/cc"
-          class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl text-sm font-bold backdrop-blur-md border border-white/10 transition-all">C/C
-        Templates</button>
+          class="bg-gray-50 hover:bg-gray-100 text-gray-900 px-5 py-2 rounded-xl text-sm font-bold border border-gray-200 transition-all">C/C
+          Templates</button>
         <button routerLink="/doctor/templates/oe"
-          class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl text-sm font-bold backdrop-blur-md border border-white/10 transition-all">O/E
-        Templates</button>
+          class="bg-gray-50 hover:bg-gray-100 text-gray-900 px-5 py-2 rounded-xl text-sm font-bold border border-gray-200 transition-all">O/E
+          Templates</button>
         <button routerLink="/doctor/templates/treatment"
-          class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl text-sm font-bold backdrop-blur-md border border-white/10 transition-all">Treatment
-        Plans</button>
+          class="bg-gray-50 hover:bg-gray-100 text-gray-900 px-5 py-2 rounded-xl text-sm font-bold border border-gray-200 transition-all">Treatment
+          Plans</button>
       </div>
     </div>
     <!-- Decorative background element -->
     <div
-      class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000">
+      class="absolute top-0 right-0 w-64 h-64 bg-primary-100/50 rounded-full -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000">
     </div>
   </div>
 </div>

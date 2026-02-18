@@ -1,133 +1,111 @@
-<div class="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <!-- Header -->
-    <div class="text-center">
-      <div class="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <h2 class="text-3xl font-bold text-on-surface">Sign in to Portal</h2>
-      <p class="mt-2 text-sm text-on-surface-variant">
-        Welcome back! Please sign in to your account.
-      </p>
-    </div>
+<div
+  class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+  <!-- Decorative Background Blurs -->
+  <div
+    class="absolute -left-20 top-20 w-96 h-96 bg-violet-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse duration-[3000ms]">
+  </div>
+  <div
+    class="absolute -right-20 bottom-20 w-96 h-96 bg-fuchsia-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse duration-[4000ms]">
+  </div>
 
-    <!-- Login Form -->
-    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()" #loginForm="ngForm">
-      <div class="space-y-4">
+  <!-- The "Device" Frame / 3D Card Wrapper -->
+  <div
+    class="relative w-full max-w-[24rem] bg-gradient-to-b from-gray-100 to-violet-800 rounded-[2.5rem] p-3 shadow-2xl shadow-violet-900/30 transform transition-transform hover:scale-[1.01] duration-500">
+
+    <!-- The Inner White Card -->
+    <div
+      class="bg-gray-50 rounded-[2rem] px-8 py-12 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] h-full flex flex-col items-center border border-white">
+
+      <!-- Header -->
+      <h1
+        class="text-5xl font-black text-gray-900 tracking-wider mb-8 drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)] uppercase">
+        LOGIN
+      </h1>
+
+      <!-- Form -->
+      <form class="w-full space-y-6" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+
         <!-- User Name -->
-        <div>
-          <label for="usernameEmail" class="form-label">Email Address/Username</label>
-          <input
-            id="usernameEmail"
-            name="usernameEmail"
-            type="text"
-            [(ngModel)]="loginData.usernameEmail"
-            required
-            class="form-input"
-            placeholder="Enter your email or username"
-            [class.border-error-500]="errors['usernameEmail']"
-            />
+        <div class="space-y-2">
+          <label class="text-sm font-black text-gray-600 ml-1 uppercase tracking-wide">Email Address</label>
+          <div class="relative group">
+            <input type="text" [(ngModel)]="loginData.usernameEmail" name="usernameEmail" required
+              class="w-full bg-gray-200 border-none rounded-lg py-4 px-5 text-gray-800 font-extrabold text-lg focus:ring-0 focus:bg-gray-200/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] placeholder-gray-500/70"
+              placeholder="........" />
           </div>
-
-          <!-- Password -->
-          <div>
-            <label for="password" class="form-label">Password</label>
-            <div class="relative">
-              <input
-                id="password"
-                name="password"
-                [type]="showPassword() ? 'text' : 'password'"
-                [(ngModel)]="loginData.password"
-                required
-                class="form-input pr-10"
-                placeholder="Enter your password"
-                [class.border-error-500]="errors['password']"
-                />
-                <button
-                  type="button"
-                  (click)="togglePassword()"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface"
-                  >
-                  @if (!showPassword()) {
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                  }
-                  @if (showPassword()) {
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
-                    </svg>
-                  }
-                </button>
-              </div>
-              @if (errors['password']) {
-                <p class="form-error">{{ errors['password'] }}</p>
-              }
-            </div>
-
-            <!-- Remember Me & Forgot Password -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  [(ngModel)]="loginData.rememberMe"
-                  class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-border rounded"
-                  />
-                  <label for="remember-me" class="ml-2 block text-sm text-on-surface">
-                    Remember me
-                  </label>
-                </div>
-
-                <div class="text-sm">
-                  <a href="#" class="font-medium text-primary-600 hover:text-primary-500">
-                    Forgot your password?
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Submit Button -->
-            <div>
-              <button
-                type="submit"
-                [disabled]="isLoading()"
-                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                @if (isLoading()) {
-                  <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </span>
-                }
-                {{ isLoading() ? 'Signing in...' : 'Sign in' }}
-              </button>
-            </div>
-
-            <!-- Error Message -->
-            @if (errorMessage()) {
-              <div class="rounded-md bg-error-50 p-4">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-error-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-error-800">Sign in failed</h3>
-                    <div class="mt-2 text-sm text-error-700">
-                      {{ errorMessage() }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          </form>
         </div>
-      </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+          <label class="text-sm font-black text-gray-600 ml-1 uppercase tracking-wide">Password</label>
+          <div class="relative group">
+            <input [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="loginData.password" name="password"
+              required
+              class="w-full bg-gray-200 border-none rounded-lg py-4 px-5 text-gray-800 font-extrabold text-lg focus:ring-0 focus:bg-gray-200/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] placeholder-gray-500/70 tracking-widest"
+              placeholder="........" />
+            <!-- Toggle Eye -->
+            <button type="button" (click)="togglePassword()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+              @if (!showPassword()) {
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                </path>
+              </svg>
+              }
+              @if (showPassword()) {
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21">
+                </path>
+              </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Forgot Password (Moved above button to match common mobile patterns or keep below? Image shows below) -->
+
+        <div class="pt-4">
+          <!-- Login Button -->
+          <button type="submit" [disabled]="isLoading()"
+            class="w-full bg-violet-700 hover:bg-violet-800 text-white font-black py-3.5 rounded-lg shadow-[0_4px_14px_0_rgba(109,40,217,0.39)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.23)] hover:-translate-y-0.5 transform active:scale-95 transition-all duration-200 uppercase tracking-widest text-sm relative overflow-hidden">
+            @if (isLoading()) {
+            <span class="absolute left-4 inset-y-0 flex items-center">
+              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+            </span>
+            }
+            {{ isLoading() ? 'Signing in...' : 'LOGIN' }}
+          </button>
+        </div>
+
+        <!-- Forgot Password Link Removed -->
+
+        <!-- Error Message -->
+        @if (errorMessage()) {
+        <div class="rounded-lg bg-red-50 p-3 mt-4 border border-red-100 animate-in fade-in slide-in-from-bottom-2">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-xs font-bold text-red-600">{{ errorMessage() }}</p>
+            </div>
+          </div>
+        </div>
+        }
+
+      </form>
+    </div>
+  </div>
+</div>

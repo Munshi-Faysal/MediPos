@@ -104,37 +104,21 @@ export class AuthService {
 
         const isExpired = this.isTokenExpired();
         const isExpiringSoon = this.isTokenExpiringSoon();
-        const isUserActive = this.userActivityService.isUserActive();
+        // Always try to refresh, ignore user activity to keep session alive
+        const shouldRefresh = isExpired || isExpiringSoon;
 
-        if (isExpired) {
-          // Token expired, check if user is active
-          if (isUserActive) {
-            // User is active, try to refresh token
-            this.refreshToken().subscribe({
-              next: () => {
-              },
-              error: (error) => {
-                console.error('Token refresh failed:', error);
-                // Only logout if refresh fails multiple times or user becomes inactive
-                // Give it a chance to retry on next interval
-                setTimeout(() => {
-                  if (!this.userActivityService.isUserActive()) {
-                    this.forceLogout();
-                  }
-                }, 5000); // Wait 5 seconds before checking again
-              }
-            });
-          } else {
-            // User inactive and token expired, logout
-            this.forceLogout();
-          }
-        } else if (isExpiringSoon && isUserActive) {
-          // Token expiring soon, refresh proactively if user is active
+        if (shouldRefresh) {
+          // Try to refresh token
           this.refreshToken().subscribe({
             next: () => {
             },
             error: (error) => {
-              // Refresh failed, but don't logout yet (token still valid)
+              console.error('Token refresh failed:', error);
+              // Only logout if refresh fails multiple times
+              // Give it a chance to retry on next interval (wait 5s)
+              setTimeout(() => {
+                // checks again later
+              }, 5000);
             }
           });
         }

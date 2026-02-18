@@ -18,6 +18,9 @@ export interface MenuItem {
   icon: string;
   type: 'link' | 'dropdown';
   order: number;
+  activeClass?: string;
+  childActiveClass?: string;
+  iconClass?: string;
   children?: MenuItem[];
 }
 
@@ -64,13 +67,13 @@ export interface MenuItem {
                     <a
                       [routerLink]="item.route"
                       (click)="isMobile() && closeMobileMenu()"
-                      routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-200"
+                      [routerLinkActive]="item.activeClass || 'bg-primary-50 text-primary-700'"
                       [routerLinkActiveOptions]="item.route === '/doctor/dashboard' ? { exact: true } : { exact: false }"
-                      class="group flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2 xs:py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 min-h-[44px]"
+                      class="group flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2.5 xs:py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-200 min-h-[48px] border-l-4 border-transparent hover:border-gray-200"
                       [class.justify-center]="sidebarCollapsed()"
                       [title]="sidebarCollapsed() ? item.label : ''"
                       >
-                      <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg [class]="item.iconClass || 'text-gray-400'" class="h-6 w-6 flex-shrink-0 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"></path>
                       </svg>
                       @if (!sidebarCollapsed()) {
@@ -80,23 +83,22 @@ export interface MenuItem {
                   }
                   <!-- Dropdown Type -->
                   @if (item.type === 'dropdown') {
-                    <div class="">
+                    <div class="mb-1">
                       <button
                         (click)="toggleMenuItem(item.id)"
-                        class="group w-full flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2 xs:py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors duration-200 min-h-[44px]"
+                        class="group w-full flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2.5 xs:py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-200 min-h-[48px] border-l-4 border-transparent hover:border-gray-200"
                         [class.justify-center]="sidebarCollapsed()"
                         [title]="sidebarCollapsed() ? item.label : ''"
-                        [class.bg-primary-50]="isMenuItemActive(item)"
-                        [class.text-primary-700]="isMenuItemActive(item)"
+                        [ngClass]="isMenuItemActive(item) ? (item.activeClass || 'bg-primary-50 text-primary-700 border-primary-600') : ''"
                         >
-                        <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg [class]="item.iconClass || 'text-gray-400'" class="h-6 w-6 flex-shrink-0 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"></path>
                         </svg>
                         @if (!sidebarCollapsed()) {
                           <span class="truncate">{{ item.label }}</span>
                         }
                         @if (!sidebarCollapsed()) {
-                          <svg class="h-4 w-4 ml-auto transition-transform duration-200 flex-shrink-0"
+                          <svg class="h-4 w-4 ml-auto transition-transform duration-200 flex-shrink-0 text-gray-400"
                             [class.rotate-90]="isMenuItemExpanded(item.id)"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -104,17 +106,15 @@ export interface MenuItem {
                         }
                       </button>
                       @if (!sidebarCollapsed() && isMenuItemExpanded(item.id) && item.children) {
-                        <div class="ml-4 xs:ml-5 sm:ml-6 mt-0.5 xs:mt-1 space-y-0.5 xs:space-y-1">
+                        <div class="ml-6 xs:ml-7 sm:ml-8 mt-1 space-y-1 mb-2 border-l-2 border-gray-100 pl-2">
                           @for (child of item.children; track child) {
                             <a
                               [routerLink]="child.route!"
                               (click)="isMobile() && closeMobileMenu()"
-                              routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-200"
-                              class="group flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2 xs:py-2 text-xs sm:text-sm rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors min-h-[40px]"
+                              [routerLinkActive]="item.childActiveClass || 'text-blue-600 bg-blue-50 font-bold'"
+                              class="group flex items-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors min-h-[36px]"
                               >
-                              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="child.icon"></path>
-                              </svg>
+                              <div class="w-1.5 h-1.5 rounded-full bg-current opacity-40 group-hover:opacity-100 transition-opacity"></div>
                               <span class="truncate">{{ child.label }}</span>
                             </a>
                           }
@@ -316,7 +316,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         route: '/doctor/dashboard',
         icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
         type: 'link',
-        order: 1
+        order: 1,
+        activeClass: 'bg-blue-50 text-blue-700 border-blue-600',
+        iconClass: 'text-blue-500'
       },
       {
         id: 'drug-management',
@@ -325,6 +327,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
         type: 'dropdown',
         order: 2,
+        activeClass: 'bg-teal-50 text-teal-700 border-teal-600',
+        childActiveClass: 'text-teal-700 bg-teal-50 font-bold',
+        iconClass: 'text-teal-500',
         children: [
           {
             id: 'drug-company',
@@ -375,7 +380,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         route: '/doctor/patients',
         icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
         type: 'link',
-        order: 3
+        order: 3,
+        activeClass: 'bg-indigo-50 text-indigo-700 border-indigo-600',
+        iconClass: 'text-indigo-500'
       },
       {
         id: 'appointments',
@@ -383,7 +390,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         route: '/doctor/appointments',
         icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
         type: 'link',
-        order: 4
+        order: 4,
+        activeClass: 'bg-amber-50 text-amber-900 border-amber-500',
+        iconClass: 'text-amber-500'
       },
       {
         id: 'templates',
@@ -392,6 +401,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z',
         type: 'dropdown',
         order: 5,
+        activeClass: 'bg-cyan-50 text-cyan-700 border-cyan-500',
+        childActiveClass: 'text-cyan-700 bg-cyan-50 font-bold',
+        iconClass: 'text-cyan-500',
         children: [
           { id: 'tpl-treatment', label: 'Treatment', route: '/doctor/templates/treatment', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', type: 'link', order: 2 },
           { id: 'tpl-advice', label: 'Advice', route: '/doctor/templates/advice', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', type: 'link', order: 3 },
@@ -409,7 +421,19 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         route: '/doctor/prescriptions',
         icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
         type: 'link',
-        order: 6
+        order: 6,
+        activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-500',
+        iconClass: 'text-emerald-500'
+      },
+      {
+        id: 'quick-prescription',
+        label: 'Quick Rx',
+        route: '/doctor/quick-prescription',
+        icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+        type: 'link',
+        order: 6.5,
+        activeClass: 'bg-rose-50 text-rose-700 border-rose-500',
+        iconClass: 'text-rose-500'
       },
       {
         id: 'prescription-setup',
@@ -418,6 +442,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
         type: 'dropdown',
         order: 7,
+        activeClass: 'bg-violet-50 text-violet-700 border-violet-500',
+        childActiveClass: 'text-violet-700 bg-violet-50 font-bold',
+        iconClass: 'text-violet-500',
         children: [
           { id: 'setup-header', label: 'Header', route: '/doctor/prescription-setup/header', icon: 'M5 15l7-7 7 7', type: 'link', order: 1 },
           { id: 'setup-body', label: 'Body', route: '/doctor/prescription-setup/body', icon: 'M4 6h16M4 12h16M4 18h16', type: 'link', order: 2 },
@@ -431,6 +458,9 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
         type: 'dropdown',
         order: 8,
+        activeClass: 'bg-slate-100 text-slate-800 border-slate-500',
+        childActiveClass: 'text-slate-800 bg-slate-100 font-bold',
+        iconClass: 'text-slate-500',
         children: [
           { id: 'set-profile', label: 'Doctor Profile', route: '/doctor/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', type: 'link', order: 1 },
         ]
@@ -468,9 +498,12 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
 
   toggleMenuItem(itemId: string): void {
     const expanded = new Set(this.expandedMenuItems());
-    if (expanded.has(itemId)) {
-      expanded.delete(itemId);
-    } else {
+    const wasExpanded = expanded.has(itemId);
+
+    // Clear all to ensure only one is open at a time (Accordion behavior)
+    expanded.clear();
+
+    if (!wasExpanded) {
       expanded.add(itemId);
     }
     this.expandedMenuItems.set(expanded);

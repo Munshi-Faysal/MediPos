@@ -24,7 +24,7 @@ export interface NavigationItem {
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, UserDropdownMenuComponent],
   template: `
-    <header class="bg-surface border-b border-border sticky top-0 z-40">
+    <header class="bg-violet-800 border-b border-violet-700 sticky top-0 z-40 shadow-md">
       <div class="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8">
         <div class="flex items-center justify-between h-14 xs:h-14 sm:h-16 gap-1 xs:gap-2 sm:gap-3">
           <!-- Left Section -->
@@ -33,7 +33,7 @@ export interface NavigationItem {
             <button
               type="button"
               (click)="toggleMobileMenu.emit(); $event.stopPropagation(); $event.preventDefault()"
-              class="lg:hidden p-2 xs:p-2.5 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant active:bg-surface-variant transition-colors flex-shrink-0 cursor-pointer min-h-10 min-w-10"
+              class="lg:hidden p-2 xs:p-2.5 rounded-md text-violet-200 hover:text-white hover:bg-violet-700 active:bg-violet-600 transition-colors flex-shrink-0 cursor-pointer min-h-10 min-w-10"
               >
               <svg class="h-5 xs:h-5 sm:h-6 w-5 xs:w-5 sm:w-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -44,7 +44,7 @@ export interface NavigationItem {
             <button
               type="button"
               (click)="toggleSidebar.emit()"
-              class="hidden lg:block p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors flex-shrink-0"
+              class="hidden lg:block p-2 rounded-md text-violet-200 hover:text-white hover:bg-violet-700 transition-colors flex-shrink-0"
               [title]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
               >
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,15 +53,15 @@ export interface NavigationItem {
             </button>
     
             <!-- Logo -->
-            <div class="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
+            <div class="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0 cursor-pointer" (click)="navigateToHome()">
               <div class="w-7 h-7 xs:w-7 xs:h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
                 <svg class="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
               </div>
               <div class="hidden xs:block min-w-0">
-                <h1 class="text-sm xs:text-base sm:text-lg font-semibold text-on-surface truncate">MediPOS</h1>
-                <p class="text-xs text-on-surface-variant truncate">{{ companyName() }}</p>
+                <h1 class="text-sm xs:text-base sm:text-lg font-bold text-white truncate">MediPOS</h1>
+                <p class="text-xs text-violet-200 truncate">{{ companyName() }}</p>
               </div>
             </div>
           </div>
@@ -74,10 +74,10 @@ export interface NavigationItem {
                 [(ngModel)]="searchQuery"
                 (ngModelChange)="onSearchChange($event)"
                 placeholder="Search employees, requests, reports..."
-                class="form-input pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-full text-sm"
+                class="form-input pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-full text-sm bg-white border-transparent text-gray-900 placeholder-gray-500 focus:bg-white focus:border-primary-300 focus:ring-2 focus:ring-primary-500/20 rounded-lg shadow-sm"
                 />
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
@@ -90,7 +90,7 @@ export interface NavigationItem {
               <button
                 type="button"
                 (click)="toggleMobileSearch.emit(); $event.stopPropagation()"
-                class="lg:hidden p-1.5 xs:p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors"
+                class="lg:hidden p-1.5 xs:p-2 rounded-md text-violet-200 hover:text-white hover:bg-violet-700 transition-colors"
                 >
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -101,7 +101,7 @@ export interface NavigationItem {
               <button
                 type="button"
                 (click)="toggleTheme()"
-                class="p-1.5 xs:p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors"
+                class="p-1.5 xs:p-2 rounded-md text-violet-200 hover:text-white hover:bg-violet-700 transition-colors"
                 [title]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
                 >
                 @if (!themeService.isDark()) {
@@ -116,125 +116,18 @@ export interface NavigationItem {
                 }
               </button>
     
-              <!-- Currency Dropdown -->
-              <div class="relative currency-dropdown-container hidden md:block" (click)="$event.stopPropagation()">
-                <button
-                  (click)="toggleCurrencyDropdown()"
-                  class="flex items-center gap-1 xs:gap-1.5 px-1.5 xs:px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors text-xs sm:text-sm"
-                  title="Select Currency"
-                  >
-                  <span class="font-medium">{{ currencyService.selectedCurrency().code }}</span>
-                  <svg
-                    class="h-4 w-4 transition-transform duration-200 flex-shrink-0"
-                    [class.rotate-180]="isCurrencyDropdownOpen()"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-    
-                <!-- Currency Dropdown Menu -->
-                @if (isCurrencyDropdownOpen()) {
-                  <div
-                    class="absolute right-0 mt-2 w-48 xs:w-56 bg-surface border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
-                    (click)="$event.stopPropagation()"
-                    >
-                    <div class="p-2">
-                      <div class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider border-b border-border mb-1">
-                        Select Currency
-                      </div>
-                      <div class="space-y-1">
-                        @for (currency of currencyService.availableCurrencies; track currency) {
-                          <button
-                            (click)="selectCurrency(currency)"
-                            class="w-full flex items-center justify-between px-3 py-2 text-xs xs:text-sm rounded-md transition-all group"
-                            [class.bg-primary-500]="currencyService.selectedCurrency().code === currency.code"
-                            [class.text-white]="currencyService.selectedCurrency().code === currency.code"
-                            [class.hover:bg-surface-variant]="currencyService.selectedCurrency().code !== currency.code"
-                            [class.text-on-surface]="currencyService.selectedCurrency().code !== currency.code"
-                            >
-                            <div class="flex items-center gap-2 xs:gap-3 min-w-0">
-                              <span class="text-base font-medium flex-shrink-0" [class.text-primary-400]="currencyService.selectedCurrency().code !== currency.code" [class.text-white]="currencyService.selectedCurrency().code === currency.code">{{ currency.symbol }}</span>
-                              <div class="text-left min-w-0">
-                                <div class="font-medium truncate" [class.text-on-surface]="currencyService.selectedCurrency().code !== currency.code" [class.text-white]="currencyService.selectedCurrency().code === currency.code">{{ currency.name }}</div>
-                                <div class="text-[10px] uppercase font-bold tracking-wider"
-                                  [ngClass]="currencyService.selectedCurrency().code === currency.code ? 'text-white/70' : 'text-on-surface-variant'">
-                                  {{ currency.code }}
-                                </div>
-                              </div>
-                            </div>
-                            @if (currencyService.selectedCurrency().code === currency.code) {
-                              <svg
-                                class="h-4 w-4 flex-shrink-0 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                              </svg>
-                            }
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-    
-              <!-- Inbox -->
-              <div class="relative">
-                <button
-                  (click)="router.navigate(['/app/inbox'])"
-                  class="p-1.5 xs:p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors relative"
-                  title="Approval Inbox"
-                  >
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                  </svg>
-                  @if (inboxUnreadCount() > 0) {
-                    <span
-                      class="absolute -top-1 -right-1 h-4 xs:h-5 w-4 xs:w-5 bg-error-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                      >
-                      {{ inboxUnreadCount() > 99 ? '99+' : inboxUnreadCount() }}
-                    </span>
-                  }
-                </button>
-              </div>
-    
-              <!-- Notifications -->
-              <div class="relative">
-                <button
-                  (click)="toggleNotifications.emit()"
-                  class="p-1.5 xs:p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors relative"
-                  title="Notifications"
-                  >
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                  </svg>
-                  @if (unreadCount() > 0) {
-                    <span
-                      class="absolute -top-1 -right-1 h-4 xs:h-5 w-4 xs:w-5 bg-error-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                      >
-                      {{ unreadCount() > 99 ? '99+' : unreadCount() }}
-                    </span>
-                  }
-                </button>
-              </div>
-    
               <!-- User Menu -->
               <div class="relative user-dropdown-container">
                 <button
                   (click)="toggleUserDropdown()"
-                  class="flex items-center gap-1 xs:gap-1.5 sm:gap-2 p-1 xs:p-1.5 sm:p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-colors"
+                  class="flex items-center gap-1 xs:gap-1.5 sm:gap-2 p-1 xs:p-1.5 sm:p-2 rounded-md text-violet-100 hover:text-white hover:bg-violet-700 transition-colors"
                   >
-                  <div class="w-7 h-7 xs:w-8 xs:h-8 sm:w-8 sm:h-8 bg-primary-500 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-medium flex-shrink-0">
+                  <div class="w-7 h-7 xs:w-8 xs:h-8 sm:w-8 sm:h-8 bg-white text-violet-800 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 shadow-sm border border-violet-200">
                     {{ userInitials() }}
                   </div>
                   <div class="hidden sm:block text-left min-w-0">
-                    <p class="text-sm font-medium text-on-surface truncate">{{ getUserDisplayName() }}</p>
-                    <p class="text-xs text-on-surface-variant truncate">{{ getDisplayText() }}</p>
+                    <p class="text-sm font-medium text-white truncate">{{ getUserDisplayName() }}</p>
+                    <p class="text-xs text-violet-200 truncate">{{ getDisplayText() }}</p>
                   </div>
                   <svg
                     class="h-4 w-4 transition-transform duration-200 hidden sm:block flex-shrink-0"
@@ -498,6 +391,22 @@ export class TopBarComponent {
     this.isCurrencyDropdownOpen.set(false);
     // Optionally emit an event or notify other components
     this.notificationService.success('Currency Changed', `Currency changed to ${currency.name} (${currency.code})`);
+  }
+
+  navigateToHome(): void {
+    const user = this.currentUser();
+    if (!user) {
+      this.router.navigate(['/']);
+      return;
+    }
+
+    if (user.roles && user.roles.includes('Admin')) {
+      this.router.navigate(['/admin']);
+    } else if (user.roles && user.roles.includes('System-Admin')) {
+      this.router.navigate(['/system-admin']);
+    } else {
+      this.router.navigate(['/doctor/dashboard']);
+    }
   }
 }
 

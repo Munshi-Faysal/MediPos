@@ -60,7 +60,7 @@ export class AppointmentComponent implements OnInit {
             return;
         }
 
-        this.appointmentService.getAppointmentsByDate(doctorId.toString(), this.selectedDate).subscribe({
+        this.appointmentService.getAppointmentsByCurrentDoctorAndDate(this.selectedDate).subscribe({
             next: (res: any) => {
                 const data = res.data || [];
                 this.appointments = data.map((a: AppointmentViewModel) => ({

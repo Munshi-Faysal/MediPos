@@ -12,10 +12,10 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
   template: `
     <div class="header-container font-sans" [formGroup]="parentForm">
       <!-- Top Section: Doctor & Clinic Info -->
-      <div class="flex justify-between items-start border-b-2 border-gray-300" [style.background]="getGradient()" [class.print:hidden]="isPrintHeaderHidden">
+      <div class="flex justify-between items-start border-b-2 border-gray-300" [style.background]="getGradient()" [ngClass]="{'print:hidden': isPrintHeaderHidden}">
     
         <!-- Left Section: Doctor Info -->
-        <div class="flex p-6 items-start">
+        <div class="flex p-6 pl-12 items-start">
           <div class="text-left space-y-1" [style.color]="config.textColor">
             @if (config.showDoctorName) {
               <h1 class="text-2xl font-bold">{{ config.doctorName }}</h1>
@@ -62,7 +62,7 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
       </div>
     
       <!-- Dynamic Patient Info Bar -->
-      <div class="bg-white p-3 border-b-2 border-gray-800 text-[12px] leading-relaxed">
+      <div class="bg-white p-3 pl-12 border-b-2 border-gray-800 text-[12px] leading-relaxed">
         <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
           @for (field of sortedFields; track field.id) {
             <div [class]="getFieldClasses(field.id)">
@@ -70,10 +70,22 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
               <span class="mx-1">:</span>
               <div class="flex-1 border-b border-gray-200 px-1 relative top-[1px] min-h-[1.2rem]">
                 @if (isEditable(field.id)) {
-                  <!-- Input for Screen -->
-                  <input [formControlName]="getControlName(field.id)" 
-                         class="w-full bg-transparent border-0 focus:ring-0 p-0 text-gray-800 font-medium placeholder-gray-300 print:hidden"
-                         [placeholder]="field.label">
+                  <!-- Input/Select for Screen -->
+                  @if (field.id === 'sex') {
+                    <select [formControlName]="getControlName(field.id)" 
+                            [class.appearance-none]="parentForm.get(getControlName(field.id))?.value"
+                            class="w-full bg-transparent border-0 focus:ring-0 p-0 text-gray-800 text-sm font-medium placeholder-gray-300 print:hidden cursor-pointer"
+                            (click)="$event.stopPropagation()">
+                      <option value="" style="display:none"></option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  } @else {
+                    <input [formControlName]="getControlName(field.id)" 
+                           class="w-full bg-transparent border-0 focus:ring-0 p-0 text-gray-800 font-medium placeholder-gray-300 print:hidden"
+                           [placeholder]="field.label">
+                  }
                   <!-- Text for Print -->
                   <span class="hidden print:block text-gray-800 font-bold">
                     {{ parentForm.get(getControlName(field.id))?.value || '' }}

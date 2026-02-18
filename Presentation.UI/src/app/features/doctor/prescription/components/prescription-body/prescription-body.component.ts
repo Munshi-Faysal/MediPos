@@ -14,7 +14,7 @@ import JsBarcode from 'jsbarcode';
     
       <!-- Left Column: Dynamic Sections -->
       @if (config.showLeftColumn) {
-        <div class="w-full md:w-1/3 border-r border-gray-800 pt-2 px-4 pb-4 space-y-6 print:w-1/3 relative">
+        <div class="w-full md:w-1/3 border-r border-gray-800 pt-2 px-4 pb-4 space-y-4 print:w-1/3 relative">
           <div class="absolute inset-y-0 right-0 w-px bg-gray-800 print:hidden"></div> <!-- Vertical Line -->
           <!-- Barcode at TOP of left column -->
           @if (config.showBarcode && patient?.id) {
@@ -26,9 +26,9 @@ import JsBarcode from 'jsbarcode';
             </div>
           }
           @for (section of sortedSections; track section.id) {
-            <div class="space-y-1">
+            <div class="space-y-1 pl-16">
               <div class="flex items-center gap-2 overflow-hidden">
-                <h3 class="font-bold text-gray-900 whitespace-nowrap shrink-0" 
+                <h3 class="font-bold text-lg text-gray-900 whitespace-nowrap shrink-0" 
                     [class.print:hidden]="!parentForm.get(getControlName(section.id))?.value">
                   {{ section.label }}
                 </h3>
@@ -52,9 +52,9 @@ import JsBarcode from 'jsbarcode';
                   <div [class.hidden]="!isSectionVisible(section.id)" class="print:hidden">
                     <textarea
                       [formControlName]="getControlName(section.id)"
-                      class="w-full bg-transparent border-0 focus:ring-0 resize-none p-0 text-gray-800 placeholder-gray-300 min-h-[50px] leading-snug"
+                      class="w-full bg-transparent border-0 focus:ring-0 resize-none p-0 text-gray-800 placeholder-gray-300 min-h-[25px] leading-snug"
                       [placeholder]="section.placeholder || 'Type content...'"
-                      rows="3"
+                      rows="1"
                     ></textarea>
                   </div>
                   

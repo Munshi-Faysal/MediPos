@@ -15,8 +15,19 @@ export interface Doctor {
   email: string;
   phone: string;
   specialization?: string;
+  title?: string; // e.g. MBBS, MD
+  bio?: string;
   address?: string;
   profileImage?: string;
+
+  // Chamber Info
+  clinicName?: string;
+  chamberAddress?: string;
+  chamberContact?: string;
+  startTime?: string;
+  endTime?: string;
+  offDay?: string;
+
   status: DoctorStatus;
   packageId?: string; // Made optional as per user request
   assignedPackageId?: string; // Alias for packageId

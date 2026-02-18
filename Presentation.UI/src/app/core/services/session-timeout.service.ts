@@ -13,7 +13,7 @@ export class SessionTimeoutService implements OnDestroy {
   private sessionCheckInterval?: Subscription;
   private warningThreshold = 5; // Show warning 5 minutes before expiry
   private checkInterval = 60000; // Check every minute
-  
+
   public showWarning = signal(false);
   public timeRemaining = signal(0);
 
@@ -23,9 +23,9 @@ export class SessionTimeoutService implements OnDestroy {
 
   private startSessionMonitoring(): void {
     // Check session status every minute
-    this.sessionCheckInterval = interval(this.checkInterval).subscribe(() => {
-      this.checkSessionStatus();
-    });
+    // this.sessionCheckInterval = interval(this.checkInterval).subscribe(() => {
+    //   this.checkSessionStatus();
+    // });
 
     // Initial check
     this.checkSessionStatus();
@@ -52,9 +52,6 @@ export class SessionTimeoutService implements OnDestroy {
     if (timeRemaining <= 0) {
       // Token expired, force logout
       this.handleSessionExpired();
-    } else if (timeRemaining <= this.warningThreshold) {
-      // Show warning
-      this.showWarning.set(true);
     } else {
       // Hide warning if time increased (token refreshed)
       this.showWarning.set(false);
@@ -63,8 +60,8 @@ export class SessionTimeoutService implements OnDestroy {
 
   private handleSessionExpired(): void {
     this.authService.forceLogout();
-    this.router.navigate(['/auth/login'], { 
-      queryParams: { reason: 'session-expired' } 
+    this.router.navigate(['/auth/login'], {
+      queryParams: { reason: 'session-expired' }
     });
   }
 

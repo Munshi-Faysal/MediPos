@@ -155,7 +155,8 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     });
     this.settingsService.getFooterConfig().subscribe(c => this.footerConfig = c);
 
-    this.loadPatients();
+    // Default load removed as per request to not show list initially
+    // this.loadPatients(); 
     this.loadDoseTemplates();
     this.loadAdviceTemplates();
     this.loadDurationTemplates();
@@ -192,7 +193,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     this.prescriptionForm = this.fb.group({
-      patientId: ['', [Validators.required]],
+      patientId: [''], // made optional for auto-create
       appointmentId: [''], // Add appointmentId to form
       prescriptionDate: [new Date().toISOString().split('T')[0], [Validators.required]],
       patientRegNo: [''],
@@ -233,24 +234,42 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     this.selectedAppointment = null;
     this.prescriptionForm.patchValue({ patientId: '', appointmentId: '' });
 
+    // If switching back to patient mode, clear selection but don't auto-load list
     if (mode === 'patient') {
-      this.loadPatients();
+      // this.loadPatients(); 
     } else {
       this.loadAppointments();
     }
   }
 
-  loadPatients(): void {
-    this.loadingPatients = true;
-    this.patientService.getPatients().subscribe({
+  loadPatients(limit?: number): void {
+    const sub = this.patientService.getPatients().subscribe({
       next: (patients) => {
-        this.patients.set(patients);
+        const result = limit ? patients.slice(0, limit) : patients;
+        this.patients.set(result);
         this.loadingPatients = false;
       },
       error: () => {
         this.loadingPatients = false;
       }
     });
+  }
+
+  showPatientDropdown = false;
+
+  onSearchFocus(): void {
+    // Check if we need to load initial list
+    if (this.patients().length === 0) {
+      this.loadPatients(5);
+    }
+    this.showPatientDropdown = true;
+  }
+
+  onSearchBlur(): void {
+    // Delay hiding so checking the list item click can register
+    setTimeout(() => {
+      this.showPatientDropdown = false;
+    }, 200);
   }
 
   loadDoseTemplates(): void {
@@ -455,7 +474,8 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.loadPatients();
+      // changing: if query empty, show limited list again
+      this.loadPatients(5);
     }
   }
 
@@ -588,16 +608,58 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(action: 'save' | 'print' = 'save'): void {
-    if (this.prescriptionForm.invalid || this.medicinesFormArray.length === 0) {
+    // remove patientId required check, handle visually
+    const formVal = this.prescriptionForm.value;
+    const hasPatient = formVal.patientId || (formVal.patientName && formVal.patientName.trim());
+
+    if (!hasPatient || this.medicinesFormArray.length === 0) {
       this.markFormGroupTouched(this.prescriptionForm);
       if (this.medicinesFormArray.length === 0) {
         alert('Please add at least one medicine to the prescription.');
+      } else {
+        alert('Please select or enter a Patient Name.');
       }
       return;
     }
 
     this.submitting = true;
 
+    // Check if we need to create a patient first
+    if (!formVal.patientId && formVal.patientName) {
+      const newPatient: any = {
+        id: '0', // Backend handles ID
+        name: formVal.patientName,
+        phone: formVal.patientPhone || '',
+        age: formVal.patientAge ? parseInt(formVal.patientAge) : 0,
+        gender: formVal.patientGender || Gender.OTHER,
+        address: formVal.patientAddress || '',
+        weight: formVal.patientWeight || ''
+      };
+
+      this.patientService.createPatient(newPatient).subscribe({
+        next: (createdPatient) => {
+          // Update form with new ID
+          this.prescriptionForm.patchValue({
+            patientId: createdPatient.id,
+            // Update other fields to match created patient standard format if needed
+            patientRegNo: createdPatient.id
+          });
+
+          // Proceed with saving prescription
+          this.savePrescription(action);
+        },
+        error: (err) => {
+          this.submitting = false;
+          console.error('Failed to auto-create patient', err);
+          alert('Failed to create new patient. Please check details.');
+        }
+      });
+    } else {
+      this.savePrescription(action);
+    }
+  }
+
+  private savePrescription(action: 'save' | 'print'): void {
     // Save new templates
     Promise.all([
       this.saveNewDoses(),
