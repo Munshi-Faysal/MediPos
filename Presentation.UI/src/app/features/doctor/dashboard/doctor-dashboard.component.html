@@ -21,141 +21,111 @@
   <!-- Stats Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <!-- Today's Appointment (Styled like 'Startup' / Active Card) -->
+    <!-- Today's Visits -->
     <div
-      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-2xl shadow-violet-200/50 transition-all duration-300 group hover:-translate-y-1 h-full border-2 border-primary-100">
-
-      <!-- Curved Header Section -->
-      <div class="w-full relative py-6 px-4 text-center bg-primary-600 group-hover:bg-primary-700 transition-colors"
-        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
-
-        <h3 class="text-xs font-bold uppercase tracking-widest text-white/80 mb-2">
-          Today's Visits
-        </h3>
-
-        <div class="flex justify-center items-baseline gap-1 text-white">
-          <span class="text-4xl font-black tracking-tighter">{{ stats().todayAppointments }}</span>
-        </div>
+      class="flex flex-col bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200 hover:-translate-y-1 transition-transform duration-300 border border-slate-100">
+      <div class="bg-[#37306B] py-4 text-center">
+        <h3 class="text-white font-bold text-lg tracking-wide">Today's Visits</h3>
       </div>
-
-      <!-- Content -->
-      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
-        <div
-          class="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 mb-2 shadow-inner">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      <div class="flex items-center justify-between px-6 py-8">
+        <!-- Icon -->
+        <div class="text-[#37306B]">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
           </svg>
         </div>
-        <p
-          class="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 mb-1">
+        <!-- Number -->
+        <div class="text-5xl font-black text-slate-700">
+          {{ stats().todayAppointments }}
+        </div>
+        <!-- Badge -->
+        <span class="bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md shadow-emerald-200">
           +12% Increase
-        </p>
-        <p class="text-xs text-slate-400">from yesterday</p>
+        </span>
       </div>
     </div>
 
     <!-- Total Patients (Styled like 'Basic' / White Card) -->
+    <!-- Total Patients -->
     <div
-      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-100 hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 group hover:-translate-y-1 h-full border border-slate-100">
-
-      <!-- Curved Header Section -->
-      <div class="w-full relative py-6 px-4 text-center bg-slate-50"
-        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
-
-        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-          Total Patients
-        </h3>
-
-        <div class="flex justify-center items-baseline gap-1 text-primary-700">
-          <span class="text-4xl font-black tracking-tighter">{{ stats().totalPatients }}</span>
-        </div>
+      class="flex flex-col bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200 hover:-translate-y-1 transition-transform duration-300 border border-slate-100">
+      <div class="bg-[#37306B] py-4 text-center">
+        <h3 class="text-white font-bold text-lg tracking-wide">Total Patients</h3>
       </div>
-
-      <!-- Content -->
-      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
-        <div
-          class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-600 mb-2 group-hover:scale-110 transition-transform">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      <div class="flex items-center justify-between px-6 py-8">
+        <!-- Icon -->
+        <div class="text-[#37306B]">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
             </path>
           </svg>
         </div>
-        <p
-          class="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1 rounded-full border border-primary-100 mb-1">
+        <!-- Number -->
+        <div class="text-5xl font-black text-slate-700">
+          {{ stats().totalPatients }}
+        </div>
+        <!-- Badge -->
+        <span class="bg-[#1E88E5] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md shadow-blue-200">
           Lifetime
-        </p>
-        <p class="text-xs text-slate-400">All Records</p>
+        </span>
       </div>
     </div>
 
     <!-- Total Prescriptions (Styled like 'Basic' / White Card) -->
+    <!-- Prescriptions -->
     <div
-      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-100 hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 group hover:-translate-y-1 h-full border border-slate-100">
-
-      <!-- Curved Header Section -->
-      <div class="w-full relative py-6 px-4 text-center bg-slate-50"
-        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
-
-        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-          Prescriptions
-        </h3>
-
-        <div class="flex justify-center items-baseline gap-1 text-primary-700">
-          <span class="text-4xl font-black tracking-tighter">{{ stats().totalPrescriptions }}</span>
-        </div>
+      class="flex flex-col bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200 hover:-translate-y-1 transition-transform duration-300 border border-slate-100">
+      <div class="bg-[#37306B] py-4 text-center">
+        <h3 class="text-white font-bold text-lg tracking-wide">Prescriptions</h3>
       </div>
-
-      <!-- Content -->
-      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
-        <div
-          class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-primary-600 mb-2 group-hover:scale-110 transition-transform">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      <div class="flex items-center justify-between px-6 py-8">
+        <!-- Icon -->
+        <div class="text-[#37306B]">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
             </path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M14 3v5h5M10 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"></path>
           </svg>
         </div>
-        <p
-          class="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1 rounded-full border border-primary-100 mb-1">
+        <!-- Number -->
+        <div class="text-5xl font-black text-slate-700">
+          {{ stats().totalPrescriptions }}
+        </div>
+        <!-- Badge -->
+        <span class="bg-[#1E88E5] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md shadow-blue-200">
           Total
-        </p>
-        <p class="text-xs text-slate-400">Across all platforms</p>
+        </span>
       </div>
     </div>
 
     <!-- Pending Tasks (Styled like 'Basic' / White Card) -->
+    <!-- Pending Tasks -->
     <div
-      class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-100 hover:shadow-2xl hover:shadow-slate-200 transition-all duration-300 group hover:-translate-y-1 h-full border border-slate-100">
-
-      <!-- Curved Header Section -->
-      <div class="w-full relative py-6 px-4 text-center bg-slate-50"
-        style="border-radius: 0 0 50% 50% / 0 0 30px 30px;">
-
-        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-          Pending Tasks
-        </h3>
-
-        <div class="flex justify-center items-baseline gap-1 text-primary-700">
-          <span class="text-4xl font-black tracking-tighter">{{ stats().pendingTasks }}</span>
-        </div>
+      class="flex flex-col bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200 hover:-translate-y-1 transition-transform duration-300 border border-slate-100">
+      <div class="bg-[#37306B] py-4 text-center">
+        <h3 class="text-white font-bold text-lg tracking-wide">Pending Tasks</h3>
       </div>
-
-      <!-- Content -->
-      <div class="px-6 py-6 flex-grow w-full flex flex-col items-center justify-center">
-        <div
-          class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-rose-600 mb-2 group-hover:scale-110 transition-transform">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      <div class="flex items-center justify-between px-6 py-8">
+        <!-- Icon -->
+        <div class="text-[#37306B]">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
             </path>
           </svg>
         </div>
-        <p
-          class="text-sm font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-100 mb-1 animate-pulse">
+        <!-- Number -->
+        <div class="text-5xl font-black text-slate-700">
+          {{ stats().pendingTasks }}
+        </div>
+        <!-- Badge -->
+        <span class="bg-[#E53935] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md shadow-red-200">
           Action Items
-        </p>
-        <p class="text-xs text-slate-400">Attention needed</p>
+        </span>
       </div>
     </div>
   </div>

@@ -16,17 +16,26 @@ export interface BodySectionConfig {
 export interface PrescriptionHeaderConfig {
     doctorName: string;
     showDoctorName: boolean;
+    designation: string;
+    showDesignation: boolean;
     degrees: string;
     showDegrees: boolean;
+    fellowship: string;
+    showFellowship: boolean;
     specialties: string[];
     showSpecialties: boolean;
+    specialtiesText: string;   // comma-separated editable version
     department: string;
     showDepartment: boolean;
     institute: string;
     showInstitute: boolean;
     regNo: string;
     showRegNo: boolean;
+    email: string;
+    showEmail: boolean;
 
+    chamberLogo: string;        // base64 data URL
+    showChamberLogo: boolean;
     chamberName: string;
     showChamberName: boolean;
     chamberAddress: string;
@@ -68,16 +77,25 @@ export interface PrescriptionFooterConfig {
 export const DEFAULT_HEADER_CONFIG: PrescriptionHeaderConfig = {
     doctorName: 'Munshi Faysal',
     showDoctorName: true,
+    designation: 'Consultant Physician',
+    showDesignation: true,
     degrees: 'MBBS, MD',
     showDegrees: true,
+    fellowship: '',
+    showFellowship: false,
     specialties: ['Medicine Specialist'],
     showSpecialties: true,
+    specialtiesText: 'Medicine Specialist',
     department: 'Department Of Medicine',
     showDepartment: true,
     institute: 'Demo Medical College',
     showInstitute: true,
     regNo: '112589',
     showRegNo: true,
+    email: '',
+    showEmail: false,
+    chamberLogo: '',
+    showChamberLogo: false,
     chamberName: 'Crescent Diagnostic Center',
     showChamberName: true,
     chamberAddress: 'Panthapath, Dhaka',

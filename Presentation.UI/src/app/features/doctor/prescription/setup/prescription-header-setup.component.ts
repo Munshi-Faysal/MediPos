@@ -37,6 +37,8 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
             <div>
               <h3 class="text-sm font-bold text-blue-600 uppercase mb-3 tracking-wide">Doctor Details</h3>
               <div class="grid grid-cols-1 gap-4">
+
+                <!-- Doctor Name -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Doctor Name</label>
@@ -44,13 +46,44 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
                   </div>
                   <input type="text" [(ngModel)]="localConfig.doctorName" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDoctorName">
                 </div>
+
+                <!-- Designation -->
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Designation</label>
+                    <input type="checkbox" [(ngModel)]="localConfig.showDesignation" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
+                  </div>
+                  <input type="text" [(ngModel)]="localConfig.designation" (ngModelChange)="onConfigChange()" placeholder="e.g. Consultant Physician" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDesignation">
+                </div>
+
+                <!-- Degrees -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Degrees</label>
                     <input type="checkbox" [(ngModel)]="localConfig.showDegrees" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
                   </div>
-                  <input type="text" [(ngModel)]="localConfig.degrees" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDegrees">
+                  <input type="text" [(ngModel)]="localConfig.degrees" (ngModelChange)="onConfigChange()" placeholder="e.g. MBBS, MD" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDegrees">
                 </div>
+
+                <!-- Fellowship -->
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Fellowship / Extra Credentials</label>
+                    <input type="checkbox" [(ngModel)]="localConfig.showFellowship" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
+                  </div>
+                  <input type="text" [(ngModel)]="localConfig.fellowship" (ngModelChange)="onConfigChange()" placeholder="e.g. FCPS (Medicine), FRCP" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showFellowship">
+                </div>
+
+                <!-- Specialties -->
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Specialties <span class="text-gray-400 font-normal text-xs">(comma-separated)</span></label>
+                    <input type="checkbox" [(ngModel)]="localConfig.showSpecialties" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
+                  </div>
+                  <input type="text" [(ngModel)]="localConfig.specialtiesText" (ngModelChange)="onSpecialtiesChange()" placeholder="e.g. Medicine Specialist, Diabetes Expert" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showSpecialties">
+                </div>
+
+                <!-- Department -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Department</label>
@@ -58,6 +91,8 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
                   </div>
                   <input type="text" [(ngModel)]="localConfig.department" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDepartment">
                 </div>
+
+                <!-- Institute/Hospital -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Institute/Hospital</label>
@@ -65,13 +100,25 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
                   </div>
                   <input type="text" [(ngModel)]="localConfig.institute" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showInstitute">
                 </div>
+
+                <!-- Reg No -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Reg No</label>
+                    <label class="block text-sm font-medium text-gray-700">BMDC Reg No</label>
                     <input type="checkbox" [(ngModel)]="localConfig.showRegNo" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
                   </div>
                   <input type="text" [(ngModel)]="localConfig.regNo" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showRegNo">
                 </div>
+
+                <!-- Email -->
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="checkbox" [(ngModel)]="localConfig.showEmail" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
+                  </div>
+                  <input type="email" [(ngModel)]="localConfig.email" (ngModelChange)="onConfigChange()" placeholder="e.g. doctor@hospital.com" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showEmail">
+                </div>
+
               </div>
             </div>
     
@@ -79,6 +126,37 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
             <div class="pt-4 border-t border-gray-100">
               <h3 class="text-sm font-bold text-blue-600 uppercase mb-3 tracking-wide">Chamber Details</h3>
               <div class="grid grid-cols-1 gap-4">
+
+                <!-- Logo Upload -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium text-gray-700">Chamber Logo</label>
+                    <input type="checkbox" [(ngModel)]="localConfig.showChamberLogo" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <!-- Preview -->
+                    <div class="w-16 h-16 rounded border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      @if (localConfig.chamberLogo) {
+                        <img [src]="localConfig.chamberLogo" class="w-full h-full object-contain" alt="Logo">
+                      } @else {
+                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      }
+                    </div>
+                    <div class="flex-1 space-y-2">
+                      <label class="block w-full cursor-pointer bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-sm font-medium py-2 px-3 rounded text-center transition-colors">
+                        <svg class="w-4 h-4 inline mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Upload Logo
+                        <input type="file" accept="image/*" class="hidden" (change)="onLogoUpload($event)">
+                      </label>
+                      @if (localConfig.chamberLogo) {
+                        <button (click)="removeLogo()" class="w-full text-xs text-red-500 hover:text-red-700 underline">Remove Logo</button>
+                      }
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-400 mt-1">PNG, JPG, SVG — recommended size 200×100px</p>
+                </div>
+
+                <!-- Chamber Name -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Chamber Name</label>
@@ -86,6 +164,8 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
                   </div>
                   <input type="text" [(ngModel)]="localConfig.chamberName" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showChamberName">
                 </div>
+
+                <!-- Address -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Address</label>
@@ -93,6 +173,7 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
                   </div>
                   <input type="text" [(ngModel)]="localConfig.chamberAddress" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showChamberAddress">
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <div class="flex items-center justify-between mb-1">
@@ -109,6 +190,8 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
                     <input type="text" [(ngModel)]="localConfig.offDay" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showOffDay">
                   </div>
                 </div>
+
+                <!-- Visit Time -->
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-sm font-medium text-gray-700">Visit Time</label>
@@ -220,6 +303,19 @@ export class PrescriptionHeaderSetupComponent implements OnInit {
       if (!this.localConfig.patientFields) {
         this.localConfig.patientFields = JSON.parse(JSON.stringify(DEFAULT_HEADER_CONFIG.patientFields));
       }
+      // Sync specialtiesText from specialties array if not set
+      if (!this.localConfig.specialtiesText && this.localConfig.specialties?.length) {
+        this.localConfig.specialtiesText = this.localConfig.specialties.join(', ');
+      }
+      // Ensure new fields have defaults if loading old saved config
+      if (this.localConfig.designation === undefined) this.localConfig.designation = '';
+      if (this.localConfig.showDesignation === undefined) this.localConfig.showDesignation = false;
+      if (this.localConfig.fellowship === undefined) this.localConfig.fellowship = '';
+      if (this.localConfig.showFellowship === undefined) this.localConfig.showFellowship = false;
+      if (this.localConfig.email === undefined) this.localConfig.email = '';
+      if (this.localConfig.showEmail === undefined) this.localConfig.showEmail = false;
+      if (this.localConfig.chamberLogo === undefined) this.localConfig.chamberLogo = '';
+      if (this.localConfig.showChamberLogo === undefined) this.localConfig.showChamberLogo = false;
       this.updatePreview();
     });
   }
@@ -229,6 +325,33 @@ export class PrescriptionHeaderSetupComponent implements OnInit {
   }
 
   onConfigChange() {
+    this.updatePreview();
+  }
+
+  onLogoUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.localConfig.chamberLogo = e.target?.result as string;
+      this.localConfig.showChamberLogo = true;
+      this.updatePreview();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeLogo() {
+    this.localConfig.chamberLogo = '';
+    this.updatePreview();
+  }
+
+  onSpecialtiesChange() {
+    // Sync text input back to specialties array used by the header component
+    this.localConfig.specialties = this.localConfig.specialtiesText
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
     this.updatePreview();
   }
 

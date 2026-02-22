@@ -18,10 +18,16 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
         <div class="flex p-6 pl-12 items-start">
           <div class="text-left space-y-1" [style.color]="config.textColor">
             @if (config.showDoctorName) {
-              <h1 class="text-2xl font-bold">{{ config.doctorName }}</h1>
+              <h1 class="text-lg font-bold">{{ config.doctorName }}</h1>
+            }
+            @if (config.showDesignation && config.designation) {
+              <p class="text-sm font-semibold italic">{{ config.designation }}</p>
             }
             @if (config.showDegrees) {
               <p class="font-bold">{{ config.degrees }}</p>
+            }
+            @if (config.showFellowship && config.fellowship) {
+              <p class="font-semibold text-sm">{{ config.fellowship }}</p>
             }
             @if (config.showSpecialties) {
               @for (spec of config.specialties; track spec) {
@@ -37,20 +43,25 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
             @if (config.showRegNo) {
               <p class="text-sm font-semibold mt-2">BMDC Reg. No- {{ config.regNo }}</p>
             }
+            @if (config.showEmail && config.email) {
+              <p class="text-sm">Email: {{ config.email }}</p>
+            }
           </div>
         </div>
     
         <!-- Right: Chamber Info -->
-        <div class="p-6 text-right space-y-1" [style.color]="config.textColor">
-          <p class="font-bold">Chamber:</p>
+        <div class="p-6 pr-10 text-right space-y-1 flex flex-col items-end justify-center" [style.color]="config.textColor">
+          @if (config.showChamberLogo && config.chamberLogo) {
+            <img [src]="config.chamberLogo" class="max-h-14 max-w-[160px] object-contain mb-2" alt="Chamber Logo">
+          }
           @if (config.showChamberName) {
-            <p class="text-sm font-semibold">{{ config.chamberName }}</p>
+            <p class="text-sm font-bold">{{ config.chamberName }}</p>
           }
           @if (config.showChamberAddress) {
             <p class="text-sm">{{ config.chamberAddress }}</p>
           }
           @if (config.showMobile) {
-            <p class="text-sm">Mobile: {{ config.mobile }}</p>
+            <p class="text-sm">For Appointment: {{ config.mobile }}</p>
           }
           @if (config.showVisitTime) {
             <p class="text-sm">{{ config.visitTime }}</p>
