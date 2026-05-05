@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Shared.Cryptography;
 
@@ -14,6 +14,15 @@ public class EncryptionHelper(IDataProtectionProvider dataProtectionProvider,
 
     public int Decrypt(string encryptedId)
     {
-        return string.IsNullOrWhiteSpace(encryptedId) ? 0 : Convert.ToInt32(_protector.Unprotect(encryptedId));
+        try
+        {
+            if (string.IsNullOrWhiteSpace(encryptedId)) return 0;
+            var decryptedValue = _protector.Unprotect(encryptedId);
+            return int.TryParse(decryptedValue, out var result) ? result : 0;
+        }
+        catch
+        {
+            return 0;
+        }
     }
 }

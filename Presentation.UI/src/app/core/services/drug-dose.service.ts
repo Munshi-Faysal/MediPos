@@ -30,7 +30,7 @@ export interface DrugDoseViewModel {
 export class DrugDoseService {
     private api = inject(ApiService);
 
-    private readonly endpoint = '/DrugDose';
+    private readonly endpoint = 'DrugDose';
 
     /**
      * Get paginated list of drug doses

@@ -87,7 +87,7 @@ export type TableData = Record<string, any>;
       }
     
       <!-- Table -->
-      <div class="table-responsive overflow-y-auto" style="max-height: calc(100vh - 400px);">
+      <div class="table-responsive overflow-y-auto" style="max-height: calc(100vh - 320px); min-height: 300px;">
         <table class="min-w-full divide-y divide-border">
           <thead class="bg-primary-50 dark:bg-primary-900/20 border-b-2 border-primary-200 dark:border-primary-800 sticky top-0 z-20 shadow-sm">
             <tr>
@@ -148,7 +148,7 @@ export type TableData = Record<string, any>;
             <!-- Empty State -->
             @if (!loading && paginatedData().length === 0) {
               <tr>
-                <td [attr.colspan]="getColspan()" class="px-3 sm:px-6 py-8 sm:py-12 text-center">
+                <td [attr.colspan]="getColspan()" class="px-3 sm:px-6 py-16 sm:py-24 text-center">
                   <div class="flex flex-col items-center gap-4">
                     <svg class="h-10 w-10 sm:h-12 sm:w-12 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -235,7 +235,7 @@ export type TableData = Record<string, any>;
     
     <!-- Pagination -->
     @if (showPagination) {
-      <div class="px-3 sm:px-6 py-3 sm:py-4 bg-primary-50/50 dark:bg-primary-900/10 border-t-2 border-primary-200 dark:border-primary-800">
+      <div class="px-3 sm:px-6 py-5 sm:py-6 bg-primary-50/50 dark:bg-primary-900/10 border-t-2 border-primary-200 dark:border-primary-800">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <!-- Page Info -->
           <div class="text-xs sm:text-sm font-medium text-primary-900 dark:text-primary-100 text-center sm:text-left">

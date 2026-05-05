@@ -9,6 +9,7 @@ import { ApiService } from './api.service';
 })
 export class MedicineService {
   private apiService = inject(ApiService);
+  private readonly endpoint = 'Drug';
 
   // In-memory storage for demo (will be replaced with API calls)
   private medicinesSubject = new BehaviorSubject<Medicine[]>([]);
@@ -19,26 +20,22 @@ export class MedicineService {
   public loading$ = this.loadingSubject.asObservable();
 
   constructor() {
-    // Initialize with empty array or load from API
-    this.loadMedicines();
+    // Automatic load removed to prevent 404 on non-existent endpoint
   }
 
   /**
    * Get all medicines
    */
-  getMedicines(): Observable<Medicine[]> {
+  getMedicines(): Observable<DrugMaster[]> {
     this.loadingSubject.next(true);
 
-    // For demo: return from subject, for production: use API
-    return this.apiService.get<Medicine[]>('/medicines').pipe(
-      tap(medicines => {
-        this.medicinesSubject.next(medicines);
+    return this.apiService.get<DrugMaster[]>(`${this.endpoint}/GetAll`).pipe(
+      tap(() => {
         this.loadingSubject.next(false);
       }),
       catchError(() => {
-        // Fallback to in-memory data for demo
         this.loadingSubject.next(false);
-        return this.medicines$;
+        return of([]);
       })
     );
   }
@@ -46,18 +43,8 @@ export class MedicineService {
   /**
    * Get medicine by ID
    */
-  getMedicineById(id: string): Observable<Medicine> {
-    return this.apiService.get<Medicine>(`/medicines/${id}`).pipe(
-      catchError(() => {
-        // Fallback: search in-memory data
-        const medicines = this.medicinesSubject.value;
-        const medicine = medicines.find(m => m.id === id);
-        if (medicine) {
-          return of(medicine);
-        }
-        throw new Error('Medicine not found');
-      })
-    );
+  getMedicineById(id: string): Observable<DrugMaster> {
+    return this.apiService.get<DrugMaster>(`${this.endpoint}/GetById/${id}`);
   }
 
   /**
@@ -66,25 +53,15 @@ export class MedicineService {
   createMedicine(medicine: Medicine): Observable<Medicine> {
     this.loadingSubject.next(true);
 
-    const newMedicine: Medicine = {
-      ...medicine,
-      id: this.generateId(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    return this.apiService.post<Medicine>('/medicines', newMedicine).pipe(
+    return this.apiService.post<Medicine>(this.endpoint, medicine).pipe(
       tap(createdMedicine => {
         const current = this.medicinesSubject.value;
         this.medicinesSubject.next([...current, createdMedicine]);
         this.loadingSubject.next(false);
       }),
       catchError(() => {
-        // Fallback: add to in-memory data
-        const current = this.medicinesSubject.value;
-        this.medicinesSubject.next([...current, newMedicine]);
         this.loadingSubject.next(false);
-        return of(newMedicine);
+        return of(medicine);
       })
     );
   }
@@ -95,13 +72,7 @@ export class MedicineService {
   updateMedicine(id: string, medicine: Medicine): Observable<Medicine> {
     this.loadingSubject.next(true);
 
-    const updatedMedicine: Medicine = {
-      ...medicine,
-      id,
-      updatedAt: new Date()
-    };
-
-    return this.apiService.put<Medicine>(`/medicines/${id}`, updatedMedicine).pipe(
+    return this.apiService.put<Medicine>(`${this.endpoint}/${id}`, medicine).pipe(
       tap(updated => {
         const current = this.medicinesSubject.value;
         const index = current.findIndex(m => m.id === id);
@@ -112,15 +83,8 @@ export class MedicineService {
         this.loadingSubject.next(false);
       }),
       catchError(() => {
-        // Fallback: update in-memory data
-        const current = this.medicinesSubject.value;
-        const index = current.findIndex(m => m.id === id);
-        if (index !== -1) {
-          current[index] = updatedMedicine;
-          this.medicinesSubject.next([...current]);
-        }
         this.loadingSubject.next(false);
-        return of(updatedMedicine);
+        return of(medicine);
       })
     );
   }
@@ -131,16 +95,11 @@ export class MedicineService {
   deleteMedicine(id: string): Observable<void> {
     this.loadingSubject.next(true);
 
-    return this.apiService.delete<void>(`/medicines/${id}`).pipe(
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`).pipe(
       tap(() => {
-        const current = this.medicinesSubject.value;
-        this.medicinesSubject.next(current.filter(m => m.id !== id));
         this.loadingSubject.next(false);
       }),
       catchError(() => {
-        // Fallback: remove from in-memory data
-        const current = this.medicinesSubject.value;
-        this.medicinesSubject.next(current.filter(m => m.id !== id));
         this.loadingSubject.next(false);
         return of(void 0);
       })
@@ -154,15 +113,15 @@ export class MedicineService {
     if (!term || term.trim() === '') {
       return of([]);
     }
-    return this.apiService.get<DrugMaster[]>(`/Drug/Search?term=${term}`);
+    return this.apiService.get<DrugMaster[]>(`${this.endpoint}/Search?term=${term}`);
   }
 
   /**
-   * Search medicines by query string
+   * Search medicines by query string (backward compatibility)
    */
   searchMedicines(query: string): Observable<Medicine[]> {
     if (!query || query.trim() === '') {
-      return this.getMedicines();
+      return of([]);
     }
 
     const searchTerm = query.toLowerCase().trim();
@@ -175,7 +134,7 @@ export class MedicineService {
       medicine.variation.toLowerCase().includes(searchTerm)
     );
 
-    return of(filtered).pipe(delay(200)); // Simulate API delay
+    return of(filtered).pipe(delay(200));
   }
 
   /**
@@ -245,7 +204,6 @@ export class MedicineService {
    * Load medicines (initialize or refresh)
    */
   private loadMedicines(): void {
-    // Load medicines from API on service initialization
     this.getMedicines().subscribe();
   }
 

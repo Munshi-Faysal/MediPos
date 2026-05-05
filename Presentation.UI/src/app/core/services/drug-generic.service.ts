@@ -37,7 +37,7 @@ interface ViewResponse<T> {
 export class DrugGenericService {
     private api = inject(ApiService);
 
-    private readonly endpoint = '/Generic';
+    private readonly endpoint = 'Generic';
 
     getGenerics(take = 1000, skip = 0): Observable<DrugGeneric[]> {
         return this.api.get<ViewResponse<GenericViewModel>>(`${this.endpoint}/GetAll?take=${take}&skip=${skip}`).pipe(

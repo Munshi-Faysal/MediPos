@@ -1,4 +1,4 @@
-﻿using Domain.Models;
+using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
@@ -15,10 +15,9 @@ public class BaseService
     {
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
-        CurrentUser = GetCurrentUserAsync().GetAwaiter().GetResult();
     }
 
-    private async Task<ApplicationUser?> GetCurrentUserAsync()
+    protected async Task<ApplicationUser?> GetCurrentUserAsync()
     {
         var user = _httpContextAccessor.HttpContext?.User;
         var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -26,6 +25,17 @@ public class BaseService
             return await _userManager.FindByIdAsync(userId);
         return null;
     }
+
+    protected int CurrentUserId
+    {
+        get
+        {
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(userId, out var id) ? id : 0;
+        }
+    }
+
+    protected ApplicationUser? CurrentUser => GetCurrentUserAsync().GetAwaiter().GetResult();
 
     protected async Task<int> GenerateAutoNoByLastNo(string lastNo, char prefix)
     {
@@ -37,17 +47,15 @@ public class BaseService
         });
     }
 
-    protected ApplicationUser? CurrentUser { get; }
-
     protected void CreateAutoFields(dynamic entity)
     {
         entity.CreatedDate = entity.UpdatedDate = DateTime.Now;
-        entity.CreatedBy = entity.UpdatedBy = CurrentUser?.Id ?? 0;
+        entity.CreatedBy = entity.UpdatedBy = CurrentUserId;
     }
 
     protected void UpdateAutoFields(dynamic entity)
     {
         entity.UpdatedDate = DateTime.Now;
-        entity.UpdatedBy = CurrentUser?.Id ?? 0;
+        entity.UpdatedBy = CurrentUserId;
     }
 }

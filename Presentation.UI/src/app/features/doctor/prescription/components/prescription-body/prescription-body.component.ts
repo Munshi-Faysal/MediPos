@@ -10,7 +10,7 @@ import JsBarcode from 'jsbarcode';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="flex flex-col md:flex-row min-h-[600px]" [formGroup]="parentForm">
+    <div class="flex flex-col md:flex-row min-h-[800px]" [formGroup]="parentForm">
     
       <!-- Left Column: Dynamic Sections -->
       @if (config.showLeftColumn) {

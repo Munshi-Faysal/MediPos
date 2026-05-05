@@ -37,7 +37,7 @@ interface ViewResponse<T> {
 export class DrugCompanyService {
     private api = inject(ApiService);
 
-    private readonly endpoint = '/DrugCompany';
+    private readonly endpoint = 'DrugCompany';
 
     getCompanies(take = 1000, skip = 0): Observable<DrugCompany[]> {
         return this.api.get<ViewResponse<DrugCompanyViewModel>>(`${this.endpoint}/GetAll?take=${take}&skip=${skip}`).pipe(

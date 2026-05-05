@@ -30,7 +30,7 @@ export interface DrugDurationViewModel {
 export class DrugDurationService {
     private api = inject(ApiService);
 
-    private readonly endpoint = '/DrugDuration';
+    private readonly endpoint = 'DrugDuration';
 
     /**
      * Get paginated list of drug durations

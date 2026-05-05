@@ -57,6 +57,9 @@ public class DrugCompanyController(IServiceManager service) : ControllerBase
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Create(DrugCompanyDto dto)
     {
+        if (await service.DrugCompany.IsNameExistsAsync(dto.Name))
+            return BadRequest(new { StatusCode = "ArgumentException", ExceptionMessage = "Company name already exists." });
+
         return Ok(await service.DrugCompany.CreateAsync(dto));
     }
 
@@ -65,8 +68,12 @@ public class DrugCompanyController(IServiceManager service) : ControllerBase
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Edit(DrugCompanyDto dto)
     {
-        return dto.EncryptedId is null ? NotFound()
-            : Ok(await service.DrugCompany.UpdateAsync(dto));
+        if (dto.EncryptedId is null) return NotFound();
+
+        if (await service.DrugCompany.IsNameExistsAsync(dto.Name, dto.EncryptedId))
+            return BadRequest(new { StatusCode = "ArgumentException", ExceptionMessage = "Company name already exists." });
+
+        return Ok(await service.DrugCompany.UpdateAsync(dto));
     }
 
     [HttpPatch]

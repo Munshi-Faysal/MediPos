@@ -52,7 +52,7 @@ export interface DrugStrengthInitDto {
 export class DrugStrengthService {
     private api = inject(ApiService);
 
-    private readonly endpoint = '/DrugStrength';
+    private readonly endpoint = 'DrugStrength';
 
     /**
      * Get paginated list of drug strengths

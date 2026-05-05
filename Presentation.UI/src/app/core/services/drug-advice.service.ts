@@ -42,7 +42,7 @@ export interface DrugAdviceViewModel {
 export class DrugAdviceService {
     private api = inject(ApiService);
 
-    private readonly endpoint = '/DrugAdvice';
+    private readonly endpoint = 'DrugAdvice';
 
     /**
      * Get paginated list of drug advices

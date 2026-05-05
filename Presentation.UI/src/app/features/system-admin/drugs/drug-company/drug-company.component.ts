@@ -3,6 +3,7 @@ import { Component, signal, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugCompanyService } from '../../../../core/services/drug-company.service';
 import { DrugCompany } from '../../../../core/models/drug-company.model';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-drug-company',
@@ -114,6 +115,7 @@ import { DrugCompany } from '../../../../core/models/drug-company.model';
 })
 export class DrugCompanyComponent implements OnInit {
   private companyService = inject(DrugCompanyService);
+  private notificationService = inject(NotificationService);
 
   public companies = signal<DrugCompany[]>([]);
   public filteredCompanies = signal<DrugCompany[]>([]);
@@ -177,23 +179,27 @@ export class DrugCompanyComponent implements OnInit {
     if (this.editingCompany) {
       this.companyService.updateCompany({ ...this.editingCompany, ...this.companyForm }).subscribe({
         next: () => {
+          this.notificationService.success('Success', 'Company updated successfully');
           this.loadCompanies();
           this.closeModal();
         },
         error: (err) => {
           console.error('Error updating company:', err);
-          alert('Failed to update company. Please try again.');
+          const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to update company. Please try again.';
+          this.notificationService.error('Update Failed', errorMessage);
         }
       });
     } else {
       this.companyService.addCompany(this.companyForm).subscribe({
         next: () => {
+          this.notificationService.success('Success', 'Company created successfully');
           this.loadCompanies();
           this.closeModal();
         },
         error: (err) => {
           console.error('Error creating company:', err);
-          alert('Failed to create company. Please try again.');
+          const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to create company. Please try again.';
+          this.notificationService.error('Creation Failed', errorMessage);
         }
       });
     }
@@ -205,11 +211,12 @@ export class DrugCompanyComponent implements OnInit {
       if (company && (company as any).encryptedId) {
         this.companyService.deleteCompany((company as any).encryptedId).subscribe({
           next: () => {
+            this.notificationService.success('Success', 'Company deleted successfully');
             this.loadCompanies();
           },
           error: (err) => {
             console.error('Error deleting company:', err);
-            alert('Failed to delete company. Please try again.');
+            this.notificationService.error('Deletion Failed', 'Failed to delete company. Please try again.');
           }
         });
       }
