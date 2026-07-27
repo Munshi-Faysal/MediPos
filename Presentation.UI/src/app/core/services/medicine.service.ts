@@ -1,8 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs';
-import {  delay, tap, catchError } from 'rxjs/operators';
+import { delay, tap, catchError, map } from 'rxjs/operators';
 import { Medicine, MedicineForm, MedicineFilters, DrugMaster } from '../models/medicine.model';
 import { ApiService } from './api.service';
+
+interface ViewResponse<T> {
+  data?: {
+    itemList?: T[];
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -26,10 +32,15 @@ export class MedicineService {
   /**
    * Get all medicines
    */
-  getMedicines(): Observable<DrugMaster[]> {
+  getMedicines(): Observable<Medicine[]> {
     this.loadingSubject.next(true);
 
-    return this.apiService.get<DrugMaster[]>(`${this.endpoint}/GetAll`).pipe(
+    return this.apiService.get<ViewResponse<DrugMaster>>(`${this.endpoint}/GetAll?take=1000&skip=0`).pipe(
+      map(response => {
+        const medicines = (response?.data?.itemList || []).map(drug => this.mapDrugMasterToMedicine(drug));
+        this.medicinesSubject.next(medicines);
+        return medicines;
+      }),
       tap(() => {
         this.loadingSubject.next(false);
       }),
@@ -43,8 +54,10 @@ export class MedicineService {
   /**
    * Get medicine by ID
    */
-  getMedicineById(id: string): Observable<DrugMaster> {
-    return this.apiService.get<DrugMaster>(`${this.endpoint}/GetById/${id}`);
+  getMedicineById(id: string): Observable<Medicine> {
+    return this.apiService.get<DrugMaster>(`${this.endpoint}/Details/${id}`).pipe(
+      map(drug => this.mapDrugMasterToMedicine(drug))
+    );
   }
 
   /**
@@ -95,7 +108,8 @@ export class MedicineService {
   deleteMedicine(id: string): Observable<void> {
     this.loadingSubject.next(true);
 
-    return this.apiService.delete<void>(`${this.endpoint}/${id}`).pipe(
+    return this.apiService.patch<boolean>(`${this.endpoint}/ChangeActive/${id}`).pipe(
+      map(() => void 0),
       tap(() => {
         this.loadingSubject.next(false);
       }),
@@ -205,6 +219,30 @@ export class MedicineService {
    */
   private loadMedicines(): void {
     this.getMedicines().subscribe();
+  }
+
+  private mapDrugMasterToMedicine(drug: DrugMaster): Medicine {
+    const firstDetail = drug.drugDetailList?.[0];
+
+    return {
+      id: drug.encryptedId || (drug as any).id?.toString() || '',
+      genericName: drug.drugGenericName || '',
+      companyName: drug.drugCompanyName || '',
+      medicineName: drug.name || '',
+      pack: firstDetail?.description || '',
+      variation: firstDetail?.strengthName || '',
+      form: (firstDetail?.drugTypeName as MedicineForm) || MedicineForm.TABLET,
+      price: firstDetail?.unitPrice || 0,
+      stockQuantity: 0,
+      expiryDate: undefined,
+      batchNumber: '',
+      manufacturerDetails: drug.drugCompanyName || '',
+      category: '',
+      description: (drug as any).description || firstDetail?.description || '',
+      isActive: (drug as any).isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
   }
 
   /**

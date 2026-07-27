@@ -40,7 +40,7 @@ public class ServiceManager(IRepositoryManager repository,
     private readonly Lazy<IDrugTypeService> _drugType = new(() => new DrugTypeService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IDrugDurationService> _drugDuration = new(() => new DrugDurationService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IGenericService> _generic = new(() => new GenericService(userManager, httpContextAccessor, repository, mapper));
-    private readonly Lazy<IDrugCompanyService> _drugCompany = new(() => new DrugCompanyService(userManager, httpContextAccessor, repository, mapper));
+    private readonly Lazy<IDrugCompanyService> _drugCompany = new(() => new DrugCompanyService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IUnitService> _unit = new(() => new UnitService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IDrugMasterService> _drugMaster = new(() => new DrugMasterService(userManager, httpContextAccessor, repository, mapper));
     private readonly Lazy<IAppointmentService> _appointment = new(() => new AppointmentService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
