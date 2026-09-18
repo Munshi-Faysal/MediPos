@@ -40,30 +40,32 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
-        app.MapOpenApi();
-        app.MapScalarApiReference(options =>
-        {
-            options
-                .WithTitle("Workflow Engine API")
-                .WithTheme(ScalarTheme.Purple)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                .AddPreferredSecuritySchemes("Bearer")
-                .AddHttpAuthentication("Bearer", bearer =>
-                {
-                    bearer.Token = string.Empty;
-                })
-                .WithFavicon("/favicon.ico")
-                .WithCustomCss("""
-                    .scalar-api-reference__header {
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    }
-                    .scalar-auth-button {
-                        font-weight: 600 !important;
-                        box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3) !important;
-                    }
-                """);
-        });
     }
+
+    // Enable OpenAPI and Scalar API Reference (available in both Development and Production)
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("MediPos API")
+            .WithTheme(ScalarTheme.Purple)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+            .AddPreferredSecuritySchemes("Bearer")
+            .AddHttpAuthentication("Bearer", bearer =>
+            {
+                bearer.Token = string.Empty;
+            })
+            .WithFavicon("/favicon.ico")
+            .WithCustomCss("""
+                .scalar-api-reference__header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+                .scalar-auth-button {
+                    font-weight: 600 !important;
+                    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3) !important;
+                }
+            """);
+    });
 
     app.UseSerilogRequestLogging();
     app.UseMiddleware<ExceptionHandlingMiddleware>();

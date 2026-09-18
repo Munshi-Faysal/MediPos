@@ -105,8 +105,9 @@ internal static class ServiceExtension
                         "http://localhost:4200",
                         "http://localhost:4400",
                         "https://medipos.techonebd.com",
-                        "http://medipos.techonebd.com"
-
+                        "http://medipos.techonebd.com",
+                        "http://medipos.codesln.com",
+                        "https://medipos.codesln.com"
                         )
                         .AllowAnyHeader()
                         .AllowAnyMethod()
