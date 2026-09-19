@@ -7,6 +7,6 @@ export const environment = {
   enableLogging: false,
   enableMockData: false,
   recaptcha: {
-    siteKey: 'YOUR_PRODUCTION_SITE_KEY_HERE'
+    siteKey: '8rAAAAAGgMVWj2ht8w7TjU4bVLOUpxbo8G'
   }
 };
