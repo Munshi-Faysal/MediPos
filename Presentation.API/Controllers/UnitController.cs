@@ -53,6 +53,7 @@ public class UnitController(IServiceManager service) : ControllerBase
 
     [HttpPost]
     [Route("Create")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Create(UnitDto dto)
     {
@@ -61,6 +62,7 @@ public class UnitController(IServiceManager service) : ControllerBase
 
     [HttpPut]
     [Route("Edit")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Edit(UnitDto dto)
     {
@@ -70,6 +72,7 @@ public class UnitController(IServiceManager service) : ControllerBase
 
     [HttpPatch]
     [Route("ChangeActive/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     public async Task<IActionResult> ChangeActive(string encryptedId)
     {
         return Ok(await service.Unit.ChangeActiveAsync(encryptedId));

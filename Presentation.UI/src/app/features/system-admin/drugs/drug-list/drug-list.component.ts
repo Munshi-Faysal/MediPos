@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { DrugCompanyService } from '../../../../core/services/drug-company.service';
@@ -8,6 +8,8 @@ import { DrugTypeService } from '../../../../core/services/drug-type.service';
 import { DrugStrengthService } from '../../../../core/services/drug-strength.service';
 import { DrugCompany } from '../../../../core/models/drug-company.model';
 import { DrugGeneric } from '../../../../core/models/drug-generic.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-list',
@@ -20,10 +22,12 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
           <h1 class="text-3xl font-black text-on-surface tracking-tight">Drug Repository</h1>
           <p class="text-on-surface-variant font-medium">Master Data & Prescription Details</p>
         </div>
-        <button (click)="openModal()" class="px-6 py-3 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary-700 transition-all shadow-xl hover:shadow-primary-500/30 active:scale-95 flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-          Add New Drug
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-6 py-3 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary-700 transition-all shadow-xl hover:shadow-primary-500/30 active:scale-95 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add New Drug
+          </button>
+        }
       </div>
     
       <!-- Search and Filters -->
@@ -61,7 +65,9 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
                   <th class="px-8 py-6">Master Drug Information</th>
                   <th class="px-8 py-6">Default Prescription</th>
                   <th class="px-8 py-6">Status</th>
-                  <th class="px-8 py-6 text-right">Actions</th>
+                  @if (isSuperAdmin()) {
+                    <th class="px-8 py-6 text-right">Actions</th>
+                  }
                 </tr>
               </thead>
               <tbody class="divide-y divide-border/50 text-sm">
@@ -103,26 +109,28 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
                         {{ drug.isActive ? 'Active' : 'Inactive' }}
                       </span>
                     </td>
-                    <td class="px-8 py-6 text-right">
-                      <div class="flex items-center justify-end gap-2">
-                        <button (click)="editDrug(drug)" class="p-2.5 text-on-surface-variant hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Edit">
-                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        </button>
-                        <button (click)="toggleStatus(drug)" [class]="drug.isActive ? 'text-rose-600 hover:bg-rose-50' : 'text-emerald-600 hover:bg-emerald-50'" class="p-2.5 rounded-xl transition-all" [title]="drug.isActive ? 'Deactivate' : 'Activate'">
-                          @if (drug.isActive) {
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                          }
-                          @if (!drug.isActive) {
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                          }
-                        </button>
-                      </div>
-                    </td>
+                    @if (isSuperAdmin()) {
+                      <td class="px-8 py-6 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                          <button (click)="editDrug(drug)" class="p-2.5 text-on-surface-variant hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Edit">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                          </button>
+                          <button (click)="toggleStatus(drug)" [class]="drug.isActive ? 'text-rose-600 hover:bg-rose-50' : 'text-emerald-600 hover:bg-emerald-50'" class="p-2.5 rounded-xl transition-all" [title]="drug.isActive ? 'Deactivate' : 'Activate'">
+                            @if (drug.isActive) {
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                            }
+                            @if (!drug.isActive) {
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            }
+                          </button>
+                        </div>
+                      </td>
+                    }
                   </tr>
                 }
                 @if (filteredDrugs().length === 0) {
                   <tr>
-                    <td colspan="4" class="px-8 py-24 text-center">
+                    <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-8 py-24 text-center">
                       <div class="p-6 bg-surface-variant/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
                         <svg class="w-10 h-10 text-on-surface-variant/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                       </div>
@@ -293,6 +301,9 @@ export class DrugListComponent implements OnInit {
   private drugService = inject(DrugService);
   private typeService = inject(DrugTypeService);
   private strengthService = inject(DrugStrengthService);
+  private authService = inject(AuthService);
+
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
 
   public drugs = signal<any[]>([]);
   public filteredDrugs = signal<any[]>([]);
@@ -435,6 +446,7 @@ export class DrugListComponent implements OnInit {
   }
 
   openModal(): void {
+    if (!this.isSuperAdmin()) return;
     this.editingDrug = null;
     this.drugForm = {
       brandName: '',
@@ -452,6 +464,7 @@ export class DrugListComponent implements OnInit {
   }
 
   editDrug(drug: any): void {
+    if (!this.isSuperAdmin()) return;
     this.editingDrug = drug;
     // Fetch full data with specific IDs for editing
     this.drugService.getDrugById(drug.encryptedId).subscribe({
@@ -474,7 +487,11 @@ export class DrugListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error fetching drug details:', err);
-        alert('Failed to load drug details for editing.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load drug details for editing.'
+        });
       }
     });
   }
@@ -530,6 +547,8 @@ export class DrugListComponent implements OnInit {
   }
 
   saveDrug(): void {
+    if (!this.isSuperAdmin()) return;
+
     const dto: any = {
       encryptedId: this.editingDrug?.encryptedId,
       name: this.drugForm.brandName,
@@ -549,18 +568,46 @@ export class DrugListComponent implements OnInit {
     if (this.editingDrug) {
       this.drugService.updateDrug(dto).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Updated',
+            text: 'Drug updated successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
           this.loadDrugs();
           this.closeModal();
         },
-        error: (err) => console.error('Error updating drug:', err)
+        error: (err) => {
+          console.error('Error updating drug:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update drug. Please try again.'
+          });
+        }
       });
     } else {
       this.drugService.createDrug(dto).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Created',
+            text: 'Drug created successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
           this.loadDrugs();
           this.closeModal();
         },
-        error: (err) => console.error('Error creating drug:', err)
+        error: (err) => {
+          console.error('Error creating drug:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create drug. Please try again.'
+          });
+        }
       });
     }
   }
@@ -580,19 +627,35 @@ export class DrugListComponent implements OnInit {
         form: this.drugForm,
         status: { brand, generic: this.drugForm.genericId, company: this.drugForm.drugCompanyId, detailsValid: this.areDetailsValid() }
       });
-      alert('Please correct the following fields before saving:\n\n• ' + reasons.join('\n• '));
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Form',
+        html: 'Please correct the following fields before saving:<br><br><div class="text-left font-sans text-sm">• ' + reasons.join('<br>• ') + '</div>'
+      });
     }
   }
 
   toggleStatus(drug: any): void {
+    if (!this.isSuperAdmin()) return;
     if (drug.encryptedId) {
       this.drugService.changeDrugActiveStatus(drug.encryptedId).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Status Updated',
+            text: `Drug is now ${drug.isActive ? 'Inactive' : 'Active'}.`,
+            timer: 1500,
+            showConfirmButton: false
+          });
           this.loadDrugs();
         },
         error: (err) => {
           console.error('Error toggling drug status:', err);
-          alert('Failed to change status. Please try again.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to change status. Please try again.'
+          });
         }
       });
     }

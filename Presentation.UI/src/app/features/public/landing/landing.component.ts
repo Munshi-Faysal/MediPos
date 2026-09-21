@@ -98,8 +98,22 @@ export class LandingComponent implements OnInit {
     return { invalidCardNumber: true };
   }
 
+  activeFaqIndex: number | null = 0;
+
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  toggleFaq(index: number): void {
+    this.activeFaqIndex = this.activeFaqIndex === index ? null : index;
+  }
+
+  scrollToSection(id: string): void {
+    this.mobileMenuOpen = false;
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   toggleFeatures(pkg: Package, event: Event): void {

@@ -9,4 +9,5 @@ public interface IOnboardingService
     Task<CompanyRegistrationDto?> GetRegistrationByIdAsync(int id);
     Task<bool> ApproveRegistrationAsync(ApprovalDto approvalDto);
     Task<bool> RejectRegistrationAsync(RejectionDto rejectionDto);
+    Task<bool> DeleteRegistrationAsync(int id);
 }

@@ -61,6 +61,7 @@ public class DrugTypeController(IServiceManager service) : ControllerBase
 
     [HttpPost]
     [Route("Create")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Create(DrugTypeDto dto)
     {
@@ -69,6 +70,7 @@ public class DrugTypeController(IServiceManager service) : ControllerBase
 
     [HttpPut]
     [Route("Edit")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Edit(DrugTypeDto dto)
     {
@@ -78,6 +80,7 @@ public class DrugTypeController(IServiceManager service) : ControllerBase
 
     [HttpPatch]
     [Route("ChangeActive/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     public async Task<IActionResult> ChangeActive(string encryptedId)
     {
         return Ok(await service.DrugType.ChangeActiveAsync(encryptedId));

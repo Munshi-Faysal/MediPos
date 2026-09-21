@@ -30,37 +30,21 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
       },
-      // Package Management Route
+      // Package and Medicine Routes redirected for Institution Admin
       {
         path: 'packages',
-        loadComponent: () => import('./features/admin/package-management/package-management.component').then(m => m.PackageManagementComponent)
+        redirectTo: '',
+        pathMatch: 'full'
       },
       {
         path: 'users',
-        loadComponent: () => import('./features/admin/package-management/package-management.component').then(m => m.PackageManagementComponent)
+        redirectTo: '',
+        pathMatch: 'full'
       },
-      // Medicine Management Routes
       {
         path: 'medicines',
-        loadComponent: () => import('./features/admin/medicine-management/medicine-management.component').then(m => m.MedicineManagementComponent),
-        children: [
-          {
-            path: '',
-            loadComponent: () => import('./features/admin/medicine-management/medicine-list/medicine-list.component').then(m => m.MedicineListComponent)
-          },
-          {
-            path: 'new',
-            loadComponent: () => import('./features/admin/medicine-management/medicine-form/medicine-form.component').then(m => m.MedicineFormComponent)
-          },
-          {
-            path: ':id',
-            loadComponent: () => import('./features/admin/medicine-management/medicine-detail/medicine-detail.component').then(m => m.MedicineDetailComponent)
-          },
-          {
-            path: ':id/edit',
-            loadComponent: () => import('./features/admin/medicine-management/medicine-form/medicine-form.component').then(m => m.MedicineFormComponent)
-          }
-        ]
+        redirectTo: 'drugs/list',
+        pathMatch: 'full'
       },
       // Doctor Management Routes
       {

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SystemOnboardingService, CompanyRegistration } from '../../../core/services/system-onboarding.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-onboarding',
@@ -165,6 +166,16 @@ import { NotificationService } from '../../../core/services/notification.service
                     Reject
                   </button>
                 }
+                <button
+                  (click)="deleteRegistration(registration)"
+                  class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white border border-rose-500/20 hover:border-rose-500 rounded-lg font-bold transition-all flex items-center justify-center gap-1.5"
+                  title="Delete Request"
+                  >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -283,8 +294,8 @@ import { NotificationService } from '../../../core/services/notification.service
               }
             </div>
             <!-- Modal Footer -->
-            @if (selectedRegistration()?.approvalStatus === 'Pending') {
-              <div class="px-8 py-6 border-t border-border bg-surface-variant/30 flex gap-4">
+            <div class="px-8 py-6 border-t border-border bg-surface-variant/30 flex gap-4">
+              @if (selectedRegistration()?.approvalStatus === 'Pending') {
                 <button
                   (click)="openApproveModal(selectedRegistration()!)"
                   class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:bg-emerald-700 transition-all shadow-md shadow-emerald-500/20 hover:scale-[1.02] active:scale-95"
@@ -297,8 +308,17 @@ import { NotificationService } from '../../../core/services/notification.service
                   >
                   Reject Request
                 </button>
-              </div>
-            }
+              }
+              <button
+                (click)="deleteRegistration(selectedRegistration()!)"
+                class="py-3 px-6 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-md shadow-rose-500/20 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95"
+                >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       }
@@ -585,6 +605,54 @@ export class OnboardingComponent implements OnInit {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
+    });
+  }
+
+  deleteRegistration(registration: CompanyRegistration): void {
+    if (!registration.id) return;
+
+    Swal.fire({
+      title: 'Delete Registration?',
+      text: `Are you sure you want to delete the registration request for "${registration.organizationName}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.isLoading.set(true);
+        this.onboardingService.deleteRegistration(registration.id).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: `Registration for "${registration.organizationName}" has been deleted.`,
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.registrations.update(regs => regs.filter(r => r.id !== registration.id));
+            this.filterByStatus();
+            if (this.selectedRegistration()?.id === registration.id) {
+              this.closeDetails();
+            }
+            this.isLoading.set(false);
+          },
+          error: (err) => {
+            console.error('Error deleting registration:', err);
+            this.isLoading.set(false);
+            const errorMessage = err.error?.message || err.error?.ExceptionMessage || err.error?.exceptionMessage || 'Failed to delete registration. Please try again.';
+            Swal.fire({
+              icon: 'error',
+              title: 'Deletion Failed',
+              text: errorMessage
+            });
+          }
+        });
+      }
     });
   }
 }

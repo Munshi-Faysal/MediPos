@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { SystemPackageService } from '../../../core/services/system-package.service';
 import { Feature, Package } from '../../../core/models/system-package.model';
 import { NotificationService } from '../../../core/services/notification.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-packages',
@@ -88,7 +89,7 @@ import { NotificationService } from '../../../core/services/notification.service
                     </div>
                     <p class="text-sm text-on-surface-variant mb-6 line-clamp-2">{{ pkg.description || 'No description provided.' }}</p>
                     <div class="mb-6">
-                      <span class="text-4xl font-black text-primary-600">{{ pkg.price | currency }}</span>
+                      <span class="text-4xl font-black text-primary-600">৳{{ pkg.price }}</span>
                       <span class="text-on-surface-variant text-sm font-medium"> / {{ pkg.durationInDays }} days</span>
                     </div>
                     <div class="space-y-2 mb-6">
@@ -125,6 +126,15 @@ import { NotificationService } from '../../../core/services/notification.service
                         >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                        </svg>
+                      </button>
+                      <button
+                        (click)="deletePackage(pkg)"
+                        title="Delete"
+                        class="p-2 text-on-surface-variant hover:text-rose-600 hover:bg-rose-500/10 rounded-lg transition-all"
+                        >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
                       </button>
                     </div>
@@ -221,6 +231,15 @@ import { NotificationService } from '../../../core/services/notification.service
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
                                 </svg>
                               </button>
+                              <button
+                                (click)="deleteFeature(feat)"
+                                title="Delete"
+                                class="p-2 text-on-surface-variant hover:text-rose-600 hover:bg-rose-500/10 rounded-lg transition-all"
+                                >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -259,7 +278,7 @@ import { NotificationService } from '../../../core/services/notification.service
                         <input type="text" formControlName="packageName" class="form-input" placeholder="e.g. Premium Plus" />
                       </div>
                       <div>
-                        <label class="form-label">Price (USD)</label>
+                        <label class="form-label">Price (BDT)</label>
                         <input type="number" formControlName="price" class="form-input" placeholder="0.00" />
                       </div>
                     </div>
@@ -539,6 +558,48 @@ export class PackagesComponent implements OnInit {
     });
   }
 
+  deletePackage(pkg: Package): void {
+    if (!pkg.encryptedId) return;
+
+    Swal.fire({
+      title: 'Delete Package?',
+      text: `Are you sure you want to delete package "${pkg.packageName || pkg.name}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.packageService.deletePackage(pkg.encryptedId!).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: `Package "${pkg.packageName || pkg.name}" has been deleted.`,
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.allPackages.update(ps => ps.filter(p => p.encryptedId !== pkg.encryptedId));
+            this.loadData();
+          },
+          error: (err) => {
+            console.error('Error deleting package:', err);
+            const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to delete package. Please try again.';
+            Swal.fire({
+              icon: 'error',
+              title: 'Deletion Failed',
+              text: errorMessage
+            });
+          }
+        });
+      }
+    });
+  }
+
   // --- Feature Logic ---
   openFeatureModal(feat: Feature | null = null): void {
     this.editingFeature = feat;
@@ -595,6 +656,48 @@ export class PackagesComponent implements OnInit {
       this.allFeatures.update(fs => fs.map(f => f.encryptedId === res.encryptedId ? res : f));
       this.nf.info('Status Updated', `Feature ${feat.featureName || feat.name} is now ${updated.isActive ? 'Active' : 'Inactive'}.`);
       this.loadData(); // Refresh packages to reflect status changes
+    });
+  }
+
+  deleteFeature(feat: Feature): void {
+    if (!feat.encryptedId) return;
+
+    Swal.fire({
+      title: 'Delete Feature?',
+      text: `Are you sure you want to delete feature "${feat.featureName || feat.name}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.packageService.deleteFeature(feat.encryptedId!).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: `Feature "${feat.featureName || feat.name}" has been deleted.`,
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.allFeatures.update(fs => fs.filter(f => f.encryptedId !== feat.encryptedId));
+            this.loadData();
+          },
+          error: (err) => {
+            console.error('Error deleting feature:', err);
+            const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to delete feature. Please try again.';
+            Swal.fire({
+              icon: 'error',
+              title: 'Deletion Failed',
+              text: errorMessage
+            });
+          }
+        });
+      }
     });
   }
 }

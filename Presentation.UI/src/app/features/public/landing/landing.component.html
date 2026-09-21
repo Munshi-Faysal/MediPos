@@ -11,19 +11,18 @@
     <div
       class="absolute -bottom-[20%] left-[20%] w-[70vw] h-[70vw] rounded-full bg-fuchsia-400/20 blur-[120px] mix-blend-multiply filter opacity-70 animate-blob animation-delay-4000">
     </div>
-    <!-- Grid Pattern Overlay -->
     <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
   </div>
 
   <!-- Glass Navbar -->
   <nav
-    class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-white/70 backdrop-blur-xl border-b border-white/40 shadow-sm">
-    <div class="container mx-auto px-6 py-4">
+    class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 py-3.5">
       <div class="flex items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center gap-2 group cursor-pointer">
+        <div (click)="scrollToSection('hero')" class="flex items-center gap-2.5 group cursor-pointer">
           <div
-            class="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-500/30 group-hover:scale-105 transition-transform duration-300">
+            class="w-10 h-10 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
@@ -31,208 +30,713 @@
           </div>
           <div class="flex flex-col">
             <span
-              class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-indigo-700 tracking-tight">MediPos</span>
-            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Prescription Mgmt</span>
+              class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-700 via-indigo-700 to-purple-700 tracking-tight">MediPOS</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Healthcare Practice Suite</span>
           </div>
         </div>
 
-        <!-- Login Button -->
-        <a routerLink="/auth/login"
-          class="relative overflow-hidden group px-6 py-2.5 rounded-full bg-slate-900 text-white font-medium shadow-lg shadow-slate-900/20 hover:shadow-slate-900/40 hover:-translate-y-0.5 transition-all duration-300">
-          <span class="relative z-10 flex items-center gap-2">
-            Login
-            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </span>
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          </div>
-        </a>
+        <!-- Desktop Navigation Links -->
+        <div class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600">
+          <button (click)="scrollToSection('features')" class="hover:text-violet-600 transition-colors cursor-pointer">
+            Features
+          </button>
+          <button (click)="scrollToSection('how-it-works')" class="hover:text-violet-600 transition-colors cursor-pointer">
+            How It Works
+          </button>
+          <button (click)="scrollToSection('pricing')" class="hover:text-violet-600 transition-colors cursor-pointer">
+            Packages & Pricing
+          </button>
+          <button (click)="scrollToSection('faq')" class="hover:text-violet-600 transition-colors cursor-pointer">
+            FAQ
+          </button>
+          <button (click)="scrollToSection('contact')" class="hover:text-violet-600 transition-colors cursor-pointer">
+            Contact
+          </button>
+        </div>
+
+        <!-- Nav Action Buttons -->
+        <div class="hidden sm:flex items-center gap-3">
+          <button (click)="scrollToSection('pricing')"
+            class="px-4 py-2 text-sm font-bold text-violet-700 hover:text-violet-800 hover:bg-violet-50 rounded-xl transition-all">
+            Get Started
+          </button>
+          <a routerLink="/auth/login"
+            class="relative overflow-hidden group px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold shadow-md shadow-slate-900/20 hover:shadow-slate-900/30 hover:-translate-y-0.5 transition-all duration-300">
+            <span class="relative z-10 flex items-center gap-2">
+              <span>Login</span>
+              <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </a>
+        </div>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button (click)="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            @if (!mobileMenuOpen) {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            }
+          </svg>
+        </button>
       </div>
+
+      <!-- Mobile Dropdown Menu -->
+      @if (mobileMenuOpen) {
+        <div class="lg:hidden pt-4 pb-3 border-t border-slate-200/60 mt-3 space-y-2 animate-in slide-in-from-top-2 duration-200">
+          <button (click)="scrollToSection('features')" class="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">
+            Features
+          </button>
+          <button (click)="scrollToSection('how-it-works')" class="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">
+            How It Works
+          </button>
+          <button (click)="scrollToSection('pricing')" class="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">
+            Packages & Pricing
+          </button>
+          <button (click)="scrollToSection('faq')" class="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">
+            FAQ
+          </button>
+          <button (click)="scrollToSection('contact')" class="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">
+            Contact Support
+          </button>
+          <div class="pt-2 flex flex-col gap-2">
+            <button (click)="scrollToSection('pricing')" class="w-full py-2.5 text-center text-sm font-bold bg-violet-50 text-violet-700 rounded-xl">
+              Get Started
+            </button>
+            <a routerLink="/auth/login" class="w-full py-2.5 text-center text-sm font-bold bg-slate-900 text-white rounded-xl">
+              Doctor / Chamber Login
+            </a>
+          </div>
+        </div>
+      }
     </div>
   </nav>
 
   <!-- Main Content Wrapper -->
-  <main class="pt-32 pb-20 px-4 sm:px-6">
+  <main class="pt-28 pb-20">
 
     <!-- VIEW: HERO & PACKAGES -->
     @if (!showPaymentForm && !showWelcomeMessage) {
-    <div class="container mx-auto">
+    <div>
 
-      <!-- Hero Section -->
-      <div class="text-center max-w-4xl mx-auto mb-24 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <!-- HERO SECTION -->
+      <section id="hero" class="relative pt-8 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto text-center">
+          
+          <!-- Top Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-100/90 text-violet-800 border border-violet-200 shadow-sm text-xs sm:text-sm font-bold mb-8 animate-in fade-in duration-500">
+            <span class="flex h-2 w-2 rounded-full bg-violet-600 animate-ping"></span>
+            <span>Next-Generation Clinical & Prescription Management Suite</span>
+          </div>
 
+          <!-- Hero Headline -->
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-[1.15] mb-6">
+            Write Faster Digital Prescriptions,
+            <span class="block mt-1 bg-gradient-to-r from-violet-600 via-indigo-600 to-teal-500 bg-clip-text text-transparent">
+              Elevate Patient Care
+            </span>
+          </h1>
 
-        <h1 class="text-5xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
-          Prescription Management System
-        </h1>
+          <!-- Subtitle -->
+          <p class="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-10 font-normal">
+            MediPOS is the state-of-the-art practice management software designed for doctors, polyclinics, and hospitals. Featuring smart generic-to-brand drug lookups, barcode-verified prescription printing, patient history timelines, and automated practice operations.
+          </p>
 
-        <p class="text-lg md:text-xl text-slate-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-          Streamline your healthcare practice with our comprehensive prescription management solution. Choose the
-          perfect plan for your needs.
-        </p>
-      </div>
+          <!-- CTA Buttons -->
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <button (click)="scrollToSection('pricing')"
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-base shadow-xl shadow-violet-500/25 hover:shadow-violet-500/35 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <span>View Packages & Register</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </button>
+            <a routerLink="/auth/login"
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-base border border-slate-200/80 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              <span>Doctor / Staff Login</span>
+            </a>
+          </div>
 
+          <!-- Key Metrics / Stats Bar -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-4xl mx-auto mb-16">
+            <div class="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 shadow-sm text-center">
+              <p class="text-3xl sm:text-4xl font-black text-violet-600">100K+</p>
+              <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-1">Prescriptions Created</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 shadow-sm text-center">
+              <p class="text-3xl sm:text-4xl font-black text-indigo-600">99.99%</p>
+              <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-1">Cloud Reliability</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 shadow-sm text-center">
+              <p class="text-3xl sm:text-4xl font-black text-emerald-600">2x</p>
+              <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-1">Faster Consultation</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 shadow-sm text-center">
+              <p class="text-3xl sm:text-4xl font-black text-amber-500">256-bit</p>
+              <p class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider mt-1">SSL Encrypted Data</p>
+            </div>
+          </div>
 
-
-      <!-- Packages Section -->
-      @if (packages.length > 0) {
-      <div id="pricing" class="mb-20">
-
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
-          @for (pkg of packages; track pkg) {
-          <!-- Pricing Card -->
-          <div
-            class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden transition-all duration-300 group h-full cursor-pointer hover:shadow-2xl shadow-xl shadow-slate-100/50 border border-slate-100"
-            [ngClass]="pkg.isPopular ? 'z-10 scale-105 shadow-2xl shadow-violet-200/50 md:-my-4' : ''">
-
-            <!-- Header Section (White with Purple Text) -->
-            <div class="w-full relative pt-12 pb-6 px-4 text-center bg-white">
-
-              <!-- Title -->
-              <h3 class="text-xs font-bold uppercase tracking-[0.2em] mb-4 text-[#6A11CB]">
-                {{ pkg.name }}
-              </h3>
-
-              <!-- Price -->
-              <div class="flex justify-center items-baseline gap-0.5 text-[#6A11CB]">
-                @if (pkg.price === 0) {
-                <span class="text-5xl font-black tracking-tight">Free</span>
-                } @else {
-                <span class="text-3xl font-bold self-start mt-2">$</span>
-                <span class="text-7xl font-black tracking-tighter">{{ pkg.price }}</span>
-                <span class="text-2xl font-bold self-end mb-2">.90</span>
-                }
+          <!-- Hero Prescription Mockup Preview Card -->
+          <div class="relative max-w-4xl mx-auto rounded-3xl p-3 bg-gradient-to-b from-violet-200/60 via-indigo-100/40 to-slate-200/80 shadow-2xl border border-white/60">
+            <div class="bg-white rounded-[1.3rem] overflow-hidden shadow-inner border border-slate-100 text-left">
+              
+              <!-- Mockup Browser Bar -->
+              <div class="bg-slate-100/80 px-4 py-3 border-b border-slate-200/70 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                  <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                  <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                  <span class="ml-2 text-xs font-bold text-slate-500 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                    </svg>
+                    https://medipos.health/doctor/prescription
+                  </span>
+                </div>
+                <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">
+                  Live Prescription Demo
+                </span>
               </div>
 
-              <!-- Frequency -->
-              <p class="text-sm font-medium mt-1 text-slate-400">
-                per month
+              <!-- Mockup Prescription Content -->
+              <div class="p-6 sm:p-8 space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-5 gap-4">
+                  <div>
+                    <h3 class="text-xl sm:text-2xl font-black text-slate-900">Dr. A. K. M. Rahman</h3>
+                    <p class="text-xs sm:text-sm font-semibold text-violet-700">MBBS, FCPS (Medicine), MD (Cardiology)</p>
+                    <p class="text-xs text-slate-500">Associate Professor, Department of Clinical Medicine</p>
+                  </div>
+                  <div class="text-left sm:text-right">
+                    <span class="text-xs font-bold px-3 py-1 bg-violet-100 text-violet-800 rounded-lg inline-block mb-1">MediCare Specialist Center</span>
+                    <p class="text-xs text-slate-500">Dhanmondi, Dhaka • Hotline: +880 1711-000000</p>
+                  </div>
+                </div>
+
+                <!-- Patient Bar -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 rounded-xl p-3.5 text-xs">
+                  <div>
+                    <span class="text-slate-400 font-bold block">PATIENT:</span>
+                    <span class="font-bold text-slate-800">Fatima Begum (ID: #MP-8204)</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 font-bold block">AGE / SEX:</span>
+                    <span class="font-bold text-slate-800">42 Yrs • Female</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 font-bold block">VITALS:</span>
+                    <span class="font-bold text-slate-800">BP: 125/80 • Pulse: 78</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 font-bold block">DATE:</span>
+                    <span class="font-bold text-slate-800">21-Sep-2026</span>
+                  </div>
+                </div>
+
+                <!-- Rx Body Preview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                  <div class="space-y-3 md:border-r border-slate-100 md:pr-4">
+                    <p class="text-xs font-black uppercase tracking-wider text-slate-400">Chief Complaints & Dx</p>
+                    <ul class="text-xs space-y-1.5 text-slate-700 font-medium">
+                      <li>• Severe headache & dizziness for 3 days</li>
+                      <li>• Mild elevated blood pressure</li>
+                      <li>• Diagnosis: Essential Hypertension (Grade 1)</li>
+                    </ul>
+                  </div>
+                  <div class="md:col-span-2 space-y-3">
+                    <p class="text-xs font-black uppercase tracking-wider text-violet-700 flex items-center gap-1.5">
+                      <span class="text-base font-serif italic font-bold">℞</span> Prescribed Medications
+                    </p>
+                    <div class="space-y-2 text-xs">
+                      <div class="flex items-center justify-between p-2.5 bg-violet-50/60 rounded-lg border border-violet-100">
+                        <div>
+                          <p class="font-bold text-slate-800">1. Tab. Camlosart (Amlodipine + Olmesartan) 5/20 mg</p>
+                          <p class="text-slate-500 text-[11px]">0 + 0 + 1 — After dinner — 30 Days</p>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded">Regular</span>
+                      </div>
+                      <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                        <div>
+                          <p class="font-bold text-slate-800">2. Cap. Maxpro (Esomeprazole) 20 mg</p>
+                          <p class="text-slate-500 text-[11px]">1 + 0 + 1 — 30 mins before meals — 14 Days</p>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">Before Meal</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer with Barcode -->
+                <div class="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-slate-200 text-xs text-slate-500 gap-3">
+                  <div class="flex items-center gap-2">
+                    <div class="px-2 py-1 bg-slate-900 text-white font-mono tracking-widest text-[11px] rounded">
+                      ||| |||| || |||| |||
+                    </div>
+                    <span class="text-[11px] font-mono">RX-2026-981249</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-emerald-600 font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Digitally Signed & QR Code Verified</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- FEATURES SECTION -->
+      <section id="features" class="py-20 px-4 sm:px-6 lg:px-8 bg-white/70 backdrop-blur-md border-y border-slate-200/60">
+        <div class="max-w-6xl mx-auto">
+          
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="text-xs font-black tracking-widest text-violet-600 uppercase">Core Capabilities</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+              Everything Your Practice Needs In One Unified Suite
+            </h2>
+            <p class="text-base sm:text-lg text-slate-600 mt-3">
+              Purpose-built tools designed to minimize paperwork, eliminate prescription errors, and maximize patient satisfaction.
+            </p>
+          </div>
+
+          <!-- Feature Cards Grid (6 items) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Card 1 -->
+            <div class="p-8 rounded-3xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-violet-300 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-violet-700 transition-colors">Ultra-Fast E-Prescriptions</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Generate clean, customized prescriptions in under 60 seconds with 1-click clinical templates, predefined dosage schedules, and custom instructions.
               </p>
             </div>
 
-            <!-- Features List -->
-            <div class="px-8 py-4 flex-grow w-full">
-              <ul class="space-y-3">
-                @for (feature of (pkg.isExpanded ? pkg.featureList : pkg.featureList.slice(0, 10)); track feature) {
-                <li class="flex items-start gap-3 animate-in fade-in duration-300">
-                  <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span class="text-[15px] text-slate-700 font-medium leading-tight text-left">{{ feature }}</span>
-                </li>
-                }
-              </ul>
+            <!-- Card 2 -->
+            <div class="p-8 rounded-3xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-indigo-300 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-white flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-700 transition-colors">Complete Drug & Generic Index</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Instant access to thousands of brand names, generics, drug strengths, and manufacturer directories to quickly recommend the ideal medication.
+              </p>
+            </div>
 
-              <!-- View More Button -->
-              @if (pkg.featureList.length > 10) {
-              <div class="mt-4 text-center">
-                <button (click)="toggleFeatures(pkg, $event)"
-                  class="text-sm font-bold text-violet-600 hover:text-violet-800 hover:underline transition-colors focus:outline-none flex items-center justify-center gap-1 mx-auto">
-                  {{ pkg.isExpanded ? 'View Less' : 'View More' }}
-                  <svg class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="pkg.isExpanded" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            <!-- Card 3 -->
+            <div class="p-8 rounded-3xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-emerald-700 transition-colors">Patient Medical History</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Seamless chronological timeline of past visits, previous prescriptions, clinical test results, and diagnostic notes for smarter follow-ups.
+              </p>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="p-8 rounded-3xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-amber-300 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center mb-6 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-amber-700 transition-colors">Chamber & Queue Management</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Streamline front-desk queues, patient serial tokens, and multi-doctor schedules to keep your consultation chambers running smoothly without delays.
+              </p>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="p-8 rounded-3xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-rose-300 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center mb-6 shadow-lg shadow-rose-500/20 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-rose-700 transition-colors">Barcode & QR Verification</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Protect patient prescriptions from forgery and duplication. Every printout contains an encrypted verification code for pharmacies to confirm authenticity.
+              </p>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="p-8 rounded-3xl bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-purple-300 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white flex items-center justify-center mb-6 shadow-lg shadow-purple-600/20 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-purple-700 transition-colors">Enterprise Security & Roles</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Strict role separation for System Admins, Chamber Admins, Staff, and Doctors. Daily automatic cloud backups ensure zero data loss.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS SECTION -->
+      <section id="how-it-works" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+          
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="text-xs font-black tracking-widest text-indigo-600 uppercase">Seamless Onboarding</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+              Start Prescribing in 3 Simple Steps
+            </h2>
+            <p class="text-base sm:text-lg text-slate-600 mt-3">
+              Go live with your fully customized clinic setup in minutes, without complicated hardware or installations.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            
+            <!-- Step 1 -->
+            <div class="relative bg-white rounded-3xl p-8 border border-slate-200/80 shadow-md flex flex-col items-start">
+              <div class="w-12 h-12 rounded-xl bg-violet-100 text-violet-700 font-black text-xl flex items-center justify-center mb-6">
+                01
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2">Choose Plan & Register</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Select your preferred subscription package below, enter your clinic details, and immediately activate your workspace.
+              </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative bg-white rounded-3xl p-8 border border-slate-200/80 shadow-md flex flex-col items-start">
+              <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 font-black text-xl flex items-center justify-center mb-6">
+                02
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2">Configure Pad & Doctors</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Upload your clinic logo, add doctor degrees, and set up your consultation chambers with customized prescription headers.
+              </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative bg-white rounded-3xl p-8 border border-slate-200/80 shadow-md flex flex-col items-start">
+              <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 font-black text-xl flex items-center justify-center mb-6">
+                03
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-2">Prescribe & Print</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                Consult with patients, select remedies with 1-click auto-complete, and produce verified digital printouts instantly.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- PACKAGES / PRICING SECTION -->
+      <section id="pricing" class="py-20 px-4 sm:px-6 lg:px-8 bg-slate-100/60 border-t border-slate-200/60">
+        <div class="max-w-6xl mx-auto">
+          
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="text-xs font-black tracking-widest text-violet-600 uppercase">Transparent Pricing</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+              Flexible Packages for Healthcare Practitioners
+            </h2>
+            <p class="text-base sm:text-lg text-slate-600 mt-3">
+              No hidden fees, no complicated contracts. Select the plan tailored to your medical practice and upgrade anytime.
+            </p>
+          </div>
+
+          <!-- Packages Grid -->
+          @if (packages.length > 0) {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+            @for (pkg of packages; track pkg) {
+            <!-- Pricing Card -->
+            <div
+              class="relative flex flex-col items-center bg-white rounded-3xl overflow-hidden transition-all duration-300 group cursor-pointer hover:shadow-2xl shadow-lg border border-slate-200/80"
+              [class]="pkg.isPopular ? 'ring-2 ring-violet-500 shadow-xl shadow-violet-200/50 md:-my-2' : ''">
+
+              @if (pkg.isPopular) {
+              <div class="absolute top-0 inset-x-0 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-center py-1.5 text-xs font-black tracking-widest uppercase">
+                Most Popular Choice
+              </div>
+              }
+
+              <!-- Header Section -->
+              <div class="w-full relative pt-10 pb-6 px-6 text-center bg-white border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase tracking-[0.2em] mb-4 text-violet-700">
+                  {{ pkg.name }}
+                </h3>
+
+                <!-- Price in BDT -->
+                <div class="flex justify-center items-baseline gap-1 text-slate-900">
+                  @if (pkg.price === 0) {
+                    <span class="text-5xl font-black tracking-tight text-emerald-600">Free</span>
+                  } @else {
+                    <span class="text-3xl font-extrabold text-violet-600 self-start mt-2">৳</span>
+                    <span class="text-6xl font-black tracking-tighter">{{ pkg.price }}</span>
+                  }
+                </div>
+
+                <p class="text-xs font-bold mt-2 text-slate-400 uppercase tracking-wider">
+                  {{ pkg.duration || 'Per Month' }}
+                </p>
+                <p class="text-xs text-slate-500 mt-2 line-clamp-2 px-2">
+                  {{ pkg.description || 'Full platform access with premium support.' }}
+                </p>
+              </div>
+
+              <!-- Features List -->
+              <div class="p-6 flex-grow w-full">
+                <p class="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Included Features:</p>
+                <ul class="space-y-3">
+                  @for (feature of (pkg.isExpanded ? pkg.featureList : pkg.featureList.slice(0, 8)); track feature) {
+                  <li class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-sm text-slate-700 font-medium leading-tight text-left">{{ feature }}</span>
+                  </li>
+                  }
+                </ul>
+
+                @if (pkg.featureList && pkg.featureList.length > 8) {
+                <div class="mt-4 text-center">
+                  <button (click)="toggleFeatures(pkg, $event)"
+                    class="text-xs font-bold text-violet-600 hover:text-violet-800 hover:underline transition-colors focus:outline-none flex items-center justify-center gap-1 mx-auto">
+                    {{ pkg.isExpanded ? 'Show Less' : '+ ' + (pkg.featureList.length - 8) + ' More Features' }}
+                    <svg class="w-3.5 h-3.5 transition-transform duration-300" [class.rotate-180]="pkg.isExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                </div>
+                }
+              </div>
+
+              <!-- Action Button -->
+              <div class="p-6 pt-0 w-full">
+                <button (click)="selectPackage(pkg)"
+                  class="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-300 transform active:scale-95 shadow-md flex items-center justify-center gap-2"
+                  [class]="pkg.isPopular ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-violet-500/25' : 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/10'">
+                  <span>Select & Register</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </button>
+              </div>
+
+            </div>
+            }
+          </div>
+          } @else {
+          <!-- Empty Packages State -->
+          <div class="text-center py-12 bg-white rounded-3xl border border-slate-200 max-w-md mx-auto p-8 shadow-sm">
+            <svg class="w-12 h-12 text-slate-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <h3 class="text-lg font-bold text-slate-800">Packages Loading...</h3>
+            <p class="text-xs text-slate-500 mt-1">Please check back in a moment.</p>
+          </div>
+          }
+
+        </div>
+      </section>
+
+      <!-- FAQ SECTION -->
+      <section id="faq" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-4xl mx-auto">
+          
+          <div class="text-center mb-14">
+            <span class="text-xs font-black tracking-widest text-violet-600 uppercase">Frequently Asked Questions</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+              Got Questions? We Have Answers.
+            </h2>
+            <p class="text-base text-slate-600 mt-2">
+              Here are the most common questions from doctors and clinic administrators.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <!-- FAQ 1 -->
+            <div class="rounded-2xl border border-slate-200 overflow-hidden transition-all duration-200" [class.border-violet-300]="activeFaqIndex === 0">
+              <button (click)="toggleFaq(0)" class="w-full p-5 text-left font-bold text-slate-800 bg-slate-50/60 hover:bg-slate-100 flex items-center justify-between transition-colors">
+                <span>Can I customize the prescription pad header with my clinic logo & degrees?</span>
+                <svg class="w-5 h-5 text-slate-500 transition-transform duration-300" [class.rotate-180]="activeFaqIndex === 0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              @if (activeFaqIndex === 0) {
+              <div class="p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                Yes, absolutely! You can upload your clinic logo, set doctor designations, specialist degrees, visiting hours, contact hotline, and chamber location. MediPOS formats everything cleanly for standard A4 and customized prescription paper sizes.
               </div>
               }
             </div>
 
-            <!-- Action Button -->
-            <div class="pb-12 w-full px-10">
-              <button (click)="selectPackage(pkg)"
-                class="w-full py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all duration-300 transform hover:scale-105 active:scale-95 bg-white text-[#6A11CB] border-2 border-[#6A11CB] hover:bg-violet-50 shadow-sm hover:shadow-violet-200">
-                Select Plan
+            <!-- FAQ 2 -->
+            <div class="rounded-2xl border border-slate-200 overflow-hidden transition-all duration-200" [class.border-violet-300]="activeFaqIndex === 1">
+              <button (click)="toggleFaq(1)" class="w-full p-5 text-left font-bold text-slate-800 bg-slate-50/60 hover:bg-slate-100 flex items-center justify-between transition-colors">
+                <span>Is my patient medical data securely stored and backed up?</span>
+                <svg class="w-5 h-5 text-slate-500 transition-transform duration-300" [class.rotate-180]="activeFaqIndex === 1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
               </button>
+              @if (activeFaqIndex === 1) {
+              <div class="p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                Your data security is our highest priority. All patient records and consultations are encrypted using 256-bit SSL protocols. MediPOS maintains multi-region cloud redundancy and automated daily backups so your clinic data is always protected.
+              </div>
+              }
+            </div>
+
+            <!-- FAQ 3 -->
+            <div class="rounded-2xl border border-slate-200 overflow-hidden transition-all duration-200" [class.border-violet-300]="activeFaqIndex === 2">
+              <button (click)="toggleFaq(2)" class="w-full p-5 text-left font-bold text-slate-800 bg-slate-50/60 hover:bg-slate-100 flex items-center justify-between transition-colors">
+                <span>Can multiple doctors or chamber branches use the same subscription?</span>
+                <svg class="w-5 h-5 text-slate-500 transition-transform duration-300" [class.rotate-180]="activeFaqIndex === 2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              @if (activeFaqIndex === 2) {
+              <div class="p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                Yes! Depending on your chosen package, you can add multiple doctors, branch clinics, receptionists, and staff members with individual role-based login credentials and customized chamber schedules.
+              </div>
+              }
+            </div>
+
+            <!-- FAQ 4 -->
+            <div class="rounded-2xl border border-slate-200 overflow-hidden transition-all duration-200" [class.border-violet-300]="activeFaqIndex === 3">
+              <button (click)="toggleFaq(3)" class="w-full p-5 text-left font-bold text-slate-800 bg-slate-50/60 hover:bg-slate-100 flex items-center justify-between transition-colors">
+                <span>How does the QR barcode verification work for pharmacies?</span>
+                <svg class="w-5 h-5 text-slate-500 transition-transform duration-300" [class.rotate-180]="activeFaqIndex === 3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              @if (activeFaqIndex === 3) {
+              <div class="p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                Each prescription generated receives a unique digital signature and QR code. Pharmacists can scan the code using any smartphone or 2D barcode scanner to instantly verify doctor details, validity, and exact medicines prescribed.
+              </div>
+              }
             </div>
 
           </div>
-          }
+
         </div>
-      </div>
-      }
+      </section>
+
+      <!-- PRE-FOOTER CTA SECTION -->
+      <section class="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-violet-900 via-indigo-900 to-slate-900 text-white relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-4">
+            Transform Your Medical Chamber Today
+          </h2>
+          <p class="text-base sm:text-lg text-violet-200 max-w-2xl mx-auto mb-8">
+            Join forward-thinking doctors and healthcare practices delivering faster, safer, and digitalized care to their patients.
+          </p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button (click)="scrollToSection('pricing')"
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-violet-900 hover:bg-slate-100 font-bold text-base shadow-xl hover:-translate-y-0.5 transition-all">
+              Choose Your Package Now
+            </button>
+            <a routerLink="/auth/login"
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-violet-800/80 hover:bg-violet-800 text-white font-bold text-base border border-violet-700/60 transition-all">
+              Doctor Sign In
+            </a>
+          </div>
+        </div>
+      </section>
+
     </div>
     }
 
-    <!-- VIEW: PAYMENT FORM -->
+    <!-- VIEW: PAYMENT & REGISTRATION FORM -->
     @if (showPaymentForm && !showWelcomeMessage) {
-    <div id="payment-section" class="max-w-3xl mx-auto animate-in zoom-in-95 duration-500">
+    <div id="payment-section" class="max-w-3xl mx-auto px-4 sm:px-6 animate-in zoom-in-95 duration-500">
       <div
-        class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
+        class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
 
         <!-- Selected Package Header -->
         @if (selectedPackage) {
-        <div class="bg-slate-900 text-white p-8 relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20"></div>
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-violet-950 text-white p-8 relative overflow-hidden">
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <p class="text-violet-200 font-medium text-sm uppercase tracking-wider mb-2">Selected Plan</p>
+              <p class="text-violet-300 font-bold text-xs uppercase tracking-widest mb-1.5">Selected Package</p>
               <h2 class="text-3xl font-black">{{ selectedPackage.name }}</h2>
-              <p class="text-slate-400 mt-1">{{ selectedPackage.description }}</p>
+              <p class="text-slate-300 text-sm mt-1">{{ selectedPackage.description }}</p>
             </div>
-            <div class="text-right">
+            <div class="text-left md:text-right">
               @if (selectedPackage.price === 0) {
-              <p class="text-4xl font-black">Free</p>
+              <p class="text-4xl font-black text-emerald-400">Free</p>
               } @else {
-              <p class="text-4xl font-black">${{ selectedPackage.price }}</p>
-              <p class="text-sm text-slate-400">/{{ selectedPackage.duration }}</p>
+              <p class="text-4xl font-black text-violet-300">৳{{ selectedPackage.price }}</p>
+              <p class="text-xs text-slate-400 font-bold uppercase mt-1">/{{ selectedPackage.duration }}</p>
               }
             </div>
           </div>
         </div>
         }
 
-        <div class="p-8 md:p-10">
+        <div class="p-6 sm:p-10">
           <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()" class="space-y-8">
 
             <!-- Org Details -->
             <div class="space-y-6">
               <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span
-                  class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-sm">1</span>
-                Organization Details
+                  class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-sm font-bold">1</span>
+                Chamber / Organization Details
               </h3>
 
-              <div class="grid grid-cols-1 gap-6">
-                <div class="space-y-2">
-                  <label class="block text-sm font-semibold text-slate-700">Organization Name <span
+              <div class="grid grid-cols-1 gap-5">
+                <div class="space-y-1.5">
+                  <label class="block text-sm font-bold text-slate-700">Organization / Clinic Name <span
                       class="text-red-500">*</span></label>
                   <input type="text" formControlName="organizationName"
                     class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
-                    placeholder="e.g. City Medical Center" [class.border-red-500]="isFieldInvalid('organizationName')">
+                    placeholder="e.g. CarePoint Medical Center" [class.border-red-500]="isFieldInvalid('organizationName')">
                   @if (isFieldInvalid('organizationName')) { <p class="text-xs text-red-500 font-medium mt-1">{{
                     getErrorMessage('organizationName') }}</p> }
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Email Address <span
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="space-y-1.5">
+                    <label class="block text-sm font-bold text-slate-700">Official Email <span
                         class="text-red-500">*</span></label>
                     <input type="email" formControlName="email"
                       class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
-                      placeholder="admin@clinic.com" [class.border-red-500]="isFieldInvalid('email')">
+                      placeholder="doctor@clinic.com" [class.border-red-500]="isFieldInvalid('email')">
                     @if (isFieldInvalid('email')) { <p class="text-xs text-red-500 font-medium mt-1">{{
                       getErrorMessage('email') }}</p> }
                   </div>
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Phone Number <span
+                  <div class="space-y-1.5">
+                    <label class="block text-sm font-bold text-slate-700">Phone Number <span
                         class="text-red-500">*</span></label>
                     <input type="tel" formControlName="phone"
                       class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
-                      placeholder="+1 (555) 000-0000" [class.border-red-500]="isFieldInvalid('phone')">
+                      placeholder="+880 1700-000000" [class.border-red-500]="isFieldInvalid('phone')">
                     @if (isFieldInvalid('phone')) { <p class="text-xs text-red-500 font-medium mt-1">{{
                       getErrorMessage('phone') }}</p> }
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Password <span
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="space-y-1.5">
+                    <label class="block text-sm font-bold text-slate-700">Password <span
                         class="text-red-500">*</span></label>
                     <input type="password" formControlName="password"
                       class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
@@ -240,8 +744,8 @@
                     @if (isFieldInvalid('password')) { <p class="text-xs text-red-500 font-medium mt-1">{{
                       getErrorMessage('password') }}</p> }
                   </div>
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Confirm Password <span
+                  <div class="space-y-1.5">
+                    <label class="block text-sm font-bold text-slate-700">Confirm Password <span
                         class="text-red-500">*</span></label>
                     <input type="password" formControlName="confirmPassword"
                       class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all outline-none font-medium"
@@ -256,21 +760,21 @@
             <div class="h-px bg-slate-200"></div>
 
             <!-- Payment Details (Optional) -->
-            <div class="space-y-6">
+            <div class="space-y-5">
               <div class="flex items-center justify-between">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <span
-                    class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">2</span>
-                  Payment Details
+                    class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold">2</span>
+                  Billing & Card Details
                 </h3>
                 <span
-                  class="text-xs font-semibold bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase tracking-wide">Optional</span>
+                  class="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase tracking-wider">Optional (Pay Later)</span>
               </div>
 
-              <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-                <div class="grid grid-cols-1 gap-6">
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Card Number</label>
+              <div class="bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200">
+                <div class="grid grid-cols-1 gap-5">
+                  <div class="space-y-1.5">
+                    <label class="block text-sm font-bold text-slate-700">Card Number</label>
                     <div class="relative">
                       <input type="text" formControlName="cardNumber" (input)="formatCardNumber($event)" maxlength="19"
                         class="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
@@ -285,22 +789,22 @@
                       getErrorMessage('cardNumber') }}</p> }
                   </div>
 
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Card Holder Name</label>
+                  <div class="space-y-1.5">
+                    <label class="block text-sm font-bold text-slate-700">Cardholder Name</label>
                     <input type="text" formControlName="cardHolder"
                       class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
-                      placeholder="Enter name on card" [class.border-red-500]="isPaymentFieldInvalid('cardHolder')">
+                      placeholder="Name on card" [class.border-red-500]="isPaymentFieldInvalid('cardHolder')">
                   </div>
 
-                  <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                      <label class="block text-sm font-semibold text-slate-700">Expiry</label>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-bold text-slate-700">Expiry (MM/YY)</label>
                       <input type="text" formControlName="expiryDate" (input)="formatExpiryDate($event)" maxlength="5"
                         class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
                         placeholder="MM/YY" [class.border-red-500]="isPaymentFieldInvalid('expiryDate')">
                     </div>
-                    <div class="space-y-2">
-                      <label class="block text-sm font-semibold text-slate-700">CVV</label>
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-bold text-slate-700">CVV</label>
                       <input type="text" formControlName="cvv" maxlength="4"
                         class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-medium"
                         placeholder="123" [class.border-red-500]="isPaymentFieldInvalid('cvv')">
@@ -313,18 +817,18 @@
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row gap-4 pt-4">
               <button type="button" (click)="changePackage()"
-                class="px-8 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
-                Back
+                class="px-8 py-3.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                Back to Plans
               </button>
-              <div class="flex-1 flex gap-4">
+              <div class="flex-1 flex gap-3">
                 <button type="button" (click)="skipPayment()"
                   [disabled]="paymentForm.get('email')?.invalid || paymentForm.get('phone')?.invalid || paymentForm.get('organizationName')?.invalid || paymentForm.get('password')?.invalid"
-                  class="flex-1 px-6 py-3 rounded-xl font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors disabled:opacity-50">
-                  Skip Payment
+                  class="flex-1 px-5 py-3.5 rounded-xl font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors disabled:opacity-50">
+                  Register Without Card
                 </button>
                 <button type="submit"
                   [disabled]="paymentForm.get('email')?.invalid || paymentForm.get('phone')?.invalid || paymentForm.get('organizationName')?.invalid || paymentForm.get('password')?.invalid || isProcessingPayment || isSubmitting"
-                  class="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-500/30 transition-all disabled:opacity-50 flex items-center justify-center">
+                  class="flex-1 px-5 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-500/30 transition-all disabled:opacity-50 flex items-center justify-center">
 
                   @if (isProcessingPayment || isSubmitting) {
                   <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -349,48 +853,46 @@
 
     <!-- VIEW: WELCOME SUCCESS -->
     @if (showWelcomeMessage) {
-    <div id="welcome-section" class="max-w-3xl mx-auto py-10 animate-in zoom-in-95 duration-700">
+    <div id="welcome-section" class="max-w-3xl mx-auto px-4 sm:px-6 py-10 animate-in zoom-in-95 duration-700">
       <div
-        class="bg-white/90 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-2xl p-12 text-center relative overflow-hidden">
-
-        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-indigo-500/5"></div>
+        class="bg-white border border-slate-200 rounded-[2.5rem] shadow-2xl p-8 sm:p-12 text-center relative overflow-hidden">
 
         <div class="relative z-10">
           <div
-            class="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-500/30 animate-bounce-slow">
-            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+            class="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/30">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
             </svg>
           </div>
 
-          <h2 class="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">Welcome to MediPos!</h2>
-          <p class="text-xl text-slate-600 mb-8 max-w-xl mx-auto">
-            Your account has been successfully created. You're now part of the future of healthcare.
+          <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-4 tracking-tight">Registration Successful!</h2>
+          <p class="text-lg text-slate-600 mb-8 max-w-xl mx-auto">
+            Your clinic account request has been received. You can now access your MediPOS dashboard.
           </p>
 
-          <div class="bg-slate-50 rounded-2xl p-8 mb-10 max-w-xl mx-auto border border-slate-100 text-left">
+          <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 mb-8 max-w-xl mx-auto border border-slate-200 text-left">
             <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              Next Steps
+              Next Steps for Activation
             </h3>
-            <ul class="space-y-3">
-              <li class="flex items-start gap-3 text-slate-600">
-                <span class="w-1.5 h-1.5 rounded-full bg-violet-500 mt-2"></span>
-                <span>Check your email <strong>{{ paymentForm.get('email')?.value }}</strong> for verification.</span>
+            <ul class="space-y-2.5 text-sm">
+              <li class="flex items-start gap-2.5 text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-violet-600 mt-1.5 flex-shrink-0"></span>
+                <span>Verification email sent to <strong>{{ paymentForm.get('email')?.value }}</strong>.</span>
               </li>
-              <li class="flex items-start gap-3 text-slate-600">
-                <span class="w-1.5 h-1.5 rounded-full bg-violet-500 mt-2"></span>
-                <span>Login using the credentials you just created.</span>
+              <li class="flex items-start gap-2.5 text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-violet-600 mt-1.5 flex-shrink-0"></span>
+                <span>Sign in to complete your doctor bio, chamber timing, and template preferences.</span>
               </li>
             </ul>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a routerLink="/auth/login"
-              class="px-8 py-4 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all">
+              class="px-8 py-4 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/20 hover:-translate-y-0.5 transition-all">
               Go to Login
             </a>
             <button
@@ -405,4 +907,93 @@
     }
 
   </main>
+
+  <!-- PROFESSIONAL FOOTER -->
+  <footer id="contact" class="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+        
+        <!-- Col 1: Brand & Bio -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-violet-500/30">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+            </div>
+            <span class="text-xl font-black text-white tracking-tight">MediPOS</span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed max-w-sm">
+            MediPOS is Bangladesh's premier cloud prescription & clinical management operating system. Empowering medical practitioners with verified digital prescriptions, generic drug indices, and streamlined patient workflows.
+          </p>
+          <div class="pt-2 text-xs text-slate-500">
+            Certified ISO 27001 Security Standard Compliant
+          </div>
+        </div>
+
+        <!-- Col 2: Solutions -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-black uppercase tracking-widest text-slate-200">Solutions</h4>
+          <ul class="space-y-2 text-sm">
+            <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">E-Prescriptions</button></li>
+            <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">Generic Drug Index</button></li>
+            <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">Patient History</button></li>
+            <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">Chamber Queues</button></li>
+            <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">QR Verification</button></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Company & Quick Links -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-black uppercase tracking-widest text-slate-200">Quick Links</h4>
+          <ul class="space-y-2 text-sm">
+            <li><button (click)="scrollToSection('hero')" class="hover:text-white transition-colors">Home</button></li>
+            <li><button (click)="scrollToSection('how-it-works')" class="hover:text-white transition-colors">How It Works</button></li>
+            <li><button (click)="scrollToSection('pricing')" class="hover:text-white transition-colors">Packages & Pricing</button></li>
+            <li><button (click)="scrollToSection('faq')" class="hover:text-white transition-colors">FAQ</button></li>
+            <li><a routerLink="/auth/login" class="hover:text-white transition-colors">Doctor Portal</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Contact & Office -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-black uppercase tracking-widest text-slate-200">Contact & Support</h4>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>support&#64;medipos.health</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>+880 1800-MEDIPOS</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-violet-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Dhanmondi, Dhaka-1209, Bangladesh</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <p>© 2026 MediPOS Healthcare Technologies. All rights reserved.</p>
+        <div class="flex items-center gap-6">
+          <a routerLink="/" class="hover:text-slate-400 transition-colors">Privacy Policy</a>
+          <a routerLink="/" class="hover:text-slate-400 transition-colors">Terms of Service</a>
+          <a routerLink="/" class="hover:text-slate-400 transition-colors">Security Guidelines</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
 </div>

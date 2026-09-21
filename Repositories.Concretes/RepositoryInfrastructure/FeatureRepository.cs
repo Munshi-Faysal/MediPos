@@ -14,7 +14,6 @@ internal sealed class FeatureRepository(WfDbContext context)
     public async Task<IEnumerable<Feature>> GetListAsync(int take, int skip)
     {
         return await _context.Features
-            .Where(f => f.IsActive)
             .OrderBy(f => f.Name)
             .Skip(skip)
             .Take(take)

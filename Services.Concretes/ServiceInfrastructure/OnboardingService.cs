@@ -146,4 +146,16 @@ internal sealed class OnboardingService(
             return false;
         }
     }
+
+    public async Task<bool> DeleteRegistrationAsync(int id)
+    {
+        var registration = await repository.CompanyRegistration.FindByIdAsync(id);
+        if (registration == null)
+        {
+            return false;
+        }
+
+        return await repository.CompanyRegistration.DeleteAsync(registration);
+    }
 }
+

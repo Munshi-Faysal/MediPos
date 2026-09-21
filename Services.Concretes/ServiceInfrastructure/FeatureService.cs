@@ -84,4 +84,20 @@ internal sealed class FeatureService(
         UpdateAutoFields(feature);
         return await repository.Feature.UpdateAsync(feature);
     }
+
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        var featureId = encryptionHelper.Decrypt(encryptedId);
+        var existingFeature = await repository.Feature.FindByIdAsync(featureId);
+        if (existingFeature is null)
+            return false;
+
+        var packageFeatures = await repository.PackageFeature.GetByFeatureIdAsync(existingFeature.Id);
+        foreach (var pf in packageFeatures)
+        {
+            await repository.PackageFeature.DeleteAsync(pf);
+        }
+
+        return await repository.Feature.DeleteAsync(existingFeature);
+    }
 }

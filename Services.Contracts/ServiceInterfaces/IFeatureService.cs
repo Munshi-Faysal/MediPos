@@ -7,4 +7,5 @@ namespace Services.Contracts.ServiceInterfaces;
 public interface IFeatureService : IBaseService<FeatureViewModel, FeatureDto>
 {
     Task<bool> ChangeActiveAsync(string encryptedId);
+    Task<bool> DeleteAsync(string encryptedId);
 }

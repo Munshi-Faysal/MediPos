@@ -1,22 +1,25 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
-
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugTypeService, DrugTypeDto, DrugTypeViewModel } from '../../../../core/services/drug-type.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'app-drug-type',
-    standalone: true,
-    imports: [FormsModule],
-    template: `
+  selector: 'app-drug-type',
+  standalone: true,
+  imports: [FormsModule],
+  template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-2xl font-bold text-on-surface">Drug Type Management</h1>
           <p class="text-on-surface-variant">Manage categories and types of drugs (Forms)</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Type
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Type
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -43,7 +46,9 @@ import { DrugTypeService, DrugTypeDto, DrugTypeViewModel } from '../../../../cor
                 <th class="px-6 py-4">Type Name</th>
                 <th class="px-6 py-4">Common Usage</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -57,17 +62,19 @@ import { DrugTypeService, DrugTypeDto, DrugTypeViewModel } from '../../../../cor
                       {{ type.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editType(type)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="toggleStatus(type)" [class]="type.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                      {{ type.isActive ? 'Deactivate' : 'Activate' }}
-                    </button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editType(type)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="toggleStatus(type)" [class]="type.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
+                        {{ type.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredTypes().length === 0) {
                 <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -104,121 +111,162 @@ import { DrugTypeService, DrugTypeDto, DrugTypeViewModel } from '../../../../cor
           }
         </div>
     `,
-    styles: [`
+  styles: [`
     :host { display: block; }
   `]
 })
 export class DrugTypeComponent implements OnInit {
-    private typeService = inject(DrugTypeService);
+  private typeService = inject(DrugTypeService);
+  private authService = inject(AuthService);
 
-    public types = signal<any[]>([]);
-    public filteredTypes = signal<any[]>([]);
-    public isModalOpen = signal(false);
-    public searchQuery = '';
-    public editingType: any = null;
-    public typeForm = { name: '', description: '', isActive: true };
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
 
-    ngOnInit(): void {
-        this.loadTypes();
+  public types = signal<any[]>([]);
+  public filteredTypes = signal<any[]>([]);
+  public isModalOpen = signal(false);
+  public searchQuery = '';
+  public editingType: any = null;
+  public typeForm = { name: '', description: '', isActive: true };
+
+  ngOnInit(): void {
+    this.loadTypes();
+  }
+
+  loadTypes(): void {
+    // Backend uses take/skip, not page/pageSize
+    this.typeService.getDrugTypes({ page: 1, pageSize: 1000 } as any).subscribe({
+      next: (response) => {
+        // Handle ViewResponseViewModel structure
+        const data = (response as any)?.data?.itemList || (response as any)?.data || [];
+        const mapped = data.map((t: DrugTypeViewModel) => ({
+          id: t.encryptedId,
+          encryptedId: t.encryptedId,
+          name: t.name,
+          description: t.description || '',
+          isActive: t.isActive
+        }));
+        this.types.set(mapped);
+        this.filterTypes();
+      },
+      error: (err) => {
+        console.error('Error loading types:', err);
+        this.types.set([]);
+        this.filterTypes();
+      }
+    });
+  }
+
+  filterTypes(): void {
+    if (!this.searchQuery.trim()) {
+      this.filteredTypes.set(this.types());
+    } else {
+      const q = this.searchQuery.toLowerCase();
+      this.filteredTypes.set(this.types().filter(d =>
+        d.name.toLowerCase().includes(q) || d.description.toLowerCase().includes(q)
+      ));
     }
+  }
 
-    loadTypes(): void {
-        // Backend uses take/skip, not page/pageSize
-        this.typeService.getDrugTypes({ page: 1, pageSize: 1000 } as any).subscribe({
-            next: (response) => {
-                // Handle ViewResponseViewModel structure
-                const data = (response as any)?.data?.itemList || (response as any)?.data || [];
-                const mapped = data.map((t: DrugTypeViewModel) => ({
-                    id: t.encryptedId,
-                    encryptedId: t.encryptedId,
-                    name: t.name,
-                    description: t.description || '',
-                    isActive: t.isActive
-                }));
-                this.types.set(mapped);
-                this.filterTypes();
-            },
-            error: (err) => {
-                console.error('Error loading types:', err);
-                this.types.set([]);
-                this.filterTypes();
-            }
-        });
-    }
+  openModal(): void {
+    if (!this.isSuperAdmin()) return;
+    this.editingType = null;
+    this.typeForm = { name: '', description: '', isActive: true };
+    this.isModalOpen.set(true);
+  }
 
-    filterTypes(): void {
-        if (!this.searchQuery.trim()) {
-            this.filteredTypes.set(this.types());
-        } else {
-            const q = this.searchQuery.toLowerCase();
-            this.filteredTypes.set(this.types().filter(d =>
-                d.name.toLowerCase().includes(q) || d.description.toLowerCase().includes(q)
-            ));
+  closeModal(): void {
+    this.isModalOpen.set(false);
+  }
+
+  editType(type: any): void {
+    if (!this.isSuperAdmin()) return;
+    this.editingType = type;
+    this.typeForm = { ...type };
+    this.isModalOpen.set(true);
+  }
+
+  saveType(): void {
+    if (!this.isSuperAdmin()) return;
+
+    const dto: DrugTypeDto = {
+      encryptedId: this.editingType?.encryptedId,
+      name: this.typeForm.name,
+      description: this.typeForm.description,
+      displayOrder: 0,
+      isActive: this.typeForm.isActive,
+      doctorEncryptedId: undefined
+    };
+
+    if (this.editingType) {
+      this.typeService.updateDrugType(dto).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Updated',
+            text: 'Drug type updated successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.loadTypes();
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Error updating type:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update type. Please try again.'
+          });
         }
-    }
-
-    openModal(): void {
-        this.editingType = null;
-        this.typeForm = { name: '', description: '', isActive: true };
-        this.isModalOpen.set(true);
-    }
-
-    closeModal(): void {
-        this.isModalOpen.set(false);
-    }
-
-    editType(type: any): void {
-        this.editingType = type;
-        this.typeForm = { ...type };
-        this.isModalOpen.set(true);
-    }
-
-    saveType(): void {
-        const dto: DrugTypeDto = {
-            encryptedId: this.editingType?.encryptedId,
-            name: this.typeForm.name,
-            description: this.typeForm.description,
-            displayOrder: 0,
-            isActive: this.typeForm.isActive,
-            doctorEncryptedId: undefined
-        };
-
-        if (this.editingType) {
-            this.typeService.updateDrugType(dto).subscribe({
-                next: () => {
-                    this.loadTypes();
-                    this.closeModal();
-                },
-                error: (err) => {
-                    console.error('Error updating type:', err);
-                    alert('Failed to update type. Please try again.');
-                }
-            });
-        } else {
-            this.typeService.createDrugType(dto).subscribe({
-                next: () => {
-                    this.loadTypes();
-                    this.closeModal();
-                },
-                error: (err) => {
-                    console.error('Error creating type:', err);
-                    alert('Failed to create type. Please try again.');
-                }
-            });
+      });
+    } else {
+      this.typeService.createDrugType(dto).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Created',
+            text: 'Drug type created successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.loadTypes();
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Error creating type:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create type. Please try again.'
+          });
         }
+      });
     }
+  }
 
-    toggleStatus(type: any): void {
-        if (type.encryptedId) {
-            this.typeService.changeDrugTypeActiveStatus(type.encryptedId).subscribe({
-                next: () => {
-                    this.loadTypes();
-                },
-                error: (err) => {
-                    console.error('Error toggling type status:', err);
-                    alert('Failed to change status. Please try again.');
-                }
-            });
+  toggleStatus(type: any): void {
+    if (!this.isSuperAdmin()) return;
+    if (type.encryptedId) {
+      this.typeService.changeDrugTypeActiveStatus(type.encryptedId).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Status Updated',
+            text: `Drug type is now ${type.isActive ? 'Inactive' : 'Active'}.`,
+            timer: 1500,
+            showConfirmButton: false
+          });
+          this.loadTypes();
+        },
+        error: (err) => {
+          console.error('Error toggling type status:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to change status. Please try again.'
+          });
         }
+      });
     }
+  }
 }

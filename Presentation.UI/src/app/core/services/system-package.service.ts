@@ -34,6 +34,10 @@ export class SystemPackageService {
         return this.http.put<Feature>(`${this.apiUrl}/Feature/ChangeActive/${feature.encryptedId}`, {});
     }
 
+    deleteFeature(encryptedId: string): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/Feature/Delete/${encryptedId}`);
+    }
+
 
     // Package Methods
     getPackages(): Observable<Package[]> {
@@ -63,6 +67,10 @@ export class SystemPackageService {
 
     togglePackageStatus(pkg: Package): Observable<Package> {
         return this.http.put<Package>(`${this.apiUrl}/Package/ChangeActive/${pkg.encryptedId}`, {});
+    }
+
+    deletePackage(encryptedId: string): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/Package/Delete/${encryptedId}`);
     }
 
     // Package-Feature Relationship Methods

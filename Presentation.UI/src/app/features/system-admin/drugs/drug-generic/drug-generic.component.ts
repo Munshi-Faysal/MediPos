@@ -1,8 +1,10 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { DrugGenericService } from '../../../../core/services/drug-generic.service';
 import { DrugGeneric } from '../../../../core/models/drug-generic.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-drug-generic',
@@ -15,9 +17,11 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
           <h1 class="text-2xl font-bold text-on-surface">Generic Name Management</h1>
           <p class="text-on-surface-variant">Manage drug generic names and indications</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Generic
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Generic
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -44,7 +48,9 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
                 <th class="px-6 py-4">Generic Name</th>
                 <th class="px-6 py-4">Indication</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -58,15 +64,17 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
                       {{ generic.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editGeneric(generic)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="deleteGeneric(generic.id)" class="text-rose-600 hover:text-rose-700 font-medium text-sm">Delete</button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editGeneric(generic)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="deleteGeneric(generic.id)" class="text-rose-600 hover:text-rose-700 font-medium text-sm">Delete</button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredGenerics().length === 0) {
                 <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -114,7 +122,9 @@ import { DrugGeneric } from '../../../../core/models/drug-generic.model';
 })
 export class DrugGenericComponent implements OnInit {
     private genericService = inject(DrugGenericService);
+    private authService = inject(AuthService);
 
+    public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
     public generics = signal<DrugGeneric[]>([]);
     public filteredGenerics = signal<DrugGeneric[]>([]);
     public isModalOpen = signal(false);
@@ -138,6 +148,7 @@ export class DrugGenericComponent implements OnInit {
     }
 
     openModal(): void {
+        if (!this.isSuperAdmin()) return;
         this.editingGeneric = null;
         this.genericForm = { name: '', indication: '', sideEffects: '', isActive: true };
         this.isModalOpen.set(true);
@@ -148,6 +159,7 @@ export class DrugGenericComponent implements OnInit {
     }
 
     editGeneric(generic: DrugGeneric): void {
+        if (!this.isSuperAdmin()) return;
         this.editingGeneric = generic;
         this.genericForm = {
             name: generic.name,
@@ -159,46 +171,97 @@ export class DrugGenericComponent implements OnInit {
     }
 
     saveGeneric(): void {
+        if (!this.isSuperAdmin()) return;
         if (this.editingGeneric) {
             this.genericService.updateGeneric({ ...this.editingGeneric, ...this.genericForm }).subscribe({
                 next: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: 'Generic updated successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     this.loadGenerics();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating generic:', err);
-                    alert('Failed to update generic. Please try again.');
+                    const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to update generic. Please try again.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: errorMessage
+                    });
                 }
             });
         } else {
             this.genericService.addGeneric(this.genericForm).subscribe({
                 next: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Created!',
+                        text: 'Generic created successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     this.loadGenerics();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating generic:', err);
-                    alert('Failed to create generic. Please try again.');
+                    const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to create generic. Please try again.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Creation Failed',
+                        text: errorMessage
+                    });
                 }
             });
         }
     }
 
     deleteGeneric(id: number): void {
-        if (confirm('Are you sure you want to delete this generic?')) {
-            const generic = this.generics().find(g => g.id === id);
-            if (generic && (generic as any).encryptedId) {
+        if (!this.isSuperAdmin()) return;
+        const generic = this.generics().find(g => g.id === id);
+        if (!generic || !(generic as any).encryptedId) return;
+
+        Swal.fire({
+            title: 'Delete Generic?',
+            text: `Are you sure you want to delete "${generic.name}"? This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true
+        }).then((result) => {
+            if (result.isConfirmed) {
                 this.genericService.deleteGeneric((generic as any).encryptedId).subscribe({
                     next: () => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: `Generic "${generic.name}" has been deleted.`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                         this.loadGenerics();
                     },
                     error: (err) => {
                         console.error('Error deleting generic:', err);
-                        alert('Failed to delete generic. Please try again.');
+                        const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to delete generic. Please try again.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Deletion Failed',
+                            text: errorMessage
+                        });
                     }
                 });
             }
-        }
+        });
     }
 
     loadGenerics(): void {

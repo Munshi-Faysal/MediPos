@@ -16,7 +16,6 @@ internal sealed class PackageRepository(WfDbContext context,
     public async Task<IEnumerable<Package>> GetListAsync(int take, int skip)
     {
         return await _context.Packages
-            .Where(d => d.IsActive)
             .OrderBy(d => d.Name)
             .Skip(skip)
             .Take(take)
@@ -45,7 +44,7 @@ internal sealed class PackageRepository(WfDbContext context,
     public async Task<Package?> GetDetailsAsync(int id)
     {
         return await _context.Packages
-            .Where(p => p.Id == id && p.IsActive)
+            .Where(p => p.Id == id)
             .Select(d => new Package
             {
                 EncryptedId = encryptionHelper.Encrypt(d.Id.ToString()),

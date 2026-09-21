@@ -1,6 +1,7 @@
-import { Component, signal, OnInit } from '@angular/core';
-
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-dose',
@@ -13,9 +14,11 @@ import { FormsModule } from '@angular/forms';
           <h1 class="text-2xl font-bold text-on-surface">Drug Dose Management</h1>
           <p class="text-on-surface-variant">Manage drug dosages and frequencies</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Dose
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Dose
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -43,7 +46,9 @@ import { FormsModule } from '@angular/forms';
                 <th class="px-6 py-4">Drug Type</th>
                 <th class="px-6 py-4">Description</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -62,17 +67,19 @@ import { FormsModule } from '@angular/forms';
                       {{ dose.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editDose(dose)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="toggleStatus(dose)" [class]="dose.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                      {{ dose.isActive ? 'Deactivate' : 'Activate' }}
-                    </button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editDose(dose)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="toggleStatus(dose)" [class]="dose.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
+                        {{ dose.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredDoses().length === 0) {
                 <tr>
-                  <td colspan="5" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 5 : 4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -123,6 +130,9 @@ import { FormsModule } from '@angular/forms';
   `]
 })
 export class DrugDoseComponent implements OnInit {
+  private authService = inject(AuthService);
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
+
   public doses = signal<any[]>([]);
   public filteredDoses = signal<any[]>([]);
   public isModalOpen = signal(false);
@@ -156,6 +166,7 @@ export class DrugDoseComponent implements OnInit {
   }
 
   openModal(): void {
+    if (!this.isSuperAdmin()) return;
     this.editingDose = null;
     this.doseForm = { name: '', description: '', drugType: 'Tablet', isActive: true };
     this.isModalOpen.set(true);
@@ -166,12 +177,15 @@ export class DrugDoseComponent implements OnInit {
   }
 
   editDose(dose: any): void {
+    if (!this.isSuperAdmin()) return;
     this.editingDose = dose;
     this.doseForm = { ...dose };
     this.isModalOpen.set(true);
   }
 
   saveDose(): void {
+    if (!this.isSuperAdmin()) return;
+
     if (this.editingDose) {
       const current = this.doses();
       const index = current.findIndex(d => d.id === this.editingDose.id);
@@ -179,24 +193,46 @@ export class DrugDoseComponent implements OnInit {
         current[index] = { ...this.editingDose, ...this.doseForm };
         this.doses.set([...current]);
       }
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated',
+        text: 'Drug dose updated successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
     } else {
       const newDose = {
         id: this.doses().length + 1,
         ...this.doseForm
       };
       this.doses.set([...this.doses(), newDose]);
+      Swal.fire({
+        icon: 'success',
+        title: 'Created',
+        text: 'Drug dose created successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
     this.filterDoses();
     this.closeModal();
   }
 
   toggleStatus(dose: any): void {
+    if (!this.isSuperAdmin()) return;
     const current = this.doses();
     const index = current.findIndex(d => d.id === dose.id);
     if (index !== -1) {
       current[index].isActive = !current[index].isActive;
       this.doses.set([...current]);
       this.filterDoses();
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated',
+        text: `Drug dose is now ${current[index].isActive ? 'Active' : 'Inactive'}.`,
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
   }
 }

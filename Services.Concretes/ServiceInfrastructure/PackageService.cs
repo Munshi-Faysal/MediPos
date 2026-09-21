@@ -144,4 +144,26 @@ internal sealed class PackageService(
         }
         return false;
     }
+
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        var packageId = encryptionHelper.Decrypt(encryptedId);
+        var existingPackage = await repository.Package.FindByIdAsync(packageId);
+        if (existingPackage is null)
+            return false;
+
+        var isPackageInUse = await repository.CompanyRegistration.AnyAsync(c => c.PackageId == packageId);
+        if (isPackageInUse)
+        {
+            throw new InvalidOperationException("Cannot delete this package because it is associated with company registrations. Please deactivate it instead.");
+        }
+
+        var currentFeatures = await repository.PackageFeature.GetByPackageIdAsync(existingPackage.Id);
+        foreach (var cf in currentFeatures)
+        {
+            await repository.PackageFeature.DeleteAsync(cf);
+        }
+
+        return await repository.Package.DeleteAsync(existingPackage);
+    }
 }

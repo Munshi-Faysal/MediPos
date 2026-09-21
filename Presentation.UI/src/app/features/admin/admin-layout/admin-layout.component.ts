@@ -319,28 +319,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         order: 1
       },
       {
-        id: 'package-management',
-        label: 'Packages',
-        route: '/admin/packages',
-        icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
-        type: 'link',
-        order: 2
-      },
-      {
-        id: 'medicine-management',
-        label: 'Medicines',
-        route: '/admin/medicines',
-        icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
-        type: 'link',
-        order: 3
-      },
-      {
         id: 'doctor-management',
         label: 'Doctors',
         route: '/admin/doctors',
         icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
         type: 'link',
-        order: 4
+        order: 2
       },
       {
         id: 'prescription-monitoring',
@@ -348,7 +332,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         route: '/admin/prescriptions',
         icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
         type: 'link',
-        order: 5
+        order: 3
       },
       {
         id: 'drug-management',
@@ -356,7 +340,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         route: null,
         icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
         type: 'dropdown',
-        order: 6,
+        order: 4,
         children: [
           {
             id: 'drug-company',
@@ -397,9 +381,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
             icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
             type: 'link',
             order: 5
-          },
-
-
+          }
         ]
       },
       {
@@ -408,7 +390,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         route: '/admin/profile',
         icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
         type: 'link',
-        order: 7
+        order: 5
       }
     ];
     this.menuItems.set(menu);

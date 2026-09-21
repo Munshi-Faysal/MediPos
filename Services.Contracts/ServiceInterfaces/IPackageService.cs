@@ -8,6 +8,7 @@ namespace Services.Contracts.ServiceInterfaces;
 public interface IPackageService : IBaseService<PackageViewModel, PackageDto>
 {
     Task<bool> ChangeActiveAsync(string encryptedId);
+    Task<bool> DeleteAsync(string encryptedId);
     public Task<List<PackageDto>> GetAvailablePackagesAsync();
 }
 

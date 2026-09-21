@@ -1,9 +1,11 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { DrugCompanyService } from '../../../../core/services/drug-company.service';
 import { DrugCompany } from '../../../../core/models/drug-company.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-company',
@@ -16,9 +18,11 @@ import { NotificationService } from '../../../../core/services/notification.serv
           <h1 class="text-2xl font-bold text-on-surface">Drug Company Management</h1>
           <p class="text-on-surface-variant">Manage pharmaceutical companies</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Company
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Company
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -45,7 +49,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
                 <th class="px-6 py-4">Company Name</th>
                 <th class="px-6 py-4">Description</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -59,15 +65,17 @@ import { NotificationService } from '../../../../core/services/notification.serv
                       {{ company.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editCompany(company)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="deleteCompany(company.id)" class="text-rose-600 hover:text-rose-700 font-medium text-sm">Delete</button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editCompany(company)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="deleteCompany(company.id)" class="text-rose-600 hover:text-rose-700 font-medium text-sm">Delete</button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredCompanies().length === 0) {
                 <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -116,7 +124,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
 export class DrugCompanyComponent implements OnInit {
   private companyService = inject(DrugCompanyService);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
 
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
   public companies = signal<DrugCompany[]>([]);
   public filteredCompanies = signal<DrugCompany[]>([]);
   public isModalOpen = signal(false);
@@ -155,6 +165,7 @@ export class DrugCompanyComponent implements OnInit {
   }
 
   openModal(): void {
+    if (!this.isSuperAdmin()) return;
     this.editingCompany = null;
     this.companyForm = { name: '', description: '', isActive: true, displayOrder: 0 };
     this.isModalOpen.set(true);
@@ -165,6 +176,7 @@ export class DrugCompanyComponent implements OnInit {
   }
 
   editCompany(company: DrugCompany): void {
+    if (!this.isSuperAdmin()) return;
     this.editingCompany = company;
     this.companyForm = {
       name: company.name,
@@ -176,6 +188,7 @@ export class DrugCompanyComponent implements OnInit {
   }
 
   saveCompany(): void {
+    if (!this.isSuperAdmin()) return;
     if (this.editingCompany) {
       this.companyService.updateCompany({ ...this.editingCompany, ...this.companyForm }).subscribe({
         next: () => {
@@ -206,20 +219,45 @@ export class DrugCompanyComponent implements OnInit {
   }
 
   deleteCompany(id: number): void {
-    if (confirm('Are you sure you want to delete this company?')) {
-      const company = this.companies().find(c => c.id === id);
-      if (company && (company as any).encryptedId) {
+    if (!this.isSuperAdmin()) return;
+    const company = this.companies().find(c => c.id === id);
+    if (!company || !(company as any).encryptedId) return;
+
+    Swal.fire({
+      title: 'Delete Company?',
+      text: `Are you sure you want to delete "${company.name}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
         this.companyService.deleteCompany((company as any).encryptedId).subscribe({
           next: () => {
-            this.notificationService.success('Success', 'Company deleted successfully');
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: `Company "${company.name}" has been deleted.`,
+              timer: 2000,
+              showConfirmButton: false
+            });
             this.loadCompanies();
           },
           error: (err) => {
             console.error('Error deleting company:', err);
-            this.notificationService.error('Deletion Failed', 'Failed to delete company. Please try again.');
+            const errorMessage = err.error?.ExceptionMessage || err.error?.exceptionMessage || err.error?.message || err.error?.Message || 'Failed to delete company. Please try again.';
+            Swal.fire({
+              icon: 'error',
+              title: 'Deletion Failed',
+              text: errorMessage
+            });
           }
         });
       }
-    }
+    });
   }
 }

@@ -606,6 +606,15 @@ export class AuthService {
     return user ? roles.some(role => user.roles?.includes(role)) : false;
   }
 
+  isSuperAdmin(): boolean {
+    const user = this.getCurrentUser();
+    if (!user || !user.roles) return false;
+    return user.roles.some(r => {
+      const norm = r.toLowerCase().replace(/[-_ ]/g, '');
+      return norm === 'systemadmin' || norm === 'superadmin';
+    });
+  }
+
   isTokenExpired(): boolean {
     const token = this.getToken();
     if (!token) return true;

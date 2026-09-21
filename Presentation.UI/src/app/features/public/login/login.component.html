@@ -1,5 +1,14 @@
 <div
   class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+  <!-- Back to Website Top Button -->
+  <a routerLink="/"
+    class="absolute top-6 left-6 z-20 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 hover:bg-white text-gray-700 hover:text-violet-700 text-sm font-bold shadow-sm hover:shadow-md transition-all border border-gray-200/80 backdrop-blur-md group">
+    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+    </svg>
+    <span>Back to Website</span>
+  </a>
+
   <!-- Decorative Background Blurs -->
   <div
     class="absolute -left-20 top-20 w-96 h-96 bg-violet-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse duration-[3000ms]">
@@ -68,7 +77,7 @@
 
         <!-- Forgot Password (Moved above button to match common mobile patterns or keep below? Image shows below) -->
 
-        <div class="pt-4">
+        <div class="pt-4 space-y-3">
           <!-- Login Button -->
           <button type="submit" [disabled]="isLoading()"
             class="w-full bg-violet-700 hover:bg-violet-800 text-white font-black py-3.5 rounded-lg shadow-[0_4px_14px_0_rgba(109,40,217,0.39)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.23)] hover:-translate-y-0.5 transform active:scale-95 transition-all duration-200 uppercase tracking-widest text-sm relative overflow-hidden">
@@ -84,6 +93,17 @@
             }
             {{ isLoading() ? 'Signing in...' : 'LOGIN' }}
           </button>
+
+          <!-- Back to Website Link -->
+          <div class="text-center pt-2">
+            <a routerLink="/"
+              class="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-violet-700 transition-colors group">
+              <svg class="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              <span>Back to Website</span>
+            </a>
+          </div>
         </div>
 
         <!-- Forgot Password Link Removed -->

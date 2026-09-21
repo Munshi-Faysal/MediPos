@@ -47,6 +47,7 @@ public class PackageController(IServiceManager service) : ControllerBase
 
     [HttpPost]
     [Route("Create")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Create(PackageDto packageDto)
     {
@@ -55,6 +56,7 @@ public class PackageController(IServiceManager service) : ControllerBase
 
     [HttpPut]
     [Route("Edit")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Edit(PackageDto packageDto)
     {
@@ -64,9 +66,18 @@ public class PackageController(IServiceManager service) : ControllerBase
 
     [HttpPatch]
     [Route("ChangeActive/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     public async Task<IActionResult> ChangeActive(string encryptedId)
     {
         return Ok(await service.Package.ChangeActiveAsync(encryptedId));
+    }
+
+    [HttpDelete]
+    [Route("Delete/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
+    public async Task<IActionResult> Delete(string encryptedId)
+    {
+        return Ok(await service.Package.DeleteAsync(encryptedId));
     }
 
     [HttpGet]

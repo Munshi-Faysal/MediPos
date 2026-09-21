@@ -1,7 +1,9 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { DrugStrengthService, DrugStrengthDto, DrugStrengthViewModel, DropdownItem } from '../../../../core/services/drug-strength.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-strength',
@@ -14,9 +16,11 @@ import { DrugStrengthService, DrugStrengthDto, DrugStrengthViewModel, DropdownIt
           <h1 class="text-2xl font-bold text-on-surface">Drug Strength Management</h1>
           <p class="text-on-surface-variant">Manage potency and strengths of drugs</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Strength
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Strength
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -43,7 +47,9 @@ import { DrugStrengthService, DrugStrengthDto, DrugStrengthViewModel, DropdownIt
                 <th class="px-6 py-4">Strength</th>
                 <th class="px-6 py-4">Unit</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -57,17 +63,19 @@ import { DrugStrengthService, DrugStrengthDto, DrugStrengthViewModel, DropdownIt
                       {{ str.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editStrength(str)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="toggleStatus(str)" [class]="str.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                      {{ str.isActive ? 'Deactivate' : 'Activate' }}
-                    </button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editStrength(str)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="toggleStatus(str)" [class]="str.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
+                        {{ str.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredStrengths().length === 0) {
                 <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -115,6 +123,9 @@ import { DrugStrengthService, DrugStrengthDto, DrugStrengthViewModel, DropdownIt
 })
 export class DrugStrengthComponent implements OnInit {
   private strengthService = inject(DrugStrengthService);
+  private authService = inject(AuthService);
+
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
 
   public strengths = signal<any[]>([]);
   public filteredStrengths = signal<any[]>([]);
@@ -174,6 +185,7 @@ export class DrugStrengthComponent implements OnInit {
   }
 
   openModal(): void {
+    if (!this.isSuperAdmin()) return;
     this.editingStrength = null;
     this.strengthForm = { name: '', unitEncryptedId: '', isActive: true };
     this.isModalOpen.set(true);
@@ -184,6 +196,7 @@ export class DrugStrengthComponent implements OnInit {
   }
 
   editStrength(str: any): void {
+    if (!this.isSuperAdmin()) return;
     this.editingStrength = str;
     // Find unit ID by name as we don't have it in the view model
     const foundUnit = this.units().find(u => u.value === str.unit);
@@ -196,6 +209,8 @@ export class DrugStrengthComponent implements OnInit {
   }
 
   saveStrength(): void {
+    if (!this.isSuperAdmin()) return;
+
     const dto: DrugStrengthDto = {
       encryptedId: this.editingStrength?.encryptedId,
       quantity: this.strengthForm.name,
@@ -207,37 +222,71 @@ export class DrugStrengthComponent implements OnInit {
     if (this.editingStrength) {
       this.strengthService.updateDrugStrength(dto).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Updated',
+            text: 'Drug strength updated successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
           this.loadStrengths();
           this.closeModal();
         },
         error: (err) => {
           console.error('Error updating strength:', err);
-          alert('Failed to update strength. Please try again.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update strength. Please try again.'
+          });
         }
       });
     } else {
       this.strengthService.createDrugStrength(dto).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Created',
+            text: 'Drug strength created successfully.',
+            timer: 2000,
+            showConfirmButton: false
+          });
           this.loadStrengths();
           this.closeModal();
         },
         error: (err) => {
           console.error('Error creating strength:', err);
-          alert('Failed to create strength. Please try again.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create strength. Please try again.'
+          });
         }
       });
     }
   }
 
   toggleStatus(str: any): void {
+    if (!this.isSuperAdmin()) return;
     if (str.encryptedId) {
       this.strengthService.changeDrugStrengthActiveStatus(str.encryptedId).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Status Updated',
+            text: `Drug strength is now ${str.isActive ? 'Inactive' : 'Active'}.`,
+            timer: 1500,
+            showConfirmButton: false
+          });
           this.loadStrengths();
         },
         error: (err) => {
           console.error('Error toggling strength status:', err);
-          alert('Failed to change status. Please try again.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to change status. Please try again.'
+          });
         }
       });
     }

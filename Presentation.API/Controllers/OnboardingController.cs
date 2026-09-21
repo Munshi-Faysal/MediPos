@@ -5,7 +5,7 @@ using Shared.DTOs.MainDTOs.Onboarding;
 
 namespace Presentation.API.Controllers;
 
-[Authorize(Roles = "system-admin,SystemAdmin")]
+[Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
 [ApiController]
 [Route("api/[controller]")]
 public class OnboardingController(IServiceManager service) : ControllerBase
@@ -46,5 +46,13 @@ public class OnboardingController(IServiceManager service) : ControllerBase
         var result = await service.Onboarding.RejectRegistrationAsync(rejectionDto);
         if (result) return Ok(new { message = "Registration rejected successfully" });
         return BadRequest(new { message = "Failed to reject registration" });
+    }
+
+    [HttpDelete("registrations/{id:int}")]
+    public async Task<IActionResult> DeleteRegistration(int id)
+    {
+        var result = await service.Onboarding.DeleteRegistrationAsync(id);
+        if (result) return Ok(new { message = "Registration deleted successfully" });
+        return NotFound(new { message = "Registration not found or failed to delete" });
     }
 }

@@ -1,21 +1,24 @@
-import { Component, signal, OnInit } from '@angular/core';
-
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'app-drug-duration',
-    standalone: true,
-    imports: [FormsModule],
-    template: `
+  selector: 'app-drug-duration',
+  standalone: true,
+  imports: [FormsModule],
+  template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-2xl font-bold text-on-surface">Drug Duration Management</h1>
           <p class="text-on-surface-variant">Manage prescription durations</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Duration
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Duration
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -42,7 +45,9 @@ import { FormsModule } from '@angular/forms';
                 <th class="px-6 py-4">Duration Name</th>
                 <th class="px-6 py-4">Total Days</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -56,17 +61,19 @@ import { FormsModule } from '@angular/forms';
                       {{ dur.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editDuration(dur)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="toggleStatus(dur)" [class]="dur.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                      {{ dur.isActive ? 'Deactivate' : 'Activate' }}
-                    </button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editDuration(dur)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="toggleStatus(dur)" [class]="dur.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
+                        {{ dur.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredDurations().length === 0) {
                 <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -103,82 +110,111 @@ import { FormsModule } from '@angular/forms';
             }
           </div>
     `,
-    styles: [`
+  styles: [`
     :host { display: block; }
   `]
 })
 export class DrugDurationComponent implements OnInit {
-    public durations = signal<any[]>([]);
-    public filteredDurations = signal<any[]>([]);
-    public isModalOpen = signal(false);
-    public searchQuery = '';
-    public editingDuration: any = null;
-    public durationForm = { name: '', days: 1, isActive: true };
+  private authService = inject(AuthService);
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
 
-    ngOnInit(): void {
-        this.durations.set([
-            { id: 1, name: '7 Days', days: 7, isActive: true },
-            { id: 2, name: '15 Days', days: 15, isActive: true },
-            { id: 3, name: '1 Month', days: 30, isActive: true },
-            { id: 4, name: '3 Months', days: 90, isActive: true },
-            { id: 5, name: 'Continue', days: 0, isActive: true },
-        ]);
-        this.filterDurations();
-    }
+  public durations = signal<any[]>([]);
+  public filteredDurations = signal<any[]>([]);
+  public isModalOpen = signal(false);
+  public searchQuery = '';
+  public editingDuration: any = null;
+  public durationForm = { name: '', days: 1, isActive: true };
 
-    filterDurations(): void {
-        if (!this.searchQuery.trim()) {
-            this.filteredDurations.set(this.durations());
-        } else {
-            const q = this.searchQuery.toLowerCase();
-            this.filteredDurations.set(this.durations().filter(d =>
-                d.name.toLowerCase().includes(q)
-            ));
-        }
-    }
+  ngOnInit(): void {
+    this.durations.set([
+      { id: 1, name: '7 Days', days: 7, isActive: true },
+      { id: 2, name: '15 Days', days: 15, isActive: true },
+      { id: 3, name: '1 Month', days: 30, isActive: true },
+      { id: 4, name: '3 Months', days: 90, isActive: true },
+      { id: 5, name: 'Continue', days: 0, isActive: true },
+    ]);
+    this.filterDurations();
+  }
 
-    openModal(): void {
-        this.editingDuration = null;
-        this.durationForm = { name: '', days: 1, isActive: true };
-        this.isModalOpen.set(true);
+  filterDurations(): void {
+    if (!this.searchQuery.trim()) {
+      this.filteredDurations.set(this.durations());
+    } else {
+      const q = this.searchQuery.toLowerCase();
+      this.filteredDurations.set(this.durations().filter(d =>
+        d.name.toLowerCase().includes(q)
+      ));
     }
+  }
 
-    closeModal(): void {
-        this.isModalOpen.set(false);
-    }
+  openModal(): void {
+    if (!this.isSuperAdmin()) return;
+    this.editingDuration = null;
+    this.durationForm = { name: '', days: 1, isActive: true };
+    this.isModalOpen.set(true);
+  }
 
-    editDuration(dur: any): void {
-        this.editingDuration = dur;
-        this.durationForm = { ...dur };
-        this.isModalOpen.set(true);
-    }
+  closeModal(): void {
+    this.isModalOpen.set(false);
+  }
 
-    saveDuration(): void {
-        if (this.editingDuration) {
-            const current = this.durations();
-            const index = current.findIndex(d => d.id === this.editingDuration.id);
-            if (index !== -1) {
-                current[index] = { ...this.editingDuration, ...this.durationForm };
-                this.durations.set([...current]);
-            }
-        } else {
-            const newDur = {
-                id: this.durations().length + 1,
-                ...this.durationForm
-            };
-            this.durations.set([...this.durations(), newDur]);
-        }
-        this.filterDurations();
-        this.closeModal();
-    }
+  editDuration(dur: any): void {
+    if (!this.isSuperAdmin()) return;
+    this.editingDuration = dur;
+    this.durationForm = { ...dur };
+    this.isModalOpen.set(true);
+  }
 
-    toggleStatus(dur: any): void {
-        const current = this.durations();
-        const index = current.findIndex(d => d.id === dur.id);
-        if (index !== -1) {
-            current[index].isActive = !current[index].isActive;
-            this.durations.set([...current]);
-            this.filterDurations();
-        }
+  saveDuration(): void {
+    if (!this.isSuperAdmin()) return;
+
+    if (this.editingDuration) {
+      const current = this.durations();
+      const index = current.findIndex(d => d.id === this.editingDuration.id);
+      if (index !== -1) {
+        current[index] = { ...this.editingDuration, ...this.durationForm };
+        this.durations.set([...current]);
+      }
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated',
+        text: 'Drug duration updated successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } else {
+      const newDur = {
+        id: this.durations().length + 1,
+        ...this.durationForm
+      };
+      this.durations.set([...this.durations(), newDur]);
+      Swal.fire({
+        icon: 'success',
+        title: 'Created',
+        text: 'Drug duration created successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
+    this.filterDurations();
+    this.closeModal();
+  }
+
+  toggleStatus(dur: any): void {
+    if (!this.isSuperAdmin()) return;
+    const current = this.durations();
+    const index = current.findIndex(d => d.id === dur.id);
+    if (index !== -1) {
+      current[index].isActive = !current[index].isActive;
+      this.durations.set([...current]);
+      this.filterDurations();
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated',
+        text: `Drug duration is now ${current[index].isActive ? 'Active' : 'Inactive'}.`,
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  }
 }

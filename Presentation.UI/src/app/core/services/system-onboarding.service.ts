@@ -61,4 +61,9 @@ export class SystemOnboardingService {
     rejectRegistration(rejection: RejectionDto): Observable<any> {
         return this.apiService.post(`${this.baseUrl}/reject`, rejection);
     }
+
+    deleteRegistration(id: number): Observable<any> {
+        return this.apiService.delete(`${this.baseUrl}/registrations/${id}`);
+    }
 }
+

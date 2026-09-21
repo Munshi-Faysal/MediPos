@@ -1,6 +1,8 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugAdviceService, DrugAdviceViewModel, DrugAdviceDto } from '../../../../core/services/drug-advice.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-advice',
@@ -13,9 +15,11 @@ import { DrugAdviceService, DrugAdviceViewModel, DrugAdviceDto } from '../../../
           <h1 class="text-2xl font-bold text-on-surface">Drug Advice Management</h1>
           <p class="text-on-surface-variant">Manage instructions and advice for medication</p>
         </div>
-        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-          Add New Advice
-        </button>
+        @if (isSuperAdmin()) {
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+            Add New Advice
+          </button>
+        }
       </div>
     
       <!-- Search and Filter -->
@@ -42,7 +46,9 @@ import { DrugAdviceService, DrugAdviceViewModel, DrugAdviceDto } from '../../../
                 <th class="px-6 py-4">Advice Name</th>
                 <th class="px-6 py-4">Full Instruction</th>
                 <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -56,17 +62,19 @@ import { DrugAdviceService, DrugAdviceViewModel, DrugAdviceDto } from '../../../
                       {{ adv.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editAdvice(adv)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="toggleStatus(adv)" [class]="adv.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                      {{ adv.isActive ? 'Deactivate' : 'Activate' }}
-                    </button>
-                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="px-6 py-4 text-right space-x-2">
+                      <button (click)="editAdvice(adv)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                      <button (click)="toggleStatus(adv)" [class]="adv.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
+                        {{ adv.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </td>
+                  }
                 </tr>
               }
               @if (filteredAdvice().length === 0) {
                 <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -109,6 +117,10 @@ import { DrugAdviceService, DrugAdviceViewModel, DrugAdviceDto } from '../../../
 })
 export class DrugAdviceComponent implements OnInit {
   private service = inject(DrugAdviceService);
+  private authService = inject(AuthService);
+
+  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
+
   public advices = signal<DrugAdviceViewModel[]>([]);
   public filteredAdvice = signal<DrugAdviceViewModel[]>([]);
   public isModalOpen = signal(false);
@@ -144,6 +156,7 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   openModal(): void {
+    if (!this.isSuperAdmin()) return;
     this.editingAdvice = null;
     this.adviceForm = { name: '', description: '', isActive: true };
     this.isModalOpen.set(true);
@@ -154,6 +167,7 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   editAdvice(adv: DrugAdviceViewModel): void {
+    if (!this.isSuperAdmin()) return;
     this.editingAdvice = adv;
     this.adviceForm = {
       name: adv.name,
@@ -164,6 +178,8 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   saveAdvice(): void {
+    if (!this.isSuperAdmin()) return;
+
     if (this.editingAdvice) {
       const dto: DrugAdviceDto = {
         encryptedId: this.editingAdvice.encryptedId,
@@ -174,10 +190,24 @@ export class DrugAdviceComponent implements OnInit {
       };
       this.service.updateDrugAdvice(dto).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Updated',
+            text: 'Drug advice updated successfully.',
+            timer: 1500,
+            showConfirmButton: false
+          });
           this.loadAdvices();
           this.closeModal();
         },
-        error: (err) => console.error('Error updating advice', err)
+        error: (err) => {
+          console.error('Error updating advice', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update advice. Please try again.'
+          });
+        }
       });
     } else {
       const dto: DrugAdviceDto = {
@@ -188,29 +218,56 @@ export class DrugAdviceComponent implements OnInit {
       };
       this.service.createDrugAdvice(dto).subscribe({
         next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Created',
+            text: 'Drug advice created successfully.',
+            timer: 1500,
+            showConfirmButton: false
+          });
           this.loadAdvices();
           this.closeModal();
         },
-        error: (err) => console.error('Error creating advice', err)
+        error: (err) => {
+          console.error('Error creating advice', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create advice. Please try again.'
+          });
+        }
       });
     }
   }
 
   toggleStatus(adv: DrugAdviceViewModel): void {
+    if (!this.isSuperAdmin()) return;
     this.service.changeDrugAdviceActiveStatus(adv.encryptedId).subscribe({
       next: () => {
-        // Optimistic update or reload
         const current = this.advices();
         const index = current.findIndex(d => d.encryptedId === adv.encryptedId);
         if (index !== -1) {
-          // clone the array and item to trigger signal update
           const updated = [...current];
           updated[index] = { ...updated[index], isActive: !updated[index].isActive };
           this.advices.set(updated);
           this.filterAdvice();
+          Swal.fire({
+            icon: 'success',
+            title: 'Status Updated',
+            text: `Drug advice is now ${updated[index].isActive ? 'Active' : 'Inactive'}.`,
+            timer: 1500,
+            showConfirmButton: false
+          });
         }
       },
-      error: (err) => console.error('Error toggling status', err)
+      error: (err) => {
+        console.error('Error toggling status', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to change status. Please try again.'
+        });
+      }
     });
   }
 }
