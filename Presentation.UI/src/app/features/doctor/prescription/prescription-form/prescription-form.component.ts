@@ -28,7 +28,9 @@ import {
 } from '../../../../core/models/prescription-settings.model';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, timeout } from 'rxjs/operators';
+
+type PrescriptionSaveAction = 'save' | 'print' | 'printWithoutHeader';
 
 @Component({
   selector: 'app-prescription-form',
@@ -76,6 +78,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
   bodyConfig: PrescriptionBodyConfig = DEFAULT_BODY_CONFIG;
   footerConfig: PrescriptionFooterConfig = DEFAULT_FOOTER_CONFIG;
   submitting = false;
+  activeSaveAction: PrescriptionSaveAction | null = null;
   showMedicineSearch = false;
   showPatientForm = false;
 
@@ -594,21 +597,24 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSave(action: 'save' | 'print' | 'printWithoutHeader'): void {
+  onSave(action: PrescriptionSaveAction): void {
+    if (this.submitting) return;
+
     if (action === 'printWithoutHeader') {
       this.hideHeaderOnPrint = true;
-      this.onSubmit('print');
     } else if (action === 'print') {
       this.hideHeaderOnPrint = false;
-      this.onSubmit('print');
     } else {
       this.hideHeaderOnPrint = false;
-      this.onSubmit('save');
     }
+
+    this.onSubmit(action);
   }
 
-  onSubmit(action: 'save' | 'print' = 'save'): void {
-    // remove patientId required check, handle visually
+  onSubmit(action: PrescriptionSaveAction = 'save'): void {
+    if (this.submitting) return;
+
+    this.ensureFilledSectionsVisible();
     const formVal = this.prescriptionForm.value;
     const hasPatient = formVal.patientId || (formVal.patientName && formVal.patientName.trim());
 
@@ -622,7 +628,22 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const invalidMedicineIndex = this.medicinesFormArray.controls.findIndex(control => control.invalid);
+    if (invalidMedicineIndex >= 0) {
+      this.markFormGroupTouched(this.prescriptionForm);
+      alert(`Please complete dose, duration and quantity for medicine ${invalidMedicineIndex + 1}.`);
+      return;
+    }
+
+    const prescriptionDate = new Date(formVal.prescriptionDate);
+    if (Number.isNaN(prescriptionDate.getTime())) {
+      this.prescriptionForm.get('prescriptionDate')?.markAsTouched();
+      alert('Please enter a valid prescription date.');
+      return;
+    }
+
     this.submitting = true;
+    this.activeSaveAction = action;
 
     // Check if we need to create a patient first
     if (!formVal.patientId && formVal.patientName) {
@@ -638,6 +659,12 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
 
       this.patientService.createPatient(newPatient).subscribe({
         next: (createdPatient) => {
+          if (!createdPatient?.id) {
+            this.resetSubmitState();
+            alert('Patient was created, but the patient ID was not returned. Please select the patient and save again.');
+            return;
+          }
+
           // Update form with new ID
           this.prescriptionForm.patchValue({
             patientId: createdPatient.id,
@@ -649,7 +676,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
           this.savePrescription(action);
         },
         error: (err) => {
-          this.submitting = false;
+          this.resetSubmitState();
           console.error('Failed to auto-create patient', err);
           alert('Failed to create new patient. Please check details.');
         }
@@ -659,15 +686,9 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  private savePrescription(action: 'save' | 'print'): void {
-    // Save new templates
-    Promise.all([
-      this.saveNewDoses(),
-      this.saveNewAdvice(),
-      this.saveNewDuration()
-    ]).then(() => {
-      this.performSubmit(action);
-    });
+  private savePrescription(action: PrescriptionSaveAction): void {
+    // Template values are convenience data. They must never block the prescription save.
+    this.performSubmit(action);
   }
 
   private async saveNewDoses(): Promise<void> {
@@ -688,7 +709,8 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
             this.doseTemplates.update(d => [...d, dose]);
             resolve();
           },
-          error: () => resolve() // Resolve anyway to not block submission
+          error: () => resolve(),
+          complete: () => resolve()
         });
       });
     });
@@ -714,7 +736,8 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
             this.adviceTemplates.update(a => [...a, advice]);
             resolve();
           },
-          error: () => resolve()
+          error: () => resolve(),
+          complete: () => resolve()
         });
       });
     });
@@ -739,7 +762,8 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
             this.durationTemplates.update(d => [...d, duration]);
             resolve();
           },
-          error: () => resolve()
+          error: () => resolve(),
+          complete: () => resolve()
         });
       });
     });
@@ -747,7 +771,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     await Promise.all(savePromises);
   }
 
-  private performSubmit(action: 'save' | 'print'): void {
+  private performSubmit(action: PrescriptionSaveAction): void {
     const formValue = this.prescriptionForm.value;
 
     // Map medicines to DTO structure with PascalCase
@@ -764,6 +788,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     }));
 
     // Build DTO matching PrescriptionDto structure (PascalCase)
+    const patientRegNo = Number(formValue.patientRegNo);
     const prescriptionDto: any = {
       Id: 0, // Let backend handle ID
       EncryptedId: this.prescriptionId || null,
@@ -779,7 +804,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
       PatientWeight: formValue.patientWeight || null,
       PatientPhone: formValue.patientPhone || null,
       PatientAddress: formValue.patientAddress || null,
-      PatientRegNo: formValue.patientRegNo ? parseInt(formValue.patientRegNo) : null,
+      PatientRegNo: Number.isInteger(patientRegNo) && patientRegNo > 0 ? patientRegNo : null,
 
       // Clinical sections
       Disease: formValue.disease || null,
@@ -800,17 +825,21 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
       ? this.prescriptionService.updatePrescription(prescriptionDto)
       : this.prescriptionService.createPrescription(prescriptionDto);
 
-    operation.subscribe({
+    operation.pipe(
+      timeout(30000),
+      finalize(() => this.resetSubmitState())
+    ).subscribe({
       next: (savedPrescription) => {
-        this.submitting = false;
+        this.saveNewTemplatesInBackground();
 
-        if (action === 'print') {
+        if (action !== 'save') {
           // If created new, update state to Edit Mode so we don't create duplicates
-          if (!this.isEditMode && savedPrescription.id) {
+          const savedId = savedPrescription?.encryptedId || savedPrescription?.id;
+          if (!this.isEditMode && savedId) {
             this.isEditMode = true;
-            this.prescriptionId = savedPrescription.id;
+            this.prescriptionId = savedId;
             // Quietly update URL without reloading
-            window.history.replaceState({}, '', `/doctor/prescriptions/${savedPrescription.id}`);
+            window.history.replaceState({}, '', `/doctor/prescriptions/${savedId}`);
           }
           // Print after a short delay to ensure DOM is ready
           setTimeout(() => {
@@ -825,11 +854,27 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.submitting = false;
         console.error('Prescription save error:', err);
-        alert(`Failed to ${this.isEditMode ? 'update' : 'create'} prescription. Please try again.`);
+        const apiMessage = err?.error?.message;
+        const message = err?.name === 'TimeoutError'
+          ? 'The server took too long to respond. Please check the connection and try again.'
+          : (apiMessage || `Failed to ${this.isEditMode ? 'update' : 'create'} prescription. Please try again.`);
+        alert(message);
       }
     });
+  }
+
+  private saveNewTemplatesInBackground(): void {
+    void Promise.allSettled([
+      this.saveNewDoses(),
+      this.saveNewAdvice(),
+      this.saveNewDuration()
+    ]);
+  }
+
+  private resetSubmitState(): void {
+    this.submitting = false;
+    this.activeSaveAction = null;
   }
 
   // Helper method for clean template

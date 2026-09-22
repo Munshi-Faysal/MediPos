@@ -35,7 +35,9 @@ public class PatientController(IServiceManager service) : ControllerBase
     public async Task<IActionResult> Create([FromBody] PatientDto dto)
     {
         var result = await service.Patient.CreateAsync(dto);
-        return result ? Ok() : BadRequest();
+        return result is not null
+            ? Ok(result)
+            : BadRequest(new { message = "Failed to create patient" });
     }
 
     [HttpPut]

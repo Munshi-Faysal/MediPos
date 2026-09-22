@@ -9,6 +9,6 @@ public interface IPatientService
     Task<IEnumerable<PatientViewModel>> SearchPatientsAsync(string term, int take = 50);
     Task<PatientViewModel?> GetByIdAsync(string encryptedId);
     Task<PatientViewModel?> GetByPhoneAsync(string phone);
-    Task<bool> CreateAsync(PatientDto dto);
+    Task<PatientViewModel?> CreateAsync(PatientDto dto);
     Task<bool> UpdateAsync(PatientDto dto);
 }

@@ -76,8 +76,6 @@ export class LoginComponent implements OnInit {
   }
 
   private handleLogin(): void {
-
-    debugger;
     // Validate inputs
     if (!this.loginData.usernameEmail || !this.loginData.password) {
       this.errorMessage.set('Please enter both username/email and password');

@@ -74,7 +74,7 @@ internal sealed class PrescriptionService(
         return viewModels;
     }
 
-    public async Task<bool> CreateAsync(PrescriptionDto dto)
+    public async Task<PrescriptionDto?> CreateAsync(PrescriptionDto dto)
     {
         var entity = mapper.Map<Prescription>(dto);
         
@@ -134,7 +134,24 @@ internal sealed class PrescriptionService(
         }
 
         CreateAutoFields(entity);
-        return await repository.Prescription.InsertAsync(entity);
+        var inserted = await repository.Prescription.GetInsertedObjAsync(entity);
+        if (inserted is null) return null;
+
+        var created = mapper.Map<PrescriptionDto>(inserted);
+        created.EncryptedId = encryptionHelper.Encrypt(inserted.Id.ToString());
+        created.DoctorEncryptedId = encryptionHelper.Encrypt(inserted.DoctorId.ToString());
+        created.PatientEncryptedId = encryptionHelper.Encrypt(inserted.PatientId.ToString());
+        if (inserted.AppointmentId.HasValue)
+            created.AppointmentEncryptedId = encryptionHelper.Encrypt(inserted.AppointmentId.Value.ToString());
+
+        for (var i = 0; i < inserted.Medicines.Count; i++)
+        {
+            var medicine = inserted.Medicines.ElementAt(i);
+            created.Medicines[i].EncryptedId = encryptionHelper.Encrypt(medicine.Id.ToString());
+            created.Medicines[i].MedicineEncryptedId = encryptionHelper.Encrypt(medicine.DrugDetailId.ToString());
+        }
+
+        return created;
     }
 
     public async Task<bool> UpdateAsync(PrescriptionDto dto)

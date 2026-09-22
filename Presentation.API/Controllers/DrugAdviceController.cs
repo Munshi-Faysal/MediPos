@@ -68,7 +68,6 @@ public class DrugAdviceController(IServiceManager service) : ControllerBase
 
     [HttpPost]
     [Route("Create")]
-    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> Create(DrugAdviceDto dto)
     {

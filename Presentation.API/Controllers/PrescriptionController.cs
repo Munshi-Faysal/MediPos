@@ -44,7 +44,7 @@ public class PrescriptionController(IServiceManager service) : ControllerBase
         dto.Id = 0;
         
         var result = await service.Prescription.CreateAsync(dto);
-        if (result) return Ok(new { message = "Prescription created successfully" });
+        if (result is not null) return Ok(result);
         return BadRequest(new { message = "Failed to create prescription" });
     }
 

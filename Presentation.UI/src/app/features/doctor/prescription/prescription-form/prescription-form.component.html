@@ -4,7 +4,7 @@
   <div
     class="bg-white sticky top-0 z-10 shadow-sm border-b border-gray-200 px-6 py-3 mb-8 print:hidden flex justify-between items-center">
     <div class="flex items-center gap-4">
-      <button routerLink="/doctor/prescriptions" class="text-gray-500 hover:text-gray-700">
+      <button type="button" routerLink="/doctor/prescriptions" class="text-gray-500 hover:text-gray-700">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
@@ -17,7 +17,7 @@
       @if (selectedPatient) {
       <div class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
         <span class="text-xs font-bold text-blue-800">{{ selectedPatient.name }}</span>
-        <button
+        <button type="button"
           (click)="selectedPatient = null; prescriptionForm.patchValue({ patientId: '' }); selectedAppointment = null"
           class="text-blue-400 hover:text-blue-600">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
         <div
           class="absolute top-full left-0 right-0 mt-2 w-72 -ml-4 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto z-50 divide-y divide-gray-100">
           @for (p of patients(); track p.id) {
-          <button (click)="selectPatient(p)"
+          <button type="button" (click)="selectPatient(p)"
             class="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors group">
             <div class="flex justify-between items-start">
               <div>
@@ -61,8 +61,8 @@
       <div class="h-6 w-px bg-gray-300 mx-2"></div>
 
       <!-- Preview -->
-      <button (click)="onPreview()"
-        class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm">
+      <button type="button" (click)="onPreview()" [disabled]="submitting"
+        class="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -72,31 +72,31 @@
       </button>
 
       <!-- Save & Print -->
-      <button (click)="onSave('print')" [disabled]="submitting"
-        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50">
+      <button type="button" (click)="onSave('print')" [disabled]="submitting"
+        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
           </path>
         </svg>
-        @if (submitting) { <span>Saving...</span> } @else { <span>Save & Print</span> }
+        @if (activeSaveAction === 'print') { <span>Saving...</span> } @else { <span>Save & Print</span> }
       </button>
 
       <!-- Save & Print Without Header -->
-      <button (click)="onSave('printWithoutHeader')" [disabled]="submitting"
-        class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50">
+      <button type="button" (click)="onSave('printWithoutHeader')" [disabled]="submitting"
+        class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
           </path>
         </svg>
-        @if (submitting) { <span>Saving...</span> } @else { <span>No Header</span> }
+        @if (activeSaveAction === 'printWithoutHeader') { <span>Saving...</span> } @else { <span>No Header</span> }
       </button>
 
       <!-- Save Only -->
-      <button (click)="onSave('save')" [disabled]="submitting"
-        class="flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50">
-        @if (submitting) { <span>Saving...</span> } @else { <span>Save Only</span> }
+      <button type="button" (click)="onSave('save')" [disabled]="submitting"
+        class="flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2 rounded-lg font-medium transition-colors shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (activeSaveAction === 'save') { <span>Saving...</span> } @else { <span>Save Only</span> }
       </button>
     </div>
   </div>

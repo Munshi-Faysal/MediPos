@@ -7,7 +7,7 @@ public interface IPrescriptionService
 {
     Task<PrescriptionDto?> GetByIdAsync(string encryptedId);
     Task<IEnumerable<PrescriptionViewModel>> GetPrescriptionsByDoctorAsync();
-    Task<bool> CreateAsync(PrescriptionDto dto);
+    Task<PrescriptionDto?> CreateAsync(PrescriptionDto dto);
     Task<bool> UpdateAsync(PrescriptionDto dto);
     Task<bool> DeleteAsync(string encryptedId);
 }

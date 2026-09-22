@@ -46,12 +46,13 @@ internal sealed class PatientService(
         return entity == null ? null : mapper.Map<PatientViewModel>(entity);
     }
 
-    public async Task<bool> CreateAsync(PatientDto dto)
+    public async Task<PatientViewModel?> CreateAsync(PatientDto dto)
     {
         var entity = mapper.Map<Patient>(dto);
         CreateAutoFields(entity);
         entity.IsActive = true;
-        return await repository.Patient.InsertAsync(entity);
+        var inserted = await repository.Patient.GetInsertedObjAsync(entity);
+        return inserted is null ? null : mapper.Map<PatientViewModel>(inserted);
     }
 
     public async Task<bool> UpdateAsync(PatientDto dto)

@@ -1,131 +1,145 @@
-<div
-  class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-  <!-- Back to Website Top Button -->
-  <a routerLink="/"
-    class="absolute top-6 left-6 z-20 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 hover:bg-white text-gray-700 hover:text-violet-700 text-sm font-bold shadow-sm hover:shadow-md transition-all border border-gray-200/80 backdrop-blur-md group">
-    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+<main class="login-page">
+  <div class="background-orb background-orb--one" aria-hidden="true"></div>
+  <div class="background-orb background-orb--two" aria-hidden="true"></div>
+
+  <a routerLink="/" class="back-link" aria-label="Back to MediPOS website">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6" />
     </svg>
-    <span>Back to Website</span>
+    <span>Back to website</span>
   </a>
 
-  <!-- Decorative Background Blurs -->
-  <div
-    class="absolute -left-20 top-20 w-96 h-96 bg-violet-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse duration-[3000ms]">
-  </div>
-  <div
-    class="absolute -right-20 bottom-20 w-96 h-96 bg-fuchsia-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse duration-[4000ms]">
-  </div>
+  <section class="login-shell" aria-label="MediPOS sign in">
+    <div class="form-panel">
+      <div class="mobile-brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          </svg>
+        </span>
+        <strong>MediPOS</strong>
+      </div>
 
-  <!-- The "Device" Frame / 3D Card Wrapper -->
-  <div
-    class="relative w-full max-w-[24rem] bg-gradient-to-b from-gray-100 to-violet-800 rounded-[2.5rem] p-3 shadow-2xl shadow-violet-900/30 transform transition-transform hover:scale-[1.01] duration-500">
+      <div class="form-wrap">
+        <header class="form-header">
+          <span class="form-kicker">Secure workspace</span>
+          <h1>{{ isOtpRequired() ? 'Verify your identity' : 'Welcome back' }}</h1>
+          <p>
+            {{ isOtpRequired()
+              ? 'Enter the 6-digit verification code sent to your registered email.'
+              : 'Sign in to continue to your MediPOS dashboard.' }}
+          </p>
+        </header>
 
-    <!-- The Inner White Card -->
-    <div
-      class="bg-gray-50 rounded-[2rem] px-8 py-12 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] h-full flex flex-col items-center border border-white">
+        <form class="login-form" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+          @if (!isOtpRequired()) {
+            <div class="form-field">
+              <label for="usernameEmail">Email or username</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m10-14a4 4 0 11-8 0 4 4 0 018 0zm8 14v-2a4 4 0 00-3-3.87m-1-9.95a4 4 0 010 7.75" />
+                </svg>
+                <input id="usernameEmail" type="text" [(ngModel)]="loginData.usernameEmail"
+                  name="usernameEmail" required autocomplete="username" placeholder="Enter your email or username" />
+              </div>
+            </div>
 
-      <!-- Header -->
-      <h1
-        class="text-5xl font-black text-gray-900 tracking-wider mb-8 drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)] uppercase">
-        LOGIN
-      </h1>
+            <div class="form-field">
+              <label for="password">Password</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="10" rx="2" stroke-width="1.8" />
+                  <path stroke-linecap="round" stroke-width="1.8" d="M7 11V7a5 5 0 0110 0v4" />
+                </svg>
+                <input id="password" [type]="showPassword() ? 'text' : 'password'"
+                  [(ngModel)]="loginData.password" name="password" required autocomplete="current-password"
+                  placeholder="Enter your password" />
+                <button type="button" class="password-toggle" (click)="togglePassword()"
+                  [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+                  [attr.aria-pressed]="showPassword()">
+                  @if (!showPassword()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7s-8.27-2.94-9.54-7z" />
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 4.2A10.8 10.8 0 0112 4c5 0 9.27 3.11 11 7.5a11.8 11.8 0 01-2.1 3.5M6.6 6.6A11.7 11.7 0 001 11.5C2.73 15.89 7 19 12 19c1.27 0 2.5-.2 3.6-.57" />
+                    </svg>
+                  }
+                </button>
+              </div>
+            </div>
 
-      <!-- Form -->
-      <form class="w-full space-y-6" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+            <label class="remember-option">
+              <input type="checkbox" [(ngModel)]="loginData.rememberMe" name="rememberMe" />
+              <span class="custom-checkbox">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3.5 8.5l3 3 6-7" />
+                </svg>
+              </span>
+              <span>
+                <strong>Trust this device</strong>
+                <small>Skip extra verification on this browser.</small>
+              </span>
+            </label>
+          } @else {
+            <div class="otp-notice">
+              <span class="otp-notice-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16v12H4zM4 7l8 6 8-6" />
+                </svg>
+              </span>
+              <span>Code sent to <strong>{{ loginData.usernameEmail }}</strong></span>
+            </div>
 
-        <!-- User Name -->
-        <div class="space-y-2">
-          <label class="text-sm font-black text-gray-600 ml-1 uppercase tracking-wide">Email Address</label>
-          <div class="relative group">
-            <input type="text" [(ngModel)]="loginData.usernameEmail" name="usernameEmail" required
-              class="w-full bg-gray-200 border-none rounded-lg py-4 px-5 text-gray-800 font-extrabold text-lg focus:ring-0 focus:bg-gray-200/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] placeholder-gray-500/70"
-              placeholder="........" />
-          </div>
-        </div>
+            <div class="form-field">
+              <label for="otp">Verification code</label>
+              <div class="input-wrap input-wrap--otp">
+                <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
+                  maxlength="6" pattern="[0-9]{6}" required placeholder="000000" aria-describedby="otp-hint" />
+              </div>
+              <small id="otp-hint" class="field-hint">Enter the 6-digit code from your email.</small>
+            </div>
+          }
 
-        <!-- Password -->
-        <div class="space-y-2">
-          <label class="text-sm font-black text-gray-600 ml-1 uppercase tracking-wide">Password</label>
-          <div class="relative group">
-            <input [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="loginData.password" name="password"
-              required
-              class="w-full bg-gray-200 border-none rounded-lg py-4 px-5 text-gray-800 font-extrabold text-lg focus:ring-0 focus:bg-gray-200/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] placeholder-gray-500/70 tracking-widest"
-              placeholder="........" />
-            <!-- Toggle Eye -->
-            <button type="button" (click)="togglePassword()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
-              @if (!showPassword()) {
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                </path>
+          @if (errorMessage()) {
+            <div class="alert alert--error" role="alert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 4.5h.01v.01H12v-.01z" />
               </svg>
-              }
-              @if (showPassword()) {
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21">
-                </path>
-              </svg>
-              }
-            </button>
-          </div>
-        </div>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
 
-        <!-- Forgot Password (Moved above button to match common mobile patterns or keep below? Image shows below) -->
+          @if (!isMailConfirmed()) {
+            <div class="mail-confirmation">
+              <p>Your email address is not confirmed yet.</p>
+              <button type="button" (click)="resendMailConfirmation()">Resend confirmation email</button>
+            </div>
+          }
 
-        <div class="pt-4 space-y-3">
-          <!-- Login Button -->
-          <button type="submit" [disabled]="isLoading()"
-            class="w-full bg-violet-700 hover:bg-violet-800 text-white font-black py-3.5 rounded-lg shadow-[0_4px_14px_0_rgba(109,40,217,0.39)] hover:shadow-[0_6px_20px_rgba(109,40,217,0.23)] hover:-translate-y-0.5 transform active:scale-95 transition-all duration-200 uppercase tracking-widest text-sm relative overflow-hidden">
+          <button type="submit" class="submit-button" [disabled]="isLoading() || loginForm.invalid">
             @if (isLoading()) {
-            <span class="absolute left-4 inset-y-0 flex items-center">
-              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
+              <svg class="spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".25" />
+                <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
               </svg>
-            </span>
+              <span>{{ isOtpRequired() ? 'Verifying...' : 'Signing in...' }}</span>
+            } @else {
+              <span>{{ isOtpRequired() ? 'Verify & continue' : 'Sign in to MediPOS' }}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-6-6l6 6-6 6" />
+              </svg>
             }
-            {{ isLoading() ? 'Signing in...' : 'LOGIN' }}
           </button>
+        </form>
 
-          <!-- Back to Website Link -->
-          <div class="text-center pt-2">
-            <a routerLink="/"
-              class="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-violet-700 transition-colors group">
-              <svg class="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-              </svg>
-              <span>Back to Website</span>
-            </a>
-          </div>
-        </div>
+        <p class="support-copy">Having trouble signing in? <span>Contact your administrator.</span></p>
+      </div>
 
-        <!-- Forgot Password Link Removed -->
-
-        <!-- Error Message -->
-        @if (errorMessage()) {
-        <div class="rounded-lg bg-red-50 p-3 mt-4 border border-red-100 animate-in fade-in slide-in-from-bottom-2">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <div class="ml-3">
-              <p class="text-xs font-bold text-red-600">{{ errorMessage() }}</p>
-            </div>
-          </div>
-        </div>
-        }
-
-      </form>
+      <p class="copyright">© 2026 MediPOS. Secure healthcare, simplified.</p>
     </div>
-  </div>
-</div>
+  </section>
+</main>

@@ -28,6 +28,22 @@ export class DoctorDashboardComponent implements OnInit {
 
   public currentUser = this.authService.user;
 
+  public readonly todayLabel = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  }).format(new Date());
+
+  public get doctorDisplayName(): string {
+    const firstName = this.currentUser()?.userFName?.trim();
+
+    if (!firstName) {
+      return 'Doctor';
+    }
+
+    return /^dr\.?\s/i.test(firstName) ? firstName : `Dr. ${firstName}`;
+  }
+
   public recentPrescriptions = signal<any[]>([]);
 
   public upcomingAppointments = signal<any[]>([]);
