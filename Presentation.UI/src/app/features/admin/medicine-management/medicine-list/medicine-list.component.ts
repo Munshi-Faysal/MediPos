@@ -6,6 +6,7 @@ import { Medicine, MedicineForm, MedicineFilters } from '../../../../core/models
 import { MedicineService } from '../../../../core/services/medicine.service';
 import { DynamicTableComponent, TableColumn } from '../../../../shared/components/dynamic-table/dynamic-table.component';
 import { TableData } from '../../../../shared/components/dynamic-table/dynamic-table.component';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-medicine-list',
@@ -150,8 +151,14 @@ export class MedicineListComponent implements OnInit {
     this.router.navigate(['/admin/medicines', medicine.id, 'edit']);
   }
 
-  onDelete(medicine: Medicine): void {
-    if (confirm(`Are you sure you want to delete ${medicine.medicineName}?`)) {
+  async onDelete(medicine: Medicine): Promise<void> {
+    const confirmed = await confirmAppAction({
+      title: 'Delete medicine?',
+      text: `Are you sure you want to delete ${medicine.medicineName}?`,
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.medicineService.deleteMedicine(medicine.id).subscribe({
         next: () => {
           this.loadMedicines();

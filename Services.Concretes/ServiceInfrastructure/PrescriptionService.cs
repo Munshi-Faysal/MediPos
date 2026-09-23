@@ -87,48 +87,28 @@ internal sealed class PrescriptionService(
             }
         }
 
-        if (!string.IsNullOrEmpty(dto.PatientEncryptedId))
-        {
-            // Try to decrypt, if it fails, try to parse as integer (for non-encrypted IDs)
-            try
-            {
-                entity.PatientId = encryptionHelper.Decrypt(dto.PatientEncryptedId);
-            }
-            catch
-            {
-                // If decryption fails, try direct conversion (fallback for plain IDs)
-                if (int.TryParse(dto.PatientEncryptedId, out int patientId))
-                {
-                    entity.PatientId = patientId;
-                }
-            }
-        }
+        var patientId = ResolveId(dto.PatientEncryptedId);
+        if (patientId <= 0 || !await repository.Patient.AnyAsync(patient => patient.Id == patientId))
+            throw new ArgumentException("The selected patient could not be found. Please select the patient again.");
+        entity.PatientId = patientId;
 
         if (!string.IsNullOrEmpty(dto.AppointmentEncryptedId))
         {
-            entity.AppointmentId = encryptionHelper.Decrypt(dto.AppointmentEncryptedId);
+            var appointmentId = ResolveId(dto.AppointmentEncryptedId);
+            if (appointmentId <= 0 || !await repository.Appointment.AnyAsync(appointment => appointment.Id == appointmentId))
+                throw new ArgumentException("The selected appointment could not be found.");
+            entity.AppointmentId = appointmentId;
         }
 
         // Handle Medicines
         foreach (var medDto in dto.Medicines)
         {
             var medEntity = mapper.Map<PrescriptionMedicine>(medDto);
-            if (!string.IsNullOrEmpty(medDto.MedicineEncryptedId))
-            {
-                // Try to decrypt, if it fails, try to parse as integer
-                try
-                {
-                    medEntity.DrugDetailId = encryptionHelper.Decrypt(medDto.MedicineEncryptedId);
-                }
-                catch
-                {
-                    // If decryption fails, try direct conversion (fallback for plain IDs)
-                    if (int.TryParse(medDto.MedicineEncryptedId, out int medicineId))
-                    {
-                        medEntity.DrugDetailId = medicineId;
-                    }
-                }
-            }
+            var medicineId = ResolveId(medDto.MedicineEncryptedId);
+            if (medicineId <= 0 || !await repository.DrugDetail.AnyAsync(medicine => medicine.Id == medicineId))
+                throw new ArgumentException("One of the selected medicines could not be found. Please select it again.");
+            medEntity.DrugDetailId = medicineId;
+
             CreateAutoFields(medEntity);
             entity.Medicines.Add(medEntity);
         }
@@ -152,6 +132,18 @@ internal sealed class PrescriptionService(
         }
 
         return created;
+    }
+
+    private int ResolveId(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return 0;
+
+        // Several existing list endpoints expose numeric IDs, while detail endpoints use protected IDs.
+        // Parse a plain ID first because EncryptionHelper.Decrypt returns 0 instead of throwing on invalid input.
+        if (int.TryParse(value, out var plainId) && plainId > 0)
+            return plainId;
+
+        return encryptionHelper.Decrypt(value);
     }
 
     public async Task<bool> UpdateAsync(PrescriptionDto dto)

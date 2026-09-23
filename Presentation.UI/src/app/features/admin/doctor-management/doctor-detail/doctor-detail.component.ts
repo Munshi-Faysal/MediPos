@@ -5,6 +5,7 @@ import { Doctor } from '../../../../core/models/doctor.model';
 import { Prescription } from '../../../../core/models/prescription.model';
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { PrescriptionService } from '../../../../core/services/prescription.service';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-doctor-detail',
@@ -69,10 +70,16 @@ export class DoctorDetailComponent implements OnInit {
     }
   }
 
-  onDelete(): void {
+  async onDelete(): Promise<void> {
     if (!this.doctor) return;
 
-    if (confirm(`Are you sure you want to delete ${this.doctor.name}? This action cannot be undone.`)) {
+    const confirmed = await confirmAppAction({
+      title: 'Delete doctor?',
+      text: `Are you sure you want to delete ${this.doctor.name}? This action cannot be undone.`,
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.deleting = true;
       this.doctorService.deleteDoctor(this.doctor.id).subscribe({
         next: () => {

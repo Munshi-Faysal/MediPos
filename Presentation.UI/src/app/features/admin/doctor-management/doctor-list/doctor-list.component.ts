@@ -6,6 +6,7 @@ import { Doctor, DoctorStatus, DoctorFilters } from '../../../../core/models/doc
 import { DoctorService } from '../../../../core/services/doctor.service';
 import { DynamicTableComponent, TableColumn } from '../../../../shared/components/dynamic-table/dynamic-table.component';
 import { TableData } from '../../../../shared/components/dynamic-table/dynamic-table.component';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-doctor-list',
@@ -215,8 +216,14 @@ export class DoctorListComponent implements OnInit {
     this.router.navigate(['/admin/doctors', doctor.id, 'edit']);
   }
 
-  onDelete(doctor: Doctor): void {
-    if (confirm(`Are you sure you want to delete ${doctor.name}?`)) {
+  async onDelete(doctor: Doctor): Promise<void> {
+    const confirmed = await confirmAppAction({
+      title: 'Delete doctor?',
+      text: `Are you sure you want to delete ${doctor.name}?`,
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.doctorService.deleteDoctor(doctor.id).subscribe({
         next: () => {
           this.loadDoctors();

@@ -16,7 +16,10 @@ internal sealed class DrugDoseTemplateRepository(
 
     public async Task<IEnumerable<DrugDoseTemplate>> GetListAsync(int take, int skip, int? doctorId = null)
     {
-        var query = _context.DrugDoseTemplates.Where(d => d.IsActive);
+        // The management screen must also show paused templates so doctors can
+        // reactivate or edit them. Prescription suggestions still use the
+        // active-only query below.
+        var query = _context.DrugDoseTemplates.AsQueryable();
 
         if (doctorId.HasValue)
         {

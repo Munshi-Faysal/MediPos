@@ -243,6 +243,10 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'dose-management',
+        loadComponent: () => import('./features/doctor/templates/drug-dose-template/drug-dose-template.component').then(m => m.DrugDoseTemplateComponent)
+      },
+      {
         path: 'templates',
         children: [
           {

@@ -111,7 +111,7 @@
       [isPrintHeaderHidden]="hideHeaderOnPrint"></app-prescription-header>
 
     <!-- Body Module -->
-    <div class="flex-1">
+    <div class="prescription-body-shell flex-1">
       <app-prescription-body [parentForm]="prescriptionForm" [config]="bodyConfig" [patient]="selectedPatient"
         [doseTemplates]="doseTemplates()" [adviceTemplates]="adviceTemplates()"
         [durationTemplates]="durationTemplates()" [ccTemplates]="ccTemplates()" [oeTemplates]="oeTemplates()"
@@ -120,7 +120,8 @@
     </div>
 
     <!-- Footer Module -->
-    <app-prescription-footer [config]="footerConfig"></app-prescription-footer>
+    <app-prescription-footer [config]="footerConfig"
+      [isPrintTextHidden]="hideHeaderOnPrint"></app-prescription-footer>
 
   </div>
 

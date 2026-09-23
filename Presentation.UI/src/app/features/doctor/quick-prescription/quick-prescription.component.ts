@@ -55,6 +55,9 @@ export class QuickPrescriptionComponent implements OnInit, OnDestroy {
 
   // Dose templates for autocomplete
   doseTemplates = signal<string[]>([]);
+  activeDoseDropdownIndex: number | null = null;
+  doseSearchQuery = '';
+  private doseCloseTimer?: number;
 
   ngOnInit(): void {
     const user = this.authService.user();
@@ -199,6 +202,59 @@ export class QuickPrescriptionComponent implements OnInit, OnDestroy {
     this.drugDoseService.getActiveDrugDoseByDoctorId().subscribe({
       next: (doses) => this.doseTemplates.set(doses.map(d => d.name))
     });
+  }
+
+  openDoseDropdown(index: number): void {
+    if (this.doseCloseTimer) window.clearTimeout(this.doseCloseTimer);
+    this.activeDoseDropdownIndex = index;
+    this.doseSearchQuery = '';
+  }
+
+  focusDosePart(event: Event, index: number): void {
+    this.openDoseDropdown(index);
+    (event.target as HTMLInputElement).select();
+  }
+
+  getDosePart(index: number, partIndex: number): string {
+    return this.splitDose(this.medicinesArray.at(index).get('dosage')?.value || '')[partIndex];
+  }
+
+  updateDosePart(event: Event, index: number, partIndex: number): void {
+    const parts = this.splitDose(this.medicinesArray.at(index).get('dosage')?.value || '');
+    parts[partIndex] = (event.target as HTMLInputElement).value;
+    const hasValue = parts.some(part => part.trim());
+    const dose = hasValue ? parts.map(part => part.trim() || '0').join('+') : '';
+    this.medicinesArray.at(index).get('dosage')?.setValue(dose);
+  }
+
+  filteredDoseTemplates(): string[] {
+    const query = this.doseSearchQuery.trim().toLowerCase();
+    const uniqueDoses = [...new Set(this.doseTemplates().filter(Boolean))];
+    return query ? uniqueDoses.filter(dose => dose.toLowerCase().includes(query)) : uniqueDoses;
+  }
+
+  selectDose(index: number, dose: string): void {
+    this.medicinesArray.at(index).get('dosage')?.setValue(dose);
+    this.closeDoseDropdown();
+  }
+
+  scheduleDoseDropdownClose(index: number): void {
+    this.doseCloseTimer = window.setTimeout(() => {
+      if (this.activeDoseDropdownIndex === index) this.closeDoseDropdown();
+    }, 150);
+  }
+
+  closeDoseDropdown(): void {
+    if (this.doseCloseTimer) window.clearTimeout(this.doseCloseTimer);
+    this.doseCloseTimer = undefined;
+    this.activeDoseDropdownIndex = null;
+    this.doseSearchQuery = '';
+  }
+
+  private splitDose(dose: string): [string, string, string] {
+    if (!dose) return ['', '', ''];
+    const parts = dose.split('+').map(part => part.trim());
+    return [parts[0] || '0', parts[1] || '0', parts.slice(2).join('+') || '0'];
   }
 
   // ─── Submit ────────────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ import { Prescription, PrescriptionStatus } from '../../../../core/models/prescr
 import { Patient } from '../../../../core/models/patient.model';
 import { PrescriptionService } from '../../../../core/services/prescription.service';
 import { PatientService } from '../../../../core/services/patient.service';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-prescription-detail',
@@ -65,10 +66,16 @@ export class PrescriptionDetailComponent implements OnInit {
     }
   }
 
-  onDelete(): void {
+  async onDelete(): Promise<void> {
     if (!this.prescription) return;
 
-    if (confirm(`Are you sure you want to delete this prescription? This action cannot be undone.`)) {
+    const confirmed = await confirmAppAction({
+      title: 'Delete prescription?',
+      text: 'Are you sure you want to delete this prescription? This action cannot be undone.',
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.deleting = true;
       this.prescriptionService.deletePrescription(this.prescription.id).subscribe({
         next: () => {

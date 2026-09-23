@@ -12,7 +12,9 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
   template: `
     <div class="header-container font-sans" [formGroup]="parentForm">
       <!-- Top Section: Doctor & Clinic Info -->
-      <div class="flex justify-between items-start border-b-2 border-gray-300" [style.background]="getGradient()" [ngClass]="{'print:hidden': isPrintHeaderHidden}">
+      <div class="prescription-letterhead flex justify-between items-start border-b-2 border-gray-300"
+           [style.background]="getGradient()"
+           [class.print-letterhead-blank]="isPrintHeaderHidden">
     
         <!-- Left Section: Doctor Info -->
         <div class="flex p-6 pl-12 items-start">
@@ -73,7 +75,8 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
       </div>
     
       <!-- Dynamic Patient Info Bar -->
-      <div class="bg-white p-3 pl-12 border-b-2 border-gray-800 text-[12px] leading-relaxed">
+      <div class="patient-info-bar bg-white p-3 pl-12 border-b-2 border-gray-800 text-[12px] leading-relaxed"
+           [class.print-patient-info-blank]="isPrintHeaderHidden">
         <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
           @for (field of sortedFields; track field.id) {
             <div [class]="getFieldClasses(field.id)">
@@ -125,6 +128,10 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
         font-size: inherit;
     }
     @media print {
+      .print-letterhead-blank,
+      .print-patient-info-blank {
+        visibility: hidden !important;
+      }
       .header-container {
         border: none !important;
       }

@@ -3,6 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { Medicine } from '../../../../core/models/medicine.model';
 import { MedicineService } from '../../../../core/services/medicine.service';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-medicine-detail',
@@ -49,10 +50,16 @@ export class MedicineDetailComponent implements OnInit {
     }
   }
 
-  onDelete(): void {
+  async onDelete(): Promise<void> {
     if (!this.medicine) return;
 
-    if (confirm(`Are you sure you want to delete ${this.medicine.medicineName}? This action cannot be undone.`)) {
+    const confirmed = await confirmAppAction({
+      title: 'Delete medicine?',
+      text: `Are you sure you want to delete ${this.medicine.medicineName}? This action cannot be undone.`,
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.deleting = true;
       this.medicineService.deleteMedicine(this.medicine.id).subscribe({
         next: () => {

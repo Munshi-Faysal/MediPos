@@ -843,10 +843,12 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
           }
           // Print after a short delay to ensure DOM is ready
           setTimeout(() => {
+            if (action === 'printWithoutHeader') {
+              window.addEventListener('afterprint', () => {
+                this.hideHeaderOnPrint = false;
+              }, { once: true });
+            }
             window.print();
-            // Optionally reset hideHeader after print (user might want to see it back)
-            // But print dialog is modal, so execution pauses or continues. 
-            // We can rename hideHeaderOnPrint to hideHeader and toggle it.
           }, 500);
         } else {
           // Save Only -> Navigate to List or Detail
@@ -855,7 +857,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Prescription save error:', err);
-        const apiMessage = err?.error?.message;
+        const apiMessage = err?.error?.message || err?.error?.exceptionMessage;
         const message = err?.name === 'TimeoutError'
           ? 'The server took too long to respond. Please check the connection and try again.'
           : (apiMessage || `Failed to ${this.isEditMode ? 'update' : 'create'} prescription. Please try again.`);

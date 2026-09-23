@@ -375,6 +375,27 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         ]
       },
       {
+        id: 'dose-management',
+        label: 'Dose Management',
+        route: null,
+        icon: 'M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z',
+        type: 'dropdown',
+        order: 2.5,
+        activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-500',
+        childActiveClass: 'text-emerald-700 bg-emerald-50 font-bold',
+        iconClass: 'text-emerald-500',
+        children: [
+          {
+            id: 'dose-templates',
+            label: 'Dose Templates',
+            route: '/doctor/dose-management',
+            icon: 'M12 6v6l4 2',
+            type: 'link',
+            order: 1
+          }
+        ]
+      },
+      {
         id: 'patients',
         label: 'Patients',
         route: '/doctor/patients',
@@ -411,7 +432,6 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
           { id: 'tpl-oe', label: 'O/E', route: '/doctor/templates/oe', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', type: 'link', order: 5 },
           { id: 'tpl-ix', label: 'I/X', route: '/doctor/templates/ix', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', type: 'link', order: 6 },
           { id: 'tpl-dx', label: 'D/X', route: '/doctor/templates/dx', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', type: 'link', order: 6.5 },
-          { id: 'tpl-dose', label: 'Dose', route: '/doctor/templates/dose', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', type: 'link', order: 7 },
           { id: 'tpl-duration', label: 'Duration', route: '/doctor/templates/duration', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', type: 'link', order: 8 }
         ]
       },

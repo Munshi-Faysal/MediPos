@@ -43,7 +43,8 @@ internal sealed class DrugDoseTemplateService(
 
         return new PaginatedListViewModel<DrugDoseTemplateViewModel>(take)
         {
-            ItemList = viewModels
+            ItemList = viewModels,
+            TotalRecords = viewModels.Count
         };
     }
 

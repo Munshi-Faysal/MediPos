@@ -6,6 +6,7 @@ import { TreatmentService } from '../../../../core/services/treatment.service';
 import { DrugService, DrugViewModel } from '../../../../core/services/drug.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { TreatmentTemplateViewModel, TreatmentDrugViewModel, TreatmentTemplateDto } from '../../../../core/models';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
     selector: 'app-treatment-template',
@@ -35,6 +36,9 @@ export class TreatmentTemplateComponent implements OnInit {
     searchQuery = '';
     selectedDrug: DrugViewModel | null = null;
     dose = '';
+    doseMorning = '';
+    doseNoon = '';
+    doseNight = '';
     duration = '';
     durationType: string = 'Days';
     instructionBefore = false;
@@ -118,9 +122,15 @@ export class TreatmentTemplateComponent implements OnInit {
         });
     }
 
-    deleteTemplate(id: string | undefined) {
+    async deleteTemplate(id: string | undefined): Promise<void> {
         if (!id) return;
-        if (confirm('Are you sure you want to delete this template?')) {
+        const confirmed = await confirmAppAction({
+            title: 'Delete template?',
+            text: 'Are you sure you want to delete this template?',
+            confirmButtonText: 'Yes, delete'
+        });
+
+        if (confirmed) {
             this.treatmentService.deleteTemplate(id).subscribe({
                 next: () => {
                     this.notification.success('Deleted', 'Template deleted successfully');
@@ -155,7 +165,18 @@ export class TreatmentTemplateComponent implements OnInit {
     // Dose Handling
     selectDose(d: string) {
         this.dose = d;
+        const parts = d.split('+').map(part => part.trim());
+        this.doseMorning = parts[0] || '0';
+        this.doseNoon = parts[1] || '0';
+        this.doseNight = parts.slice(2).join('+') || '0';
         this.showDoseDropdown = false;
+    }
+
+    updateDoseFromParts(): void {
+        const parts = [this.doseMorning, this.doseNoon, this.doseNight];
+        this.dose = parts.some(part => part.trim())
+            ? parts.map(part => part.trim() || '0').join('+')
+            : '';
     }
 
     // Add to List
@@ -199,6 +220,9 @@ export class TreatmentTemplateComponent implements OnInit {
         this.searchQuery = '';
         this.selectedDrug = null;
         this.dose = '';
+        this.doseMorning = '';
+        this.doseNoon = '';
+        this.doseNight = '';
         this.duration = '';
         this.instructionBefore = false;
         this.instructionAfter = false;

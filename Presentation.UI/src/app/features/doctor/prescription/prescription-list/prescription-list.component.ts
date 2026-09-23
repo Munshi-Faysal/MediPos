@@ -7,6 +7,7 @@ import { User } from '../../../../core/models';
 import { PrescriptionService } from '../../../../core/services/prescription.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { DynamicTableComponent, TableColumn, TableData } from '../../../../shared/components/dynamic-table/dynamic-table.component';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-prescription-list',
@@ -172,9 +173,15 @@ export class PrescriptionListComponent implements OnInit {
     this.router.navigate(['/doctor/prescriptions', id, 'edit']);
   }
 
-  onDelete(prescription: Prescription): void {
+  async onDelete(prescription: Prescription): Promise<void> {
     const id = (prescription as any).encryptedId || prescription.id;
-    if (confirm(`Are you sure you want to delete this prescription?`)) {
+    const confirmed = await confirmAppAction({
+      title: 'Delete prescription?',
+      text: 'Are you sure you want to delete this prescription?',
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.prescriptionService.deletePrescription(id).subscribe({
         next: () => {
           this.loadPrescriptions();

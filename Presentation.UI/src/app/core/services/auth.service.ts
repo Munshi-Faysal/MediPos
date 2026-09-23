@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, of, map, interval, Subscription, delay } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, of, map, interval, Subscription, delay, from } from 'rxjs';
 import { Router } from '@angular/router';
 
 import { User, LoginRequest, LoginResponse, AuthTokens, BackendAuthResponseDto, LoginDto, LoginOtpDto, LoginResponseDto, IdentityResult } from '../models';
@@ -9,6 +9,7 @@ import { ApiService } from './api.service';
 import { UserActivityService } from './user-activity.service';
 import { findMockUser, generateMockToken } from '../data/mock-users';
 import { environment } from '../../../environments/environment';
+import { confirmAppAction } from '../utils/app-alert';
 
 @Injectable({
   providedIn: 'root'
@@ -659,14 +660,18 @@ export class AuthService {
           this.logout().subscribe();
         }
       }),
-      catchError(() => {
-        // Fallback to simple confirm if dialog service fails
-        const confirmed = confirm('Are you sure you want to logout?');
-        if (confirmed) {
-          this.logout().subscribe();
-        }
-        return of(confirmed);
-      })
+      catchError(() => from(confirmAppAction({
+        title: 'Sign out?',
+        text: 'Are you sure you want to logout?',
+        confirmButtonText: 'Yes, sign out',
+        confirmButtonColor: '#6d28d9'
+      })).pipe(
+        tap(confirmed => {
+          if (confirmed) {
+            this.logout().subscribe();
+          }
+        })
+      ))
     );
   }
 

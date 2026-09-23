@@ -96,8 +96,64 @@ import JsBarcode from 'jsbarcode';
               <div class="pl-20 text-gray-700 font-medium mt-1">
                 <div class="flex flex-wrap items-center gap-2">
                   <!-- Dose -->
-                  <div class="flex-1 min-w-[80px]">
-                    <input type="text" formControlName="dosage" list="doseList" class="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent placeholder-gray-300 text-sm print:hidden" placeholder="1+0+1">
+                  <div class="relative flex-1 min-w-[180px]">
+                    <div class="flex items-end gap-1 print:hidden">
+                      <label class="min-w-0 flex-1 text-center">
+                        <span class="mb-0.5 block text-[8px] font-bold uppercase tracking-wide text-amber-600">Morning</span>
+                        <input type="text" [value]="getDosePart(i, 0)" autocomplete="off" aria-label="Morning dose"
+                          (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 0)"
+                          (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
+                          class="w-full rounded-md border border-amber-200 bg-amber-50 px-1 py-1.5 text-center text-xs font-extrabold text-gray-800 focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-400"
+                          placeholder="0">
+                      </label>
+                      <span class="pb-1.5 text-xs font-bold text-gray-300">+</span>
+                      <label class="min-w-0 flex-1 text-center">
+                        <span class="mb-0.5 block text-[8px] font-bold uppercase tracking-wide text-sky-600">Noon</span>
+                        <input type="text" [value]="getDosePart(i, 1)" autocomplete="off" aria-label="Noon dose"
+                          (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 1)"
+                          (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
+                          class="w-full rounded-md border border-sky-200 bg-sky-50 px-1 py-1.5 text-center text-xs font-extrabold text-gray-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
+                          placeholder="0">
+                      </label>
+                      <span class="pb-1.5 text-xs font-bold text-gray-300">+</span>
+                      <label class="min-w-0 flex-1 text-center">
+                        <span class="mb-0.5 block text-[8px] font-bold uppercase tracking-wide text-indigo-600">Night</span>
+                        <input type="text" [value]="getDosePart(i, 2)" autocomplete="off" aria-label="Night dose"
+                          (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 2)"
+                          (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
+                          class="w-full rounded-md border border-indigo-200 bg-indigo-50 px-1 py-1.5 text-center text-xs font-extrabold text-gray-800 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                          placeholder="0">
+                      </label>
+                      <button type="button" (mousedown)="$event.preventDefault()" (click)="openDoseDropdown(i)"
+                        class="mb-px flex h-8 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600" title="Show saved dose templates">
+                        <svg class="h-4 w-4 transition-transform" [class.rotate-180]="activeDoseDropdownIndex === i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </button>
+                    </div>
+
+                    @if (activeDoseDropdownIndex === i) {
+                      <div class="absolute left-0 top-full z-40 mt-2 w-64 overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-xl shadow-gray-200/70 print:hidden">
+                        <div class="flex items-center justify-between border-b border-gray-100 bg-emerald-50 px-3 py-2">
+                          <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Select dose</span>
+                          <span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-emerald-600">{{ filteredDoseTemplates().length }}</span>
+                        </div>
+                        @if (filteredDoseTemplates().length > 0) {
+                          <div class="max-h-56 overflow-y-auto p-1.5">
+                            @for (dose of filteredDoseTemplates(); track dose) {
+                              <button type="button" (mousedown)="$event.preventDefault()" (click)="selectDose(i, dose)"
+                                class="group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-bold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-700 focus:bg-emerald-50 focus:outline-none">
+                                <span>{{ dose }}</span>
+                                <svg class="h-4 w-4 text-emerald-500 opacity-0 transition group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                              </button>
+                            }
+                          </div>
+                        } @else {
+                          <div class="px-4 py-5 text-center">
+                            <p class="text-xs font-bold text-gray-600">No dose template found</p>
+                            <p class="mt-1 text-[10px] leading-4 text-gray-400">Add one from Dose Management or type a custom dose.</p>
+                          </div>
+                        }
+                      </div>
+                    }
                     <span class="hidden print:block text-gray-800 text-sm font-bold">{{ med.get('dosage')?.value }}</span>
                   </div>
                   
@@ -122,11 +178,6 @@ import JsBarcode from 'jsbarcode';
           }
         </div>
 
-        <datalist id="doseList">
-          @for (dose of doseTemplates; track dose) {
-            <option [value]="dose"></option>
-          }
-        </datalist>
         <datalist id="adviceList">
           @for (advice of adviceTemplates; track advice) {
             <option [value]="advice"></option>
@@ -190,6 +241,7 @@ import JsBarcode from 'jsbarcode';
         /* Target the main container div inside the template */
         :host > div {
              height: 100% !important;
+             min-height: 0 !important;
              display: flex !important;
              flex-direction: row !important;
              align-items: stretch !important;
@@ -243,6 +295,9 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
   @ViewChild('barcodeCanvas') barcodeCanvas!: ElementRef;
 
   sortedSections: BodySectionConfig[] = [];
+  activeDoseDropdownIndex: number | null = null;
+  doseSearchQuery = '';
+  private doseCloseTimer?: number;
 
   ngOnChanges() {
     this.updateSortedSections();
@@ -338,6 +393,61 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
 
   get medicines() {
     return this.parentForm.get('medicines') as FormArray;
+  }
+
+  openDoseDropdown(index: number): void {
+    if (this.doseCloseTimer) window.clearTimeout(this.doseCloseTimer);
+    this.activeDoseDropdownIndex = index;
+    this.doseSearchQuery = '';
+  }
+
+  focusDosePart(event: Event, index: number): void {
+    this.openDoseDropdown(index);
+    (event.target as HTMLInputElement).select();
+  }
+
+  getDosePart(index: number, partIndex: number): string {
+    return this.splitDose(this.medicines.at(index).get('dosage')?.value || '')[partIndex];
+  }
+
+  updateDosePart(event: Event, index: number, partIndex: number): void {
+    const parts = this.splitDose(this.medicines.at(index).get('dosage')?.value || '');
+    parts[partIndex] = (event.target as HTMLInputElement).value;
+    const hasValue = parts.some(part => part.trim());
+    const dose = hasValue ? parts.map(part => part.trim() || '0').join('+') : '';
+    this.medicines.at(index).get('dosage')?.setValue(dose);
+  }
+
+  filteredDoseTemplates(): string[] {
+    const query = this.doseSearchQuery.trim().toLowerCase();
+    const uniqueDoses = [...new Set(this.doseTemplates.filter(Boolean))];
+    return query
+      ? uniqueDoses.filter(dose => dose.toLowerCase().includes(query))
+      : uniqueDoses;
+  }
+
+  selectDose(index: number, dose: string): void {
+    this.medicines.at(index).get('dosage')?.setValue(dose);
+    this.closeDoseDropdown();
+  }
+
+  scheduleDoseDropdownClose(index: number): void {
+    this.doseCloseTimer = window.setTimeout(() => {
+      if (this.activeDoseDropdownIndex === index) this.closeDoseDropdown();
+    }, 150);
+  }
+
+  closeDoseDropdown(): void {
+    if (this.doseCloseTimer) window.clearTimeout(this.doseCloseTimer);
+    this.doseCloseTimer = undefined;
+    this.activeDoseDropdownIndex = null;
+    this.doseSearchQuery = '';
+  }
+
+  private splitDose(dose: string): [string, string, string] {
+    if (!dose) return ['', '', ''];
+    const parts = dose.split('+').map(part => part.trim());
+    return [parts[0] || '0', parts[1] || '0', parts.slice(2).join('+') || '0'];
   }
 
   getMedicineName(index: number): string {

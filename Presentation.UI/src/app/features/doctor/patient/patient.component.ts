@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientService, PatientDto, PatientViewModel } from '../../../core/services/patient.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { confirmAppAction } from '../../../core/utils/app-alert';
 
 export interface Patient {
   id: number;
@@ -172,8 +173,14 @@ export class PatientComponent implements OnInit {
       });
     }
   }
-  deletePatient(patient: Patient) {
-    if (confirm(`Are you sure you want to delete ${patient.name}? This action cannot be undone.`)) {
+  async deletePatient(patient: Patient): Promise<void> {
+    const confirmed = await confirmAppAction({
+      title: 'Delete patient?',
+      text: `Are you sure you want to delete ${patient.name}? This action cannot be undone.`,
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (confirmed) {
       this.patientService.deletePatient(patient.encryptedId).subscribe({
         next: () => {
           this.loadPatients();

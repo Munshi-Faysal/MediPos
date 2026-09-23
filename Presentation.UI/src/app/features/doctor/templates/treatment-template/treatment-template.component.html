@@ -112,13 +112,16 @@
         <!-- Dose -->
         <div class="md:col-span-3 relative">
           <label class="block text-xs font-semibold text-gray-600 mb-1">Type Dose</label>
-          <div class="relative">
-            <input type="text" [(ngModel)]="dose" (focus)="showDoseDropdown = true"
-              class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 shadow-sm sm:text-sm"
-              placeholder="e.g. 1+0+1">
+          <div class="relative grid grid-cols-[1fr_auto_1fr_auto_1fr_auto] items-end gap-1.5">
+            <label class="block text-center"><span class="mb-1 block text-[9px] font-bold uppercase text-amber-600">Morning</span><input type="text" [(ngModel)]="doseMorning" (ngModelChange)="updateDoseFromParts()" (focus)="showDoseDropdown = true" placeholder="0" class="w-full rounded border-amber-200 bg-amber-50 px-1 py-2 text-center text-xs font-bold focus:border-amber-500 focus:ring-amber-500"></label>
+            <span class="pb-2 text-xs font-bold text-gray-300">+</span>
+            <label class="block text-center"><span class="mb-1 block text-[9px] font-bold uppercase text-sky-600">Noon</span><input type="text" [(ngModel)]="doseNoon" (ngModelChange)="updateDoseFromParts()" (focus)="showDoseDropdown = true" placeholder="0" class="w-full rounded border-sky-200 bg-sky-50 px-1 py-2 text-center text-xs font-bold focus:border-sky-500 focus:ring-sky-500"></label>
+            <span class="pb-2 text-xs font-bold text-gray-300">+</span>
+            <label class="block text-center"><span class="mb-1 block text-[9px] font-bold uppercase text-indigo-600">Night</span><input type="text" [(ngModel)]="doseNight" (ngModelChange)="updateDoseFromParts()" (focus)="showDoseDropdown = true" placeholder="0" class="w-full rounded border-indigo-200 bg-indigo-50 px-1 py-2 text-center text-xs font-bold focus:border-indigo-500 focus:ring-indigo-500"></label>
+            <button type="button" (click)="showDoseDropdown = !showDoseDropdown" title="Show dose presets" class="mb-px flex h-9 w-7 items-center justify-center rounded border border-gray-200 bg-white text-gray-400 hover:bg-emerald-50 hover:text-emerald-600"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
             @if (showDoseDropdown) {
             <div
-              class="autocomplete-dropdown absolute bg-white border border-gray-200 w-full mt-1 rounded shadow-lg max-h-40 overflow-y-auto z-10">
+              class="autocomplete-dropdown absolute left-0 top-full bg-white border border-gray-200 w-full mt-1 rounded shadow-lg max-h-40 overflow-y-auto z-10">
               @for (d of dosePresets; track d) {
               <div (click)="selectDose(d)" class="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">
                 {{ d }}

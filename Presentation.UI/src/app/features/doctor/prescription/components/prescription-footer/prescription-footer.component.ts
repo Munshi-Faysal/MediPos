@@ -9,7 +9,8 @@ import { PrescriptionFooterConfig, DEFAULT_FOOTER_CONFIG } from '../../../../../
   template: `
     <div class="footer-container mt-auto print:fixed print:bottom-0 print:left-0 print:w-full" [style.backgroundColor]="config.backgroundColor" [style.color]="config.textColor">
       <div class="border-t-2 border-gray-800 pt-2 pb-4 text-center">
-        <p class="text-sm font-semibold">{{ config.disclaimerText }}</p>
+        <p class="text-sm font-semibold"
+          [class.print-footer-text-blank]="isPrintTextHidden">{{ config.disclaimerText }}</p>
       </div>
       @if (config.showCredits) {
         <div class="bg-gray-100 py-2 text-center text-xs text-gray-400">
@@ -21,4 +22,5 @@ import { PrescriptionFooterConfig, DEFAULT_FOOTER_CONFIG } from '../../../../../
 })
 export class PrescriptionFooterComponent {
   @Input() config: PrescriptionFooterConfig = DEFAULT_FOOTER_CONFIG;
+  @Input() isPrintTextHidden = false;
 }

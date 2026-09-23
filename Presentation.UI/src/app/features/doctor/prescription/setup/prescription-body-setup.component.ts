@@ -7,6 +7,7 @@ import { PrescriptionBodyComponent } from '../components/prescription-body/presc
 import { DEFAULT_BODY_CONFIG, PrescriptionBodyConfig, BodySectionConfig } from '../../../../core/models/prescription-settings.model';
 import { PrescriptionSettingsService } from '../../../../core/services/prescription-settings.service';
 import { Patient, Gender } from '../../../../core/models/patient.model';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-prescription-body-setup',
@@ -246,8 +247,14 @@ export class PrescriptionBodySetupComponent implements OnInit {
     this.updatePreview();
   }
 
-  removeSection(index: number) {
-    if (confirm('Are you sure you want to remove this section?')) {
+  async removeSection(index: number): Promise<void> {
+    const confirmed = await confirmAppAction({
+      title: 'Remove section?',
+      text: 'Are you sure you want to remove this section?',
+      confirmButtonText: 'Yes, remove'
+    });
+
+    if (confirmed) {
       this.localConfig.sections.splice(index, 1);
       this.updatePreview();
     }
