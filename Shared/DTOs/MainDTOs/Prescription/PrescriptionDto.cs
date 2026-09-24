@@ -8,6 +8,7 @@ public class PrescriptionDto : BaseDto
     public string? PatientEncryptedId { get; set; }
     public string? AppointmentEncryptedId { get; set; }
     public DateTime PrescriptionDate { get; set; }
+    public string? ScanToken { get; set; }
 
     public string? PatientName { get; set; }
     public string? PatientAge { get; set; }

@@ -387,11 +387,27 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         children: [
           {
             id: 'dose-templates',
-            label: 'Dose Templates',
+            label: 'Dose',
             route: '/doctor/dose-management',
             icon: 'M12 6v6l4 2',
             type: 'link',
             order: 1
+          },
+          {
+            id: 'instruction-templates',
+            label: 'Instruction',
+            route: '/doctor/templates/advice',
+            icon: 'M9 12h6m-6 4h6',
+            type: 'link',
+            order: 2
+          },
+          {
+            id: 'duration-templates',
+            label: 'Duration',
+            route: '/doctor/templates/duration',
+            icon: 'M12 8v4l3 3',
+            type: 'link',
+            order: 3
           }
         ]
       },
@@ -427,12 +443,10 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         iconClass: 'text-cyan-500',
         children: [
           { id: 'tpl-treatment', label: 'Treatment', route: '/doctor/templates/treatment', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', type: 'link', order: 2 },
-          { id: 'tpl-advice', label: 'Advice', route: '/doctor/templates/advice', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', type: 'link', order: 3 },
           { id: 'tpl-cc', label: 'C/C', route: '/doctor/templates/cc', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', type: 'link', order: 4 },
           { id: 'tpl-oe', label: 'O/E', route: '/doctor/templates/oe', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', type: 'link', order: 5 },
           { id: 'tpl-ix', label: 'I/X', route: '/doctor/templates/ix', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', type: 'link', order: 6 },
-          { id: 'tpl-dx', label: 'D/X', route: '/doctor/templates/dx', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', type: 'link', order: 6.5 },
-          { id: 'tpl-duration', label: 'Duration', route: '/doctor/templates/duration', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', type: 'link', order: 8 }
+          { id: 'tpl-dx', label: 'D/X', route: '/doctor/templates/dx', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', type: 'link', order: 6.5 }
         ]
       },
       {
@@ -444,16 +458,6 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         order: 6,
         activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-500',
         iconClass: 'text-emerald-500'
-      },
-      {
-        id: 'quick-prescription',
-        label: 'Quick Rx',
-        route: '/doctor/quick-prescription',
-        icon: 'M13 10V3L4 14h7v7l9-11h-7z',
-        type: 'link',
-        order: 6.5,
-        activeClass: 'bg-rose-50 text-rose-700 border-rose-500',
-        iconClass: 'text-rose-500'
       },
       {
         id: 'prescription-setup',

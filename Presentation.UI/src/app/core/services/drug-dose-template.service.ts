@@ -64,6 +64,10 @@ export class DrugDoseTemplateService {
         return this.api.patch<boolean>(`${this.endpoint}/ChangeActive/${encryptedId}`);
     }
 
+    deleteDrugDoseTemplate(encryptedId: string): Observable<boolean> {
+        return this.api.delete<boolean>(`${this.endpoint}/Delete/${encryptedId}`);
+    }
+
     getActiveDrugDoseByDoctorId(): Observable<DrugDoseTemplateDto[]> {
         return this.api.get<DrugDoseTemplateDto[]>(`${this.endpoint}/CurrentDoctor`);
     }

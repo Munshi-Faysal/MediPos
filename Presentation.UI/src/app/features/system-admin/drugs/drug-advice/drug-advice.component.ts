@@ -1,7 +1,6 @@
-import { Component, signal, OnInit, inject, computed } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugAdviceService, DrugAdviceViewModel, DrugAdviceDto } from '../../../../core/services/drug-advice.service';
-import { AuthService } from '../../../../core/services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -12,14 +11,12 @@ import Swal from 'sweetalert2';
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <div>
-          <h1 class="text-2xl font-bold text-on-surface">Drug Advice Management</h1>
-          <p class="text-on-surface-variant">Manage instructions and advice for medication</p>
+          <h1 class="text-2xl font-bold text-on-surface">Instruction Management</h1>
+          <p class="text-on-surface-variant">Manage frequently used prescription instructions</p>
         </div>
-        @if (isSuperAdmin()) {
-          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
-            Add New Advice
-          </button>
-        }
+        <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
+          Add New Instruction
+        </button>
       </div>
     
       <!-- Search and Filter -->
@@ -43,12 +40,10 @@ import Swal from 'sweetalert2';
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
-                <th class="px-6 py-4">Advice Name</th>
+                <th class="px-6 py-4">Instruction Name</th>
                 <th class="px-6 py-4">Full Instruction</th>
                 <th class="px-6 py-4">Status</th>
-                @if (isSuperAdmin()) {
-                  <th class="px-6 py-4 text-right">Actions</th>
-                }
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -62,19 +57,20 @@ import Swal from 'sweetalert2';
                       {{ adv.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  @if (isSuperAdmin()) {
-                    <td class="px-6 py-4 text-right space-x-2">
-                      <button (click)="editAdvice(adv)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                      <button (click)="toggleStatus(adv)" [class]="adv.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                        {{ adv.isActive ? 'Deactivate' : 'Activate' }}
-                      </button>
-                    </td>
-                  }
+                  <td class="px-6 py-4 text-right space-x-2">
+                    <button (click)="editAdvice(adv)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
+                    <button (click)="toggleStatus(adv)" [class]="adv.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
+                      {{ adv.isActive ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button (click)="deleteAdvice(adv)" [disabled]="deletingId() === adv.encryptedId" class="text-red-600 hover:text-red-800 font-medium text-sm disabled:opacity-50">
+                      {{ deletingId() === adv.encryptedId ? 'Deleting...' : 'Delete' }}
+                    </button>
+                  </td>
                 </tr>
               }
               @if (filteredAdvice().length === 0) {
                 <tr>
-                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
@@ -85,10 +81,10 @@ import Swal from 'sweetalert2';
         @if (isModalOpen()) {
           <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
             <div class="bg-surface border border-border rounded-2xl shadow-strong max-w-md w-full p-8 animate-in zoom-in-95 duration-200">
-              <h2 class="text-2xl font-bold text-on-surface mb-6">{{ editingAdvice ? 'Edit' : 'Add New' }} Drug Advice</h2>
+              <h2 class="text-2xl font-bold text-on-surface mb-6">{{ editingAdvice ? 'Edit' : 'Add New' }} Instruction</h2>
               <div class="space-y-4">
                 <div>
-                  <label class="text-sm font-semibold text-on-surface-variant mb-1 block">Advice Name</label>
+                  <label class="text-sm font-semibold text-on-surface-variant mb-1 block">Instruction Name</label>
                   <input type="text" [(ngModel)]="adviceForm.name" placeholder="e.g. Empty Stomach"
                     class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 transition-all">
                   </div>
@@ -104,7 +100,7 @@ import Swal from 'sweetalert2';
                 </div>
                 <div class="flex gap-4 mt-8">
                   <button (click)="closeModal()" class="flex-1 py-2 border border-border rounded-lg font-semibold hover:bg-surface-variant transition-all">Cancel</button>
-                  <button (click)="saveAdvice()" [disabled]="!adviceForm.name" class="flex-1 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-all disabled:opacity-50 shadow-md">Save</button>
+                  <button (click)="saveAdvice()" [disabled]="!adviceForm.name.trim() || isSaving()" class="flex-1 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-all disabled:opacity-50 shadow-md">{{ isSaving() ? 'Saving...' : 'Save' }}</button>
                 </div>
               </div>
             </div>
@@ -117,13 +113,12 @@ import Swal from 'sweetalert2';
 })
 export class DrugAdviceComponent implements OnInit {
   private service = inject(DrugAdviceService);
-  private authService = inject(AuthService);
-
-  public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
 
   public advices = signal<DrugAdviceViewModel[]>([]);
   public filteredAdvice = signal<DrugAdviceViewModel[]>([]);
   public isModalOpen = signal(false);
+  public isSaving = signal(false);
+  public deletingId = signal<string | null>(null);
   public searchQuery = '';
   public editingAdvice: DrugAdviceViewModel | null = null;
   public adviceForm = { name: '', description: '', isActive: true };
@@ -135,9 +130,12 @@ export class DrugAdviceComponent implements OnInit {
   loadAdvices(): void {
     this.service.getDrugAdvices({ page: 1, pageSize: 1000 }).subscribe({
       next: (res) => {
-        if (res.isSuccess) {
+        if (res?.isSuccess && res.data) {
           this.advices.set(res.data.itemList);
           this.filterAdvice();
+        } else {
+          this.advices.set([]);
+          this.filteredAdvice.set([]);
         }
       },
       error: (err) => console.error('Error loading advices', err)
@@ -156,7 +154,6 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   openModal(): void {
-    if (!this.isSuperAdmin()) return;
     this.editingAdvice = null;
     this.adviceForm = { name: '', description: '', isActive: true };
     this.isModalOpen.set(true);
@@ -167,7 +164,6 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   editAdvice(adv: DrugAdviceViewModel): void {
-    if (!this.isSuperAdmin()) return;
     this.editingAdvice = adv;
     this.adviceForm = {
       name: adv.name,
@@ -178,18 +174,26 @@ export class DrugAdviceComponent implements OnInit {
   }
 
   saveAdvice(): void {
-    if (!this.isSuperAdmin()) return;
+    const name = this.adviceForm.name.trim();
+    if (!name || this.isSaving()) return;
+
+    this.isSaving.set(true);
 
     if (this.editingAdvice) {
       const dto: DrugAdviceDto = {
         encryptedId: this.editingAdvice.encryptedId,
-        name: this.adviceForm.name,
-        description: this.adviceForm.description,
+        name,
+        description: this.adviceForm.description.trim(),
         isActive: this.adviceForm.isActive,
         displayOrder: this.editingAdvice.displayOrder
       };
       this.service.updateDrugAdvice(dto).subscribe({
-        next: () => {
+        next: (success) => {
+          this.isSaving.set(false);
+          if (!success) {
+            this.showSaveError('You can only update your own instructions.');
+            return;
+          }
           Swal.fire({
             icon: 'success',
             title: 'Updated',
@@ -201,27 +205,29 @@ export class DrugAdviceComponent implements OnInit {
           this.closeModal();
         },
         error: (err) => {
+          this.isSaving.set(false);
           console.error('Error updating advice', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to update advice. Please try again.'
-          });
+          this.showSaveError('Failed to update instruction. Please try again.');
         }
       });
     } else {
       const dto: DrugAdviceDto = {
-        name: this.adviceForm.name,
-        description: this.adviceForm.description,
+        name,
+        description: this.adviceForm.description.trim(),
         isActive: this.adviceForm.isActive,
         displayOrder: 0
       };
       this.service.createDrugAdvice(dto).subscribe({
-        next: () => {
+        next: (success) => {
+          this.isSaving.set(false);
+          if (!success) {
+            this.showSaveError('Failed to create instruction. Please try again.');
+            return;
+          }
           Swal.fire({
             icon: 'success',
             title: 'Created',
-            text: 'Drug advice created successfully.',
+            text: 'Instruction created successfully.',
             timer: 1500,
             showConfirmButton: false
           });
@@ -229,21 +235,21 @@ export class DrugAdviceComponent implements OnInit {
           this.closeModal();
         },
         error: (err) => {
+          this.isSaving.set(false);
           console.error('Error creating advice', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to create advice. Please try again.'
-          });
+          this.showSaveError('Failed to create instruction. Please try again.');
         }
       });
     }
   }
 
   toggleStatus(adv: DrugAdviceViewModel): void {
-    if (!this.isSuperAdmin()) return;
     this.service.changeDrugAdviceActiveStatus(adv.encryptedId).subscribe({
-      next: () => {
+      next: (success) => {
+        if (!success) {
+          this.showSaveError('You can only change your own instructions.');
+          return;
+        }
         const current = this.advices();
         const index = current.findIndex(d => d.encryptedId === adv.encryptedId);
         if (index !== -1) {
@@ -269,5 +275,49 @@ export class DrugAdviceComponent implements OnInit {
         });
       }
     });
+  }
+
+  async deleteAdvice(adv: DrugAdviceViewModel): Promise<void> {
+    const confirmation = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete instruction?',
+      text: `“${adv.name}” will be permanently deleted.`,
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc2626'
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    this.deletingId.set(adv.encryptedId);
+    this.service.deleteDrugAdvice(adv.encryptedId).subscribe({
+      next: (success) => {
+        this.deletingId.set(null);
+        if (!success) {
+          this.showSaveError('You can only delete your own instructions.');
+          return;
+        }
+
+        this.advices.update(items => items.filter(item => item.encryptedId !== adv.encryptedId));
+        this.filterAdvice();
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted',
+          text: 'Instruction deleted successfully.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      },
+      error: (err) => {
+        this.deletingId.set(null);
+        console.error('Error deleting instruction', err);
+        this.showSaveError('Failed to delete instruction. Please try again.');
+      }
+    });
+  }
+
+  private showSaveError(message: string): void {
+    Swal.fire({ icon: 'error', title: 'Error', text: message });
   }
 }

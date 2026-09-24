@@ -4,6 +4,7 @@ using Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Domain.Migrations
 {
     [DbContext(typeof(WfDbContext))]
-    partial class WfDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924045252_AddDoctorProfileFields")]
+    partial class AddDoctorProfileFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1611,11 +1614,6 @@ namespace Domain.Migrations
                     b.Property<DateTime>("PrescriptionDate")
                         .HasColumnType("datetime");
 
-                    b.Property<string>("ScanToken")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
                     b.Property<string>("Status")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -1633,10 +1631,6 @@ namespace Domain.Migrations
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("ScanToken")
-                        .IsUnique()
-                        .HasDatabaseName("UX_Prescription_ScanToken");
 
                     b.ToTable("Prescription", (string)null);
                 });

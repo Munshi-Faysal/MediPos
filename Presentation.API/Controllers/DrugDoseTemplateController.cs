@@ -69,6 +69,14 @@ public class DrugDoseTemplateController(IServiceManager service) : ControllerBas
         return Ok(await service.DrugDoseTemplate.ChangeActiveAsync(encryptedId));
     }
 
+    [HttpDelete]
+    [Route("Delete/{encryptedId}")]
+    [Authorize(Roles = "Doctor,doctor,system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
+    public async Task<IActionResult> Delete(string encryptedId)
+    {
+        return Ok(await service.DrugDoseTemplate.DeleteAsync(encryptedId));
+    }
+
     [HttpGet]
     [Route("Doctor/{encryptedDoctorId}")]
     public async Task<IActionResult> GetActiveByDoctorId(string encryptedDoctorId)

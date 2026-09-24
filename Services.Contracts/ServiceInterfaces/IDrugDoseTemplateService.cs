@@ -12,6 +12,7 @@ public interface IDrugDoseTemplateService
     Task<bool> CreateAsync(DrugDoseTemplateDto dto);
     Task<bool> UpdateAsync(DrugDoseTemplateDto dto);
     Task<bool> ChangeActiveAsync(string encryptedId);
+    Task<bool> DeleteAsync(string encryptedId);
     Task<List<DrugDoseTemplateDto>> GetActiveByDoctorIdAsync(string encryptedDoctorId);
     Task<List<DrugDoseTemplateDto>> GetActiveForCurrentUserAsync();
 }

@@ -8,4 +8,6 @@ namespace Services.Contracts.ServiceInterfaces;
 public interface IDoctorService : IBaseServiceInit<DoctorViewModel, DoctorDto, DoctorInitDto>
 {
     Task<bool> ChangeActiveAsync(string encryptedId);
+    Task<DoctorProfileDto?> GetCurrentProfileAsync();
+    Task<DoctorProfileDto?> UpdateCurrentProfileAsync(DoctorProfileDto profileDto);
 }

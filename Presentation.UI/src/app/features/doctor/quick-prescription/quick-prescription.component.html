@@ -224,16 +224,15 @@
             </button>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <div class="relative col-span-2">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="relative">
               <label class="block text-xs font-medium text-gray-500 mb-1">Dosage *</label>
-              <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr_auto] items-end gap-1.5">
-                <label class="block text-center"><span class="mb-1 block text-[9px] font-bold uppercase text-amber-600">Morning</span><input type="text" [value]="getDosePart(i, 0)" (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 0)" (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()" aria-label="Morning dose" placeholder="0" class="w-full rounded-lg border border-amber-200 bg-amber-50 p-2 text-center text-xs font-extrabold focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-400" /></label>
-                <span class="pb-2 text-xs font-bold text-gray-300">+</span>
-                <label class="block text-center"><span class="mb-1 block text-[9px] font-bold uppercase text-sky-600">Noon</span><input type="text" [value]="getDosePart(i, 1)" (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 1)" (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()" aria-label="Noon dose" placeholder="0" class="w-full rounded-lg border border-sky-200 bg-sky-50 p-2 text-center text-xs font-extrabold focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400" /></label>
-                <span class="pb-2 text-xs font-bold text-gray-300">+</span>
-                <label class="block text-center"><span class="mb-1 block text-[9px] font-bold uppercase text-indigo-600">Night</span><input type="text" [value]="getDosePart(i, 2)" (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 2)" (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()" aria-label="Night dose" placeholder="0" class="w-full rounded-lg border border-indigo-200 bg-indigo-50 p-2 text-center text-xs font-extrabold focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400" /></label>
-                <button type="button" (mousedown)="$event.preventDefault()" (click)="openDoseDropdown(i)" title="Show saved dose templates" class="mb-px flex h-8 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+              <div class="relative">
+                <input formControlName="dosage" type="text" placeholder="e.g. 1+0+1" autocomplete="off"
+                  (focus)="openDoseDropdown(i)" (click)="openDoseDropdown(i)" (input)="onDoseInput($event, i)"
+                  (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
+                  class="block w-full rounded-lg border border-gray-300 bg-white p-2 pr-7 text-xs focus:border-indigo-500 focus:outline-none focus:ring-indigo-500" />
+                <svg class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
               </div>
               @if (activeDoseDropdownIndex === i) {
                 <div class="absolute left-0 top-full z-40 mt-1.5 w-56 overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-xl">

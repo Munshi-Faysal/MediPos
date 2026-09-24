@@ -10,6 +10,14 @@ namespace Presentation.API.Controllers;
 [Authorize]
 public class PrescriptionController(IServiceManager service) : ControllerBase
 {
+    [AllowAnonymous]
+    [HttpGet("scan/{scanToken}")]
+    public async Task<IActionResult> GetByScanToken(string scanToken)
+    {
+        var result = await service.Prescription.GetByScanTokenAsync(scanToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
     [HttpGet("{encryptedId}")]
     public async Task<IActionResult> Get(string encryptedId)
     {

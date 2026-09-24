@@ -36,9 +36,6 @@ export class TreatmentTemplateComponent implements OnInit {
     searchQuery = '';
     selectedDrug: DrugViewModel | null = null;
     dose = '';
-    doseMorning = '';
-    doseNoon = '';
-    doseNight = '';
     duration = '';
     durationType: string = 'Days';
     instructionBefore = false;
@@ -165,18 +162,7 @@ export class TreatmentTemplateComponent implements OnInit {
     // Dose Handling
     selectDose(d: string) {
         this.dose = d;
-        const parts = d.split('+').map(part => part.trim());
-        this.doseMorning = parts[0] || '0';
-        this.doseNoon = parts[1] || '0';
-        this.doseNight = parts.slice(2).join('+') || '0';
         this.showDoseDropdown = false;
-    }
-
-    updateDoseFromParts(): void {
-        const parts = [this.doseMorning, this.doseNoon, this.doseNight];
-        this.dose = parts.some(part => part.trim())
-            ? parts.map(part => part.trim() || '0').join('+')
-            : '';
     }
 
     // Add to List
@@ -220,9 +206,6 @@ export class TreatmentTemplateComponent implements OnInit {
         this.searchQuery = '';
         this.selectedDrug = null;
         this.dose = '';
-        this.doseMorning = '';
-        this.doseNoon = '';
-        this.doseNight = '';
         this.duration = '';
         this.instructionBefore = false;
         this.instructionAfter = false;

@@ -5,6 +5,7 @@ import { PrescriptionService } from '../../../core/services/prescription.service
 import { PatientService } from '../../../core/services/patient.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { DoctorService } from '../../../core/services/doctor.service';
 
 @Component({
   selector: 'app-doctor-dashboard',
@@ -18,6 +19,7 @@ export class DoctorDashboardComponent implements OnInit {
   private patientService = inject(PatientService);
   private appointmentService = inject(AppointmentService);
   private authService = inject(AuthService);
+  private doctorService = inject(DoctorService);
 
   public stats = signal({
     todayAppointments: 0,
@@ -34,15 +36,7 @@ export class DoctorDashboardComponent implements OnInit {
     day: 'numeric'
   }).format(new Date());
 
-  public get doctorDisplayName(): string {
-    const firstName = this.currentUser()?.userFName?.trim();
-
-    if (!firstName) {
-      return 'Doctor';
-    }
-
-    return /^dr\.?\s/i.test(firstName) ? firstName : `Dr. ${firstName}`;
-  }
+  public doctorDisplayName = signal('Doctor');
 
   public recentPrescriptions = signal<any[]>([]);
 
@@ -55,9 +49,32 @@ export class DoctorDashboardComponent implements OnInit {
   }
 
   initialLoad(): void {
+    this.loadDoctorDisplayName();
     this.loadRecentPrescriptions();
     this.loadDashboardStats();
     this.loadTodayAppointments();
+  }
+
+  private loadDoctorDisplayName(): void {
+    this.doctorService.getCurrentProfile().subscribe({
+      next: profile => {
+        this.doctorDisplayName.set(profile.name?.trim() || this.getAccountDisplayName());
+      },
+      error: error => {
+        console.error('Failed to load doctor display name', error);
+        this.doctorDisplayName.set(this.getAccountDisplayName());
+      }
+    });
+  }
+
+  private getAccountDisplayName(): string {
+    const user = this.currentUser();
+    const fullName = [user?.userFName, user?.userLName]
+      .map(part => part?.trim())
+      .filter(Boolean)
+      .join(' ');
+
+    return fullName || 'Doctor';
   }
 
   loadDashboardStats(): void {

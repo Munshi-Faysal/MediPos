@@ -528,14 +528,23 @@ public class WfDbContext(DbContextOptions<WfDbContext> options) : IdentityDbCont
             entity.HasIndex(e => e.UserId, "IX_Doctor_UserId");
 
             entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.Bio).HasMaxLength(2000);
             entity.Property(e => e.BillingDate).HasColumnType("datetime");
+            entity.Property(e => e.ChamberAddress).HasMaxLength(500);
+            entity.Property(e => e.ChamberContact).HasMaxLength(50);
+            entity.Property(e => e.ClinicName).HasMaxLength(200);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.EndTime).HasMaxLength(20);
             entity.Property(e => e.LicenseExpiryDate).HasColumnType("datetime");
             entity.Property(e => e.LicenseNumber).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.OffDay).HasMaxLength(20);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(50);
+            entity.Property(e => e.Specialization).HasMaxLength(200);
+            entity.Property(e => e.StartTime).HasMaxLength(20);
+            entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.ClinicalDept).WithMany(p => p.Doctors)
@@ -821,10 +830,15 @@ public class WfDbContext(DbContextOptions<WfDbContext> options) : IdentityDbCont
             entity.ToTable("Prescription");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.PrescriptionDate).HasColumnType("datetime");
+            entity.Property(e => e.ScanToken).IsRequired().HasMaxLength(64);
             entity.Property(e => e.PatientName).HasMaxLength(200);
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+            entity.HasIndex(e => e.ScanToken)
+                .IsUnique()
+                .HasDatabaseName("UX_Prescription_ScanToken");
 
             entity.HasOne(d => d.Doctor)
                 .WithMany()

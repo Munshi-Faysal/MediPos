@@ -6,6 +6,7 @@ namespace Services.Contracts.ServiceInterfaces;
 public interface IPrescriptionService
 {
     Task<PrescriptionDto?> GetByIdAsync(string encryptedId);
+    Task<PrescriptionScanViewModel?> GetByScanTokenAsync(string scanToken);
     Task<IEnumerable<PrescriptionViewModel>> GetPrescriptionsByDoctorAsync();
     Task<PrescriptionDto?> CreateAsync(PrescriptionDto dto);
     Task<bool> UpdateAsync(PrescriptionDto dto);

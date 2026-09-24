@@ -42,3 +42,19 @@ export interface DoctorFilters {
   specialization?: string;
   search?: string;
 }
+
+export interface DoctorProfile {
+  name: string;
+  title?: string;
+  specialization?: string;
+  licenseNumber: string;
+  email: string;
+  phone: string;
+  bio?: string;
+  clinicName?: string;
+  chamberAddress?: string;
+  chamberContact?: string;
+  startTime?: string;
+  endTime?: string;
+  offDay?: string;
+}

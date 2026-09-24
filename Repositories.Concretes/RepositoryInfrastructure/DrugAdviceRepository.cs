@@ -15,11 +15,14 @@ internal sealed class DrugAdviceRepository(WfDbContext context,
 
     public async Task<IEnumerable<DrugAdvice>> GetListAsync(int take, int skip, int? doctorId = null)
     {
-        var query = _context.DrugAdvices.Where(d => d.IsActive);
+        // The management screen must include inactive instructions so they can
+        // be edited, reactivated, or deleted. Prescription suggestions use the
+        // separate active-only queries below.
+        var query = _context.DrugAdvices.AsQueryable();
 
         if (doctorId.HasValue)
         {
-            query = query.Where(d => d.DoctorId == doctorId || d.DoctorId == null);
+            query = query.Where(d => d.DoctorId == doctorId);
         }
 
         return await query

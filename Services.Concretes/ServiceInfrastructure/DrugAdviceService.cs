@@ -67,17 +67,17 @@ internal sealed class DrugAdviceService(
     public async Task<bool> CreateAsync(DrugAdviceDto dto)
     {
         var entity = mapper.Map<DrugAdvice>(dto);
-        if (!string.IsNullOrEmpty(dto.DoctorEncryptedId))
+        var currentDoctor = CurrentUser is null
+            ? null
+            : await repository.Doctor.GetByUserIdAsync(CurrentUser.Id);
+
+        if (currentDoctor is not null)
+        {
+            entity.DoctorId = currentDoctor.Id;
+        }
+        else if (!string.IsNullOrEmpty(dto.DoctorEncryptedId))
         {
             entity.DoctorId = encryptionHelper.Decrypt(dto.DoctorEncryptedId);
-        }
-        else if (CurrentUser is not null)
-        {
-            var doctor = await repository.Doctor.GetByUserIdAsync(CurrentUser.Id);
-            if (doctor is not null)
-            {
-                entity.DoctorId = doctor.Id;
-            }
         }
 
         CreateAutoFields(entity);
@@ -92,8 +92,18 @@ internal sealed class DrugAdviceService(
         if (existing is null)
             return false;
 
+        var currentDoctor = CurrentUser is null
+            ? null
+            : await repository.Doctor.GetByUserIdAsync(CurrentUser.Id);
+        if (currentDoctor is not null && existing.DoctorId != currentDoctor.Id)
+            return false;
+
         mapper.Map(dto, existing);
-        if (!string.IsNullOrEmpty(dto.DoctorEncryptedId))
+        if (currentDoctor is not null)
+        {
+            existing.DoctorId = currentDoctor.Id;
+        }
+        else if (!string.IsNullOrEmpty(dto.DoctorEncryptedId))
         {
             existing.DoctorId = encryptionHelper.Decrypt(dto.DoctorEncryptedId);
         }
@@ -107,11 +117,34 @@ internal sealed class DrugAdviceService(
         var existing = await repository.DrugAdvice.FindByIdAsync(encryptionHelper.Decrypt(encryptedId));
         if (existing is not null)
         {
+            if (CurrentUser is not null)
+            {
+                var doctor = await repository.Doctor.GetByUserIdAsync(CurrentUser.Id);
+                if (doctor is not null && existing.DoctorId != doctor.Id)
+                    return false;
+            }
+
             existing.IsActive = !existing.IsActive;
             UpdateAutoFields(existing);
             return await repository.DrugAdvice.UpdateAsync(existing);
         }
         return false;
+    }
+
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        var existing = await repository.DrugAdvice.FindByIdAsync(encryptionHelper.Decrypt(encryptedId));
+        if (existing is null)
+            return false;
+
+        if (CurrentUser is not null)
+        {
+            var doctor = await repository.Doctor.GetByUserIdAsync(CurrentUser.Id);
+            if (doctor is not null && existing.DoctorId != doctor.Id)
+                return false;
+        }
+
+        return await repository.DrugAdvice.DeleteAsync(existing);
     }
 
     public async Task<List<DrugAdviceDto>> GetActiveListAsync()

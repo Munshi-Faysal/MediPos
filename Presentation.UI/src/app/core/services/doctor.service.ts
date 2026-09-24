@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { delay, tap, catchError, map } from 'rxjs/operators';
-import { Doctor, DoctorStatus, DoctorFilters } from '../models/doctor.model';
+import { Doctor, DoctorStatus, DoctorFilters, DoctorProfile } from '../models/doctor.model';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -17,10 +17,6 @@ export class DoctorService {
   // Loading state
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
-
-  constructor() {
-    this.loadDoctors();
-  }
 
   /**
    * Get all doctors
@@ -55,6 +51,20 @@ export class DoctorService {
         throw new Error('Doctor not found');
       })
     );
+  }
+
+  /**
+   * Get the profile linked to the authenticated doctor account.
+   */
+  getCurrentProfile(): Observable<DoctorProfile> {
+    return this.apiService.get<DoctorProfile>('Doctor/CurrentProfile');
+  }
+
+  /**
+   * Update only the authenticated doctor's own profile.
+   */
+  updateCurrentProfile(profile: DoctorProfile): Observable<DoctorProfile> {
+    return this.apiService.put<DoctorProfile>('Doctor/CurrentProfile', profile);
   }
 
   /**
@@ -230,14 +240,6 @@ export class DoctorService {
   getActiveDoctors(): Observable<Doctor[]> {
     const doctors = this.doctorsSubject.value;
     return of(doctors.filter(d => d.status === DoctorStatus.ACTIVE));
-  }
-
-  /**
-   * Load doctors (initialize or refresh)
-   */
-  private loadDoctors(): void {
-    // Load doctors from API on service initialization
-    this.getDoctors().subscribe();
   }
 
   /**

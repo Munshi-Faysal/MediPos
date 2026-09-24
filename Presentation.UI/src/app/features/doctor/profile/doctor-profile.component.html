@@ -1,189 +1,201 @@
 <div class="p-6 max-w-5xl mx-auto animate-in fade-in duration-500">
   <div class="mb-8">
     <h1 class="text-3xl font-black text-gray-900 tracking-tight">Doctor Administration</h1>
-    <p class="text-gray-500 mt-2 font-medium">Manage your professional profile, clinic details, and account security.
-    </p>
+    <p class="text-gray-500 mt-2 font-medium">Manage your professional profile, clinic details, and account security.</p>
   </div>
 
-  <!-- Tabs Navigation -->
-  <div class="flex border-b border-gray-100 mb-8 overflow-x-auto">
-    <button (click)="setTab('personal')"
+  <div class="flex border-b border-gray-100 mb-8 overflow-x-auto" role="tablist" aria-label="Doctor profile sections">
+    <button type="button" role="tab" (click)="setTab('personal')" [attr.aria-selected]="activeTab() === 'personal'"
       [class]="activeTab() === 'personal' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'"
       class="px-8 py-4 font-bold text-sm uppercase tracking-widest border-b-4 transition-all whitespace-nowrap">
       Professional info
     </button>
-    <button (click)="setTab('chamber')"
+    <button type="button" role="tab" (click)="setTab('chamber')" [attr.aria-selected]="activeTab() === 'chamber'"
       [class]="activeTab() === 'chamber' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'"
       class="px-8 py-4 font-bold text-sm uppercase tracking-widest border-b-4 transition-all whitespace-nowrap">
       Chamber Details
     </button>
-    <button (click)="setTab('security')"
+    <button type="button" role="tab" (click)="setTab('security')" [attr.aria-selected]="activeTab() === 'security'"
       [class]="activeTab() === 'security' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'"
       class="px-8 py-4 font-bold text-sm uppercase tracking-widest border-b-4 transition-all whitespace-nowrap">
-      Security & Access
+      Security &amp; Access
     </button>
   </div>
 
-  <!-- Tab Content: Personal Info -->
-  @if (activeTab() === 'personal') {
-    <div class="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
-      <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
-              <input type="text" [(ngModel)]="doctorInfo().name"
-                class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
+  @if (isLoading() && activeTab() !== 'security') {
+    <div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-soft flex items-center justify-center gap-3 text-gray-500">
+      <span class="h-5 w-5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"></span>
+      <span class="font-bold">Loading your profile...</span>
+    </div>
+  } @else if (loadError() && activeTab() !== 'security') {
+    <div class="bg-white rounded-3xl p-10 border border-rose-100 shadow-soft text-center">
+      <h2 class="text-lg font-black text-gray-900">Profile could not be loaded</h2>
+      <p class="mt-2 text-sm text-gray-500">{{ loadError() }}</p>
+      <button type="button" (click)="loadProfile()"
+        class="mt-6 rounded-xl bg-gray-900 px-6 py-3 text-sm font-black uppercase tracking-wider text-white hover:bg-black">
+        Try Again
+      </button>
+    </div>
+  } @else {
+    @if (activeTab() === 'personal') {
+      <form (ngSubmit)="savePersonal()" class="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+              <div>
+                <label for="doctor-name" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
+                <input id="doctor-name" name="name" type="text" required maxlength="200" [(ngModel)]="doctorInfo().name"
+                  class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
               </div>
               <div>
-                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Qualifications /
-                Degrees</label>
-                <input type="text" [(ngModel)]="doctorInfo().title" placeholder="e.g. MBBS, FCPS"
+                <label for="doctor-title" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Qualifications / Degrees</label>
+                <input id="doctor-title" name="title" type="text" maxlength="200" [(ngModel)]="doctorInfo().title" placeholder="e.g. MBBS, FCPS"
                   class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
+              </div>
+              <div>
+                <label for="doctor-specialty" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Specialty</label>
+                <input id="doctor-specialty" name="specialty" type="text" maxlength="200" [(ngModel)]="doctorInfo().specialty"
+                  class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label for="doctor-registration" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Registration No.</label>
+                <input id="doctor-registration" name="registration" type="text" required maxlength="50" [(ngModel)]="doctorInfo().regNo"
+                  class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800 uppercase">
+              </div>
+              <div>
+                <label for="doctor-email" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Contact Email</label>
+                <input id="doctor-email" name="email" type="email" required maxlength="200" [(ngModel)]="doctorInfo().email" autocomplete="email"
+                  class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
+              </div>
+              <div>
+                <label for="doctor-phone" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Phone</label>
+                <input id="doctor-phone" name="phone" type="tel" required maxlength="50" [(ngModel)]="doctorInfo().phone" autocomplete="tel"
+                  class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
+              </div>
+            </div>
+          </div>
+          <div class="mt-6">
+            <label for="doctor-bio" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Professional Summary</label>
+            <textarea id="doctor-bio" name="bio" rows="4" maxlength="2000" [(ngModel)]="doctorInfo().bio"
+              class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium text-gray-800 resize-none"></textarea>
+          </div>
+          <div class="mt-8 flex justify-end">
+            <button type="submit" [disabled]="isSaving()"
+              class="inline-flex min-w-48 items-center justify-center gap-2 bg-gray-900 hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-95">
+              @if (isSaving()) {
+                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                Saving...
+              } @else {
+                Save Changes
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+    }
+
+    @if (activeTab() === 'chamber') {
+      <form (ngSubmit)="saveChamber()" class="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+              <div>
+                <label for="clinic-name" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Chamber / Clinic Name</label>
+                <input id="clinic-name" name="clinicName" type="text" maxlength="200" [(ngModel)]="chamberInfo().clinicName"
+                  class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
+              </div>
+              <div>
+                <label for="clinic-address" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Clinic Address</label>
+                <textarea id="clinic-address" name="address" rows="3" maxlength="500" [(ngModel)]="chamberInfo().address"
+                  class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-medium text-gray-800 resize-none"></textarea>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label for="clinic-contact" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Appointment Hotline</label>
+                <input id="clinic-contact" name="contact" type="tel" maxlength="50" [(ngModel)]="chamberInfo().contact"
+                  class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="clinic-start" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Start Time</label>
+                  <input id="clinic-start" name="startTime" type="time" [(ngModel)]="chamberInfo().startTime"
+                    class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
                 </div>
                 <div>
-                  <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Specialty</label>
-                  <input type="text" [(ngModel)]="doctorInfo().specialty"
-                    class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
-                  </div>
+                  <label for="clinic-end" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">End Time</label>
+                  <input id="clinic-end" name="endTime" type="time" [(ngModel)]="chamberInfo().endTime"
+                    class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
                 </div>
-                <div class="space-y-4">
-                  <div>
-                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Registration
-                    No.</label>
-                    <input type="text" [(ngModel)]="doctorInfo().regNo"
-                      class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800 uppercase">
-                    </div>
-                    <div>
-                      <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Contact Email</label>
-                      <input type="email" [(ngModel)]="doctorInfo().email"
-                        class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
-                      </div>
-                      <div>
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Phone</label>
-                        <input type="text" [(ngModel)]="doctorInfo().phone"
-                          class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-bold text-gray-800">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="mt-6">
-                      <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Professional
-                      Summary</label>
-                      <textarea [(ngModel)]="doctorInfo().bio" rows="4"
-                      class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium text-gray-800 resize-none"></textarea>
-                    </div>
-                    <div class="mt-8 flex justify-end">
-                      <button (click)="savePersonal()"
-                        class="bg-gray-900 hover:bg-black text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-95">Save
-                      Changes</button>
-                    </div>
-                  </div>
-                </div>
+              </div>
+              <div>
+                <label for="clinic-off-day" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Off Day</label>
+                <select id="clinic-off-day" name="offDay" [(ngModel)]="chamberInfo().offDay"
+                  class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
+                  <option value="">No weekly off day</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                  <option value="Sunday">Sunday</option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 flex justify-end">
+            <button type="submit" [disabled]="isSaving()"
+              class="inline-flex min-w-52 items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-200 transition-all active:scale-95">
+              @if (isSaving()) {
+                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                Saving...
+              } @else {
+                Update Chamber
               }
+            </button>
+          </div>
+        </div>
+      </form>
+    }
 
-              <!-- Tab Content: Chamber Info -->
-              @if (activeTab() === 'chamber') {
-                <div class="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
-                  <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div class="space-y-4">
-                        <div>
-                          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Chamber / Clinic
-                          Name</label>
-                          <input type="text" [(ngModel)]="chamberInfo().clinicName"
-                            class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
-                          </div>
-                          <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Clinic Address</label>
-                            <textarea [(ngModel)]="chamberInfo().address" rows="3"
-                            class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-medium text-gray-800 resize-none"></textarea>
-                          </div>
-                        </div>
-                        <div class="space-y-4">
-                          <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Appointment
-                            Hotline</label>
-                            <input type="text" [(ngModel)]="chamberInfo().contact"
-                              class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                              <div>
-                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Start Time</label>
-                                <input type="text" [(ngModel)]="chamberInfo().startTime"
-                                  class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
-                                </div>
-                                <div>
-                                  <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">End Time</label>
-                                  <input type="text" [(ngModel)]="chamberInfo().endTime"
-                                    class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
-                                  </div>
-                                </div>
-                                <div>
-                                  <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Off Day</label>
-                                  <select [(ngModel)]="chamberInfo().offDay"
-                                    class="w-full bg-emerald-50/30 border-emerald-100 rounded-2xl p-4 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all font-bold text-gray-800">
-                                    <option value="Friday">Friday</option>
-                                    <option value="Saturday">Saturday</option>
-                                    <option value="Sunday">Sunday</option>
-                                    <option value="Monday">Monday</option>
-                                    <option value="Tuesday">Tuesday</option>
-                                    <option value="Wednesday">Wednesday</option>
-                                    <option value="Thursday">Thursday</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="mt-8 flex justify-end">
-                              <button (click)="saveChamber()"
-                                class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-200 transition-all active:scale-95">Update
-                              Chamber</button>
-                            </div>
-                          </div>
-                        </div>
-                      }
-
-                      <!-- Tab Content: Security -->
-                      @if (activeTab() === 'security') {
-                        <div class="space-y-6 animate-in slide-in-from-bottom-4 duration-300 max-w-2xl">
-                          <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
-                            <h3 class="text-xl font-bold text-gray-800 mb-6">Change Password</h3>
-                            <div class="space-y-4">
-                              <div>
-                                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Current Password</label>
-                                <input type="password"
-                                  class="w-full bg-gray-50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all">
-                                </div>
-                                <div>
-                                  <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">New Password</label>
-                                  <input type="password"
-                                    class="w-full bg-gray-50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all">
-                                  </div>
-                                  <div>
-                                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Confirm New
-                                    Password</label>
-                                    <input type="password"
-                                      class="w-full bg-gray-50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all">
-                                    </div>
-                                  </div>
-                                  <div class="mt-8">
-                                    <button (click)="changePassword()"
-                                      class="w-full bg-rose-600 hover:bg-rose-700 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all">Update
-                                    Security Credentials</button>
-                                  </div>
-                                </div>
-                                <div class="bg-amber-50 rounded-3xl p-6 border border-amber-100 flex items-start gap-4">
-                                  <div class="bg-amber-200/50 p-2 rounded-xl text-amber-700">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                  </div>
-                                  <div>
-                                    <h4 class="font-black text-amber-900 uppercase text-xs tracking-widest">Two-Factor Authentication</h4>
-                                    <p class="text-sm text-amber-700 mt-1">2FA is currently <span class="font-bold underline">Disabled</span>. We
-                                  highly recommend enabling it to protect patient data.</p>
-                                </div>
-                              </div>
-                            </div>
-                          }
-                        </div>
+    @if (activeTab() === 'security') {
+      <form (ngSubmit)="changePassword()" class="space-y-6 animate-in slide-in-from-bottom-4 duration-300 max-w-2xl">
+        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Change Password</h3>
+          <p class="text-sm text-gray-500 mb-6">Use at least 8 characters and choose a password you do not use elsewhere.</p>
+          <div class="space-y-4">
+            <div>
+              <label for="current-password" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Current Password</label>
+              <input id="current-password" name="currentPassword" type="password" required [(ngModel)]="securityInfo().currentPassword" autocomplete="current-password"
+                class="w-full bg-gray-50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all">
+            </div>
+            <div>
+              <label for="new-password" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">New Password</label>
+              <input id="new-password" name="newPassword" type="password" required minlength="8" [(ngModel)]="securityInfo().newPassword" autocomplete="new-password"
+                class="w-full bg-gray-50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all">
+            </div>
+            <div>
+              <label for="confirm-password" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Confirm New Password</label>
+              <input id="confirm-password" name="confirmPassword" type="password" required minlength="8" [(ngModel)]="securityInfo().confirmPassword" autocomplete="new-password"
+                class="w-full bg-gray-50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all">
+            </div>
+          </div>
+          <div class="mt-8">
+            <button type="submit" [disabled]="isChangingPassword()"
+              class="inline-flex w-full items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all">
+              @if (isChangingPassword()) {
+                <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                Updating...
+              } @else {
+                Update Security Credentials
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+    }
+  }
+</div>

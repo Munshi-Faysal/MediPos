@@ -117,6 +117,22 @@ internal sealed class DrugDoseTemplateService(
         return false;
     }
 
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        var existing = await repository.DrugDoseTemplate.FindByIdAsync(encryptionHelper.Decrypt(encryptedId));
+        if (existing is null)
+            return false;
+
+        if (CurrentUser is not null)
+        {
+            var doctor = await repository.Doctor.GetByUserIdAsync(CurrentUser.Id);
+            if (doctor is not null && existing.DoctorId != doctor.Id)
+                return false;
+        }
+
+        return await repository.DrugDoseTemplate.DeleteAsync(existing);
+    }
+
     public async Task<List<DrugDoseTemplateDto>> GetActiveByDoctorIdAsync(string encryptedDoctorId)
     {
         var doctorId = encryptionHelper.Decrypt(encryptedDoctorId);

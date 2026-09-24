@@ -115,6 +115,7 @@ public class ToModelMappingProfile : Profile
         // Prescription mappings
         CreateMap<PrescriptionDto, Prescription>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.ScanToken, opt => opt.Ignore())
             .ForMember(dest => dest.Medicines, opt => opt.Ignore()); // Setup manually in service if needed to handle existing items
 
         CreateMap<PrescriptionMedicineDto, PrescriptionMedicine>()

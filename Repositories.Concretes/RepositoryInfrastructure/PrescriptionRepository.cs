@@ -36,4 +36,22 @@ public class PrescriptionRepository(WfDbContext context) : BaseRepository<Prescr
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
+
+    public async Task<Prescription?> GetPrescriptionByScanTokenAsync(string scanToken)
+    {
+        return await _dbSet
+            .Where(p => p.ScanToken == scanToken && p.IsActive)
+            .Include(p => p.Medicines)
+                .ThenInclude(m => m.DrugDetail)
+                    .ThenInclude(d => d!.DrugMaster)
+            .Include(p => p.Medicines)
+                .ThenInclude(m => m.DrugDetail)
+                    .ThenInclude(d => d!.DrugType)
+            .Include(p => p.Medicines)
+                .ThenInclude(m => m.DrugDetail)
+                    .ThenInclude(d => d!.DrugStrength)
+            .Include(p => p.Doctor)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+    }
 }

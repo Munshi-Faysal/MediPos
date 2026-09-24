@@ -2,6 +2,7 @@ using AutoMapper;
 using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 using Repositories.Contracts.Base;
 using Services.Concretes.Base;
 using Services.Contracts.ServiceInterfaces;
@@ -41,6 +42,52 @@ internal sealed class PrescriptionService(
         return dto;
     }
 
+    public async Task<PrescriptionScanViewModel?> GetByScanTokenAsync(string scanToken)
+    {
+        if (string.IsNullOrWhiteSpace(scanToken) || scanToken.Length > 64)
+            return null;
+
+        var entity = await repository.Prescription.GetPrescriptionByScanTokenAsync(scanToken);
+        if (entity is null) return null;
+
+        return new PrescriptionScanViewModel
+        {
+            ScanToken = entity.ScanToken,
+            PrescriptionDate = entity.PrescriptionDate,
+            Status = entity.Status,
+            DoctorName = entity.Doctor?.Name,
+            DoctorTitle = entity.Doctor?.Title,
+            DoctorSpecialization = entity.Doctor?.Specialization,
+            DoctorLicenseNumber = entity.Doctor?.LicenseNumber,
+            ClinicName = entity.Doctor?.ClinicName,
+            ChamberAddress = entity.Doctor?.ChamberAddress,
+            ChamberContact = entity.Doctor?.ChamberContact,
+            PatientName = entity.PatientName,
+            PatientAge = entity.PatientAge,
+            PatientGender = entity.PatientGender,
+            PatientWeight = entity.PatientWeight,
+            PatientRegNo = entity.PatientRegNo,
+            Disease = entity.Disease,
+            ChiefComplaint = entity.ChiefComplaint,
+            OnExamination = entity.OnExamination,
+            Investigation = entity.Investigation,
+            Advice = entity.Advice,
+            DrugHistory = entity.DrugHistory,
+            Diagnosis = entity.Diagnosis,
+            Notes = entity.Notes,
+            Medicines = entity.Medicines.Select(medicine => new PrescriptionScanMedicineViewModel
+            {
+                MedicineName = medicine.DrugDetail?.DrugMaster?.Name,
+                DrugTypeName = medicine.DrugDetail?.DrugType?.Name,
+                StrengthName = medicine.DrugDetail?.DrugStrength?.Quantity,
+                Dosage = medicine.Dosage,
+                Frequency = medicine.Frequency,
+                Duration = medicine.Duration,
+                Instructions = medicine.Instructions
+            }).ToList()
+        };
+    }
+
     public async Task<IEnumerable<PrescriptionViewModel>> GetPrescriptionsByDoctorAsync()
     {
         if (CurrentUser is null) 
@@ -77,6 +124,7 @@ internal sealed class PrescriptionService(
     public async Task<PrescriptionDto?> CreateAsync(PrescriptionDto dto)
     {
         var entity = mapper.Map<Prescription>(dto);
+        entity.ScanToken = GenerateScanToken();
         
         if (CurrentUser is not null)
         {
@@ -132,6 +180,11 @@ internal sealed class PrescriptionService(
         }
 
         return created;
+    }
+
+    private static string GenerateScanToken()
+    {
+        return Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
     }
 
     private int ResolveId(string? value)

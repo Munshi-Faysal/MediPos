@@ -210,21 +210,9 @@ export class QuickPrescriptionComponent implements OnInit, OnDestroy {
     this.doseSearchQuery = '';
   }
 
-  focusDosePart(event: Event, index: number): void {
-    this.openDoseDropdown(index);
-    (event.target as HTMLInputElement).select();
-  }
-
-  getDosePart(index: number, partIndex: number): string {
-    return this.splitDose(this.medicinesArray.at(index).get('dosage')?.value || '')[partIndex];
-  }
-
-  updateDosePart(event: Event, index: number, partIndex: number): void {
-    const parts = this.splitDose(this.medicinesArray.at(index).get('dosage')?.value || '');
-    parts[partIndex] = (event.target as HTMLInputElement).value;
-    const hasValue = parts.some(part => part.trim());
-    const dose = hasValue ? parts.map(part => part.trim() || '0').join('+') : '';
-    this.medicinesArray.at(index).get('dosage')?.setValue(dose);
+  onDoseInput(event: Event, index: number): void {
+    this.activeDoseDropdownIndex = index;
+    this.doseSearchQuery = (event.target as HTMLInputElement).value;
   }
 
   filteredDoseTemplates(): string[] {
@@ -249,12 +237,6 @@ export class QuickPrescriptionComponent implements OnInit, OnDestroy {
     this.doseCloseTimer = undefined;
     this.activeDoseDropdownIndex = null;
     this.doseSearchQuery = '';
-  }
-
-  private splitDose(dose: string): [string, string, string] {
-    if (!dose) return ['', '', ''];
-    const parts = dose.split('+').map(part => part.trim());
-    return [parts[0] || '0', parts[1] || '0', parts.slice(2).join('+') || '0'];
   }
 
   // ─── Submit ────────────────────────────────────────────────────────────────

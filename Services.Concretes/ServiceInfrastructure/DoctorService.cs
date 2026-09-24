@@ -68,6 +68,47 @@ internal sealed class DoctorService(
         return default;
     }
 
+    public async Task<DoctorProfileDto?> GetCurrentProfileAsync()
+    {
+        var currentUser = await GetCurrentUserAsync();
+        if (currentUser is null)
+            return null;
+
+        var doctor = await repository.Doctor.GetByUserIdAsync(currentUser.Id);
+        return doctor is null ? null : mapper.Map<DoctorProfileDto>(doctor);
+    }
+
+    public async Task<DoctorProfileDto?> UpdateCurrentProfileAsync(DoctorProfileDto profileDto)
+    {
+        var currentUser = await GetCurrentUserAsync();
+        if (currentUser is null)
+            return null;
+
+        var doctor = await repository.Doctor.GetByUserIdAsync(currentUser.Id);
+        if (doctor is null)
+            return null;
+
+        doctor.Name = profileDto.Name.Trim();
+        doctor.Title = NormalizeOptional(profileDto.Title);
+        doctor.Specialization = NormalizeOptional(profileDto.Specialization);
+        doctor.LicenseNumber = profileDto.LicenseNumber.Trim();
+        doctor.Email = profileDto.Email.Trim();
+        doctor.Phone = profileDto.Phone.Trim();
+        doctor.Bio = NormalizeOptional(profileDto.Bio);
+        doctor.ClinicName = NormalizeOptional(profileDto.ClinicName);
+        doctor.ChamberAddress = NormalizeOptional(profileDto.ChamberAddress);
+        doctor.ChamberContact = NormalizeOptional(profileDto.ChamberContact);
+        doctor.StartTime = NormalizeOptional(profileDto.StartTime);
+        doctor.EndTime = NormalizeOptional(profileDto.EndTime);
+        doctor.OffDay = NormalizeOptional(profileDto.OffDay);
+
+        UpdateAutoFields(doctor);
+        if (!await repository.Doctor.UpdateAsync(doctor))
+            return null;
+
+        return mapper.Map<DoctorProfileDto>(doctor);
+    }
+
     public async Task<bool> CreateAsync(DoctorDto doctorDto)
     {
         // 1. Create ApplicationUser
@@ -156,5 +197,10 @@ internal sealed class DoctorService(
             ClinicalDeptList = await repository.ClinicalDept.GetDropdownItemsAsync(),
             OperationStatusList = await repository.Keyword.GetDropdownItemsAsync(nameof(KeywordType.OperationStatus))
         };
+    }
+
+    private static string? NormalizeOptional(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

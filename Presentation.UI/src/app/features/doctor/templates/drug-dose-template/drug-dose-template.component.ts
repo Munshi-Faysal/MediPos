@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { DrugDoseTemplateService, DrugDoseTemplateViewModel, DrugDoseTemplateDto } from '../../../../core/services/drug-dose-template.service';
+import { confirmAppAction } from '../../../../core/utils/app-alert';
 
 @Component({
   selector: 'app-drug-dose-template',
@@ -24,6 +25,7 @@ export class DrugDoseTemplateComponent implements OnInit {
   pageSize = signal<number>(1000);
   isLoading = signal<boolean>(false);
   isSaving = signal<boolean>(false);
+  deletingId = signal<string | null>(null);
   searchTerm = signal<string>('');
 
   readonly commonDosePresets = [
@@ -51,9 +53,7 @@ export class DrugDoseTemplateComponent implements OnInit {
   // Editor State
   editingTemplate: DrugDoseTemplateViewModel | null = null;
   templateForm = {
-    morning: '',
-    noon: '',
-    night: '',
+    name: '',
     description: '',
     isActive: true
   };
@@ -99,10 +99,7 @@ export class DrugDoseTemplateComponent implements OnInit {
 
   createFromPreset(preset: { name: string; description: string }): void {
     this.resetForm();
-    const [morning, noon, night] = this.splitDose(preset.name);
-    this.templateForm.morning = morning;
-    this.templateForm.noon = noon;
-    this.templateForm.night = night;
+    this.templateForm.name = preset.name;
     this.templateForm.description = preset.description;
     this.currentView = 'editor';
   }
@@ -114,11 +111,8 @@ export class DrugDoseTemplateComponent implements OnInit {
   editTemplate(template: DrugDoseTemplateViewModel) {
     this.currentView = 'editor';
     this.editingTemplate = template;
-    const [morning, noon, night] = this.splitDose(template.name);
     this.templateForm = {
-      morning,
-      noon,
-      night,
+      name: template.name,
       description: template.description || '',
       isActive: template.isActive
     };
@@ -141,10 +135,40 @@ export class DrugDoseTemplateComponent implements OnInit {
     });
   }
 
+  async deleteTemplate(template: DrugDoseTemplateViewModel): Promise<void> {
+    const confirmed = await confirmAppAction({
+      title: 'Delete dose?',
+      text: `“${template.name}” will be permanently deleted.`,
+      confirmButtonText: 'Yes, delete'
+    });
+
+    if (!confirmed || this.deletingId()) return;
+
+    this.deletingId.set(template.encryptedId);
+    this.service.deleteDrugDoseTemplate(template.encryptedId).subscribe({
+      next: (success) => {
+        this.deletingId.set(null);
+        if (!success) {
+          this.notification.error('Delete failed', 'You can only delete your own dose templates');
+          return;
+        }
+
+        this.templates.update(items => items.filter(item => item.encryptedId !== template.encryptedId));
+        this.totalCount.update(count => Math.max(0, count - 1));
+        this.notification.success('Dose deleted', `${template.name} was deleted successfully`);
+      },
+      error: (err) => {
+        this.deletingId.set(null);
+        console.error('Error deleting dose template', err);
+        this.notification.error('Delete failed', 'An error occurred while deleting the dose');
+      }
+    });
+  }
+
   saveTemplate() {
-    const name = this.dosePreview();
-    if (!this.templateForm.morning.trim() && !this.templateForm.noon.trim() && !this.templateForm.night.trim()) {
-      this.notification.warning('Dose required', 'Please enter at least one morning, noon or night dose');
+    const name = this.templateForm.name.trim();
+    if (!name) {
+      this.notification.warning('Dose required', 'Please enter a dose, for example 1+0+1');
       return;
     }
 
@@ -208,25 +232,10 @@ export class DrugDoseTemplateComponent implements OnInit {
   resetForm() {
     this.editingTemplate = null;
     this.templateForm = {
-      morning: '',
-      noon: '',
-      night: '',
+      name: '',
       description: '',
       isActive: true
     };
-  }
-
-  dosePreview(): string {
-    return [
-      this.templateForm.morning.trim() || '0',
-      this.templateForm.noon.trim() || '0',
-      this.templateForm.night.trim() || '0'
-    ].join('+');
-  }
-
-  private splitDose(dose: string): [string, string, string] {
-    const parts = (dose || '').split('+').map(part => part.trim());
-    return [parts[0] || '0', parts[1] || '0', parts.slice(2).join('+') || '0'];
   }
 
   onPageChange(page: number): void {

@@ -95,21 +95,25 @@ export class DrugAdviceService {
     /**
      * Create a new drug advice
      */
-    createDrugAdvice(advice: DrugAdviceDto): Observable<any> {
-        return this.api.post<any>(`${this.endpoint}/Create`, advice);
+    createDrugAdvice(advice: DrugAdviceDto): Observable<boolean> {
+        return this.api.post<boolean>(`${this.endpoint}/Create`, advice);
     }
 
     /**
      * Update an existing drug advice
      */
-    updateDrugAdvice(advice: DrugAdviceDto): Observable<any> {
-        return this.api.put<any>(`${this.endpoint}/Edit`, advice);
+    updateDrugAdvice(advice: DrugAdviceDto): Observable<boolean> {
+        return this.api.put<boolean>(`${this.endpoint}/Edit`, advice);
     }
 
     /**
      * Change active status of drug advice
      */
-    changeDrugAdviceActiveStatus(encryptedId: string): Observable<any> {
-        return this.api.patch<any>(`${this.endpoint}/ChangeActive/${encryptedId}`, {});
+    changeDrugAdviceActiveStatus(encryptedId: string): Observable<boolean> {
+        return this.api.patch<boolean>(`${this.endpoint}/ChangeActive/${encryptedId}`, {});
+    }
+
+    deleteDrugAdvice(encryptedId: string): Observable<boolean> {
+        return this.api.delete<boolean>(`${this.endpoint}/Delete/${encryptedId}`);
     }
 }

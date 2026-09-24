@@ -23,6 +23,10 @@ public class Prescription : BaseEntity
     [Required]
     public DateTime PrescriptionDate { get; set; }
 
+    [Required]
+    [StringLength(64)]
+    public string ScanToken { get; set; } = string.Empty;
+
     // Header Patient Details (at time of prescription)
     public string? PatientName { get; set; }
     public string? PatientAge { get; set; }

@@ -74,6 +74,7 @@ public class ToDtoMappingProfile : Profile
 
         // Doctor mappings
         CreateMap<Doctor, DoctorDto>();
+        CreateMap<Doctor, DoctorProfileDto>();
         CreateMap<Doctor, DoctorViewModel>()
             .ForMember(d => d.ClinicalDeptName, opt => opt.MapFrom(s => s.ClinicalDept != null ? s.ClinicalDept.Name : null))
             .ForMember(d => d.OperationStatusName, opt => opt.MapFrom(s => s.OperationStatus != null ? s.OperationStatus.KeywordText : null));

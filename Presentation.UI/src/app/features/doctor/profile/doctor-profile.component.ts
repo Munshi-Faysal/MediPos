@@ -1,9 +1,9 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
-
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NotificationService } from '../../../core/services/notification.service';
+import { DoctorProfile } from '../../../core/models/doctor.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { DoctorService } from '../../../core/services/doctor.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -17,11 +17,13 @@ export class DoctorProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private doctorService = inject(DoctorService);
 
-  // Store the full doctor object to preserve other fields during updates
-  private currentDoctor: any = null;
-  public isLoading = signal(false);
+  private currentProfile: DoctorProfile | null = null;
 
   public activeTab = signal<'personal' | 'chamber' | 'security'>('personal');
+  public isLoading = signal(true);
+  public isSaving = signal(false);
+  public isChangingPassword = signal(false);
+  public loadError = signal('');
 
   public doctorInfo = signal({
     name: '',
@@ -42,54 +44,33 @@ export class DoctorProfileComponent implements OnInit {
     offDay: ''
   });
 
+  public securityInfo = signal({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
   ngOnInit(): void {
-    this.initialLoad();
+    this.loadProfile();
   }
 
-  initialLoad(): void {
-    const user = this.authService.user();
-    if (user?.doctorId || user?.id) {
-      // Fallback to user ID if doctor ID is missing but backend handles it, 
-      // though typically doctorId is distinct.
-      // Assuming doctorId is available on the user object as per auth service analysis.
-      const id = user.doctorId ? user.doctorId.toString() : '';
+  loadProfile(): void {
+    this.isLoading.set(true);
+    this.loadError.set('');
 
-      if (id) {
-        this.isLoading.set(true);
-        this.doctorService.getDoctorById(id).subscribe({
-          next: (doctor) => {
-            this.currentDoctor = doctor;
-            this.updateSignals(doctor);
-            this.isLoading.set(false);
-          },
-          error: (err) => {
-            console.error('Failed to load profile', err);
-            this.notification.error('Error', 'Failed to load profile data');
-            this.isLoading.set(false);
-          }
-        });
+    this.doctorService.getCurrentProfile().subscribe({
+      next: profile => {
+        this.currentProfile = profile;
+        this.updateForms(profile);
+        this.isLoading.set(false);
+      },
+      error: error => {
+        console.error('Failed to load doctor profile', error);
+        const message = error?.error?.message || 'Failed to load your profile data. Please try again.';
+        this.loadError.set(message);
+        this.notification.error('Profile unavailable', message);
+        this.isLoading.set(false);
       }
-    }
-  }
-
-  updateSignals(doctor: any): void {
-    this.doctorInfo.set({
-      name: doctor.name || '',
-      title: doctor.title || '',
-      specialty: doctor.specialization || '',
-      regNo: doctor.licenseNumber || '',
-      email: doctor.email || '',
-      phone: doctor.phone || '',
-      bio: doctor.bio || ''
-    });
-
-    this.chamberInfo.set({
-      clinicName: doctor.clinicName || '',
-      address: doctor.chamberAddress || '',
-      contact: doctor.chamberContact || '',
-      startTime: doctor.startTime || '',
-      endTime: doctor.endTime || '',
-      offDay: doctor.offDay || ''
     });
   }
 
@@ -98,11 +79,22 @@ export class DoctorProfileComponent implements OnInit {
   }
 
   savePersonal(): void {
-    if (!this.currentDoctor) return;
+    if (!this.currentProfile || this.isSaving()) return;
 
     const info = this.doctorInfo();
-    const updatedDoctor: any = {
-      ...this.currentDoctor,
+    if (!info.name.trim() || !info.regNo.trim() || !info.email.trim() || !info.phone.trim()) {
+      this.notification.warning('Missing information', 'Name, registration number, email, and phone are required.');
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(info.email.trim())) {
+      this.notification.warning('Invalid email', 'Please enter a valid contact email address.');
+      return;
+    }
+
+    this.saveProfile({
+      ...this.currentProfile,
       name: info.name,
       title: info.title,
       specialization: info.specialty,
@@ -110,55 +102,96 @@ export class DoctorProfileComponent implements OnInit {
       email: info.email,
       phone: info.phone,
       bio: info.bio
-    };
-
-    this.isLoading.set(true);
-    this.doctorService.updateDoctor(this.currentDoctor.id, updatedDoctor).subscribe({
-      next: (res) => {
-        this.currentDoctor = res; // Update local state with server response (important for timestamps etc)
-        this.updateSignals(res);
-        this.notification.success('Success', 'Personal profile updated successfully');
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Update failed', err);
-        this.notification.error('Error', 'Failed to update profile');
-        this.isLoading.set(false);
-      }
-    });
+    }, 'Professional information updated successfully.');
   }
 
   saveChamber(): void {
-    if (!this.currentDoctor) return;
+    if (!this.currentProfile || this.isSaving()) return;
 
     const info = this.chamberInfo();
-    const updatedDoctor: any = {
-      ...this.currentDoctor,
+    this.saveProfile({
+      ...this.currentProfile,
       clinicName: info.clinicName,
       chamberAddress: info.address,
       chamberContact: info.contact,
       startTime: info.startTime,
       endTime: info.endTime,
       offDay: info.offDay
-    };
+    }, 'Chamber details updated successfully.');
+  }
 
-    this.isLoading.set(true);
-    this.doctorService.updateDoctor(this.currentDoctor.id, updatedDoctor).subscribe({
-      next: (res) => {
-        this.currentDoctor = res;
-        this.updateSignals(res);
-        this.notification.success('Success', 'Chamber details updated successfully');
-        this.isLoading.set(false);
+  changePassword(): void {
+    if (this.isChangingPassword()) return;
+
+    const info = this.securityInfo();
+    if (!info.currentPassword || !info.newPassword || !info.confirmPassword) {
+      this.notification.warning('Missing information', 'Please complete all password fields.');
+      return;
+    }
+    if (info.newPassword.length < 8) {
+      this.notification.warning('Weak password', 'The new password must be at least 8 characters long.');
+      return;
+    }
+    if (info.newPassword !== info.confirmPassword) {
+      this.notification.warning('Password mismatch', 'New password and confirmation do not match.');
+      return;
+    }
+    if (info.currentPassword === info.newPassword) {
+      this.notification.warning('Choose a new password', 'The new password must be different from the current password.');
+      return;
+    }
+
+    this.isChangingPassword.set(true);
+    this.authService.changePassword(info.currentPassword, info.newPassword).subscribe({
+      next: () => {
+        this.securityInfo.set({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        this.notification.success('Password updated', 'Your password was changed successfully.');
+        this.isChangingPassword.set(false);
       },
-      error: (err) => {
-        console.error('Update failed', err);
-        this.notification.error('Error', 'Failed to update chamber details');
-        this.isLoading.set(false);
+      error: error => {
+        console.error('Password update failed', error);
+        this.notification.error('Password not updated', 'Please check your current password and password requirements.');
+        this.isChangingPassword.set(false);
       }
     });
   }
 
-  changePassword(): void {
-    this.notification.info('Security', 'Password change request submitted');
+  private saveProfile(profile: DoctorProfile, successMessage: string): void {
+    this.isSaving.set(true);
+    this.doctorService.updateCurrentProfile(profile).subscribe({
+      next: updatedProfile => {
+        this.currentProfile = updatedProfile;
+        this.updateForms(updatedProfile);
+        this.notification.success('Saved', successMessage);
+        this.isSaving.set(false);
+      },
+      error: error => {
+        console.error('Doctor profile update failed', error);
+        const message = error?.error?.message || 'Failed to save profile changes. Please try again.';
+        this.notification.error('Save failed', message);
+        this.isSaving.set(false);
+      }
+    });
+  }
+
+  private updateForms(profile: DoctorProfile): void {
+    this.doctorInfo.set({
+      name: profile.name || '',
+      title: profile.title || '',
+      specialty: profile.specialization || '',
+      regNo: profile.licenseNumber || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      bio: profile.bio || ''
+    });
+
+    this.chamberInfo.set({
+      clinicName: profile.clinicName || '',
+      address: profile.chamberAddress || '',
+      contact: profile.chamberContact || '',
+      startTime: profile.startTime || '',
+      endTime: profile.endTime || '',
+      offDay: profile.offDay || ''
+    });
   }
 }

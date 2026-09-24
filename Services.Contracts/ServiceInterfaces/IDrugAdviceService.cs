@@ -7,6 +7,7 @@ namespace Services.Contracts.ServiceInterfaces;
 public interface IDrugAdviceService : IBaseService<DrugAdviceViewModel, DrugAdviceDto>
 {
     Task<bool> ChangeActiveAsync(string encryptedId);
+    Task<bool> DeleteAsync(string encryptedId);
     Task<List<DrugAdviceDto>> GetActiveListAsync();
     Task<List<DrugAdviceDto>> GetActiveByDoctorIdAsync(string encryptedDoctorId);
     Task<List<DrugAdviceDto>> GetActiveForCurrentUserAsync();

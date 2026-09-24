@@ -14,8 +14,7 @@ import JsBarcode from 'jsbarcode';
     
       <!-- Left Column: Dynamic Sections -->
       @if (config.showLeftColumn) {
-        <div class="w-full md:w-1/3 border-r border-gray-800 pt-2 px-4 pb-4 space-y-4 print:w-1/3 relative">
-          <div class="absolute inset-y-0 right-0 w-px bg-gray-800 print:hidden"></div> <!-- Vertical Line -->
+        <div class="clinical-column w-full md:w-1/3 border-r border-slate-200 px-4 pb-4 pt-4 print:w-1/3 print:border-gray-800 print:pt-2 relative">
           <!-- Barcode at TOP of left column -->
           @if (config.showBarcode && patient?.id) {
             <div class="mb-6 flex flex-col items-center">
@@ -25,47 +24,78 @@ import JsBarcode from 'jsbarcode';
               <p class="text-[10px] font-bold text-gray-600 mt-1 uppercase tracking-tight">Reg: {{ patient?.id }}</p>
             </div>
           }
-          @for (section of sortedSections; track section.id) {
-            <div class="space-y-1 pl-16">
-              <div class="flex items-center gap-2 overflow-hidden">
-                <h3 class="font-bold text-lg text-gray-900 whitespace-nowrap shrink-0" 
-                    [class.print:hidden]="!parentForm.get(getControlName(section.id))?.value">
-                  {{ section.label }}
-                </h3>
-                <!-- Toggle (Hidden in print) -->
-                <label class="inline-flex items-center cursor-pointer print:hidden shrink-0 ml-1">
-                  <input type="checkbox" [formControlName]="getToggleControlName(section.id)" class="sr-only peer">
-                  <div class="w-7 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 relative"></div>
-                </label>
+          <div class="mb-3 flex items-center justify-between print:hidden">
+            <div>
+              <p class="text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-700">Clinical notes</p>
+              <p class="mt-0.5 text-[10px] text-slate-400">Enable a section to add details</p>
+            </div>
+            <span class="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[9px] font-bold text-slate-500">
+              {{ sortedSections.length }} sections
+            </span>
+          </div>
 
-                <!-- Template Search (Hidden in print) -->
-                @if (isSectionVisible(section.id) && getListId(section.id)) {
-                  <input [attr.list]="getListId(section.id)" 
-                         (change)="onTemplateSelect($event, getControlName(section.id))" 
-                         class="w-24 text-[10px] border border-gray-200 rounded px-1.5 py-0.5 focus:border-blue-400 focus:outline-none bg-white placeholder-gray-300 print:hidden font-medium truncate" 
-                         placeholder="Template...">
-                }
-              </div>
-              
-                <div class="relative group pl-1">
-                  <!-- Textarea for Screen (Visible only if toggled ON) -->
-                  <div [class.hidden]="!isSectionVisible(section.id)" class="print:hidden">
+          <div class="space-y-2 print:space-y-4">
+            @for (section of sortedSections; track section.id) {
+              <!-- Interactive card for screen -->
+              <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 transition-all duration-200 print:hidden"
+                   [class.border-blue-200]="isSectionVisible(section.id)"
+                   [class.bg-white]="isSectionVisible(section.id)"
+                   [class.shadow-sm]="isSectionVisible(section.id)">
+                <div class="flex min-h-7 items-center justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-2.5">
+                    <span class="h-6 w-1 shrink-0 rounded-full bg-slate-300 transition-colors"
+                          [class.bg-blue-500]="isSectionVisible(section.id)"></span>
+                    <h3 class="truncate text-sm font-bold text-slate-700 transition-colors"
+                        [class.text-blue-700]="isSectionVisible(section.id)">
+                      {{ section.label }}
+                    </h3>
+                  </div>
+
+                  <label class="relative inline-flex shrink-0 cursor-pointer items-center"
+                         [attr.title]="'Show ' + section.label + ' section'">
+                    <input type="checkbox"
+                           [formControlName]="getToggleControlName(section.id)"
+                           [attr.aria-label]="'Toggle ' + section.label + ' section'"
+                           class="peer sr-only">
+                    <span class="relative h-[22px] w-10 rounded-full bg-slate-200 shadow-inner transition-colors duration-200 peer-checked:bg-blue-600 peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2
+                                 after:absolute after:left-0.5 after:top-0.5 after:h-[18px] after:w-[18px] after:rounded-full after:border after:border-slate-200 after:bg-white after:shadow-sm after:transition-transform after:duration-200 after:content-[''] peer-checked:after:translate-x-[18px] peer-checked:after:border-white"></span>
+                  </label>
+                </div>
+
+                @if (isSectionVisible(section.id)) {
+                  <div class="mt-2.5 border-t border-slate-100 pt-2.5">
                     <textarea
                       [formControlName]="getControlName(section.id)"
-                      class="w-full bg-transparent border-0 focus:ring-0 resize-none p-0 text-gray-800 placeholder-gray-300 min-h-[25px] leading-snug"
+                      class="min-h-[54px] w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm leading-relaxed text-slate-800 placeholder-slate-400 transition focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                       [placeholder]="section.placeholder || 'Type content...'"
-                      rows="1"
+                      rows="2"
                     ></textarea>
+
+                    @if (getListId(section.id)) {
+                      <div class="relative mt-2">
+                        <svg class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input [attr.list]="getListId(section.id)"
+                               (change)="onTemplateSelect($event, getControlName(section.id))"
+                               class="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-8 pr-2 text-[11px] font-medium text-slate-700 placeholder-slate-400 transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                               placeholder="Search saved template...">
+                      </div>
+                    }
                   </div>
-                  
-                  <!-- Text display for Print (ALWAYS visible in print if there is content, regardless of toggle) -->
-                  <div class="hidden print:block text-gray-800 text-sm font-medium whitespace-pre-wrap leading-relaxed py-1 min-h-[1.5rem]"
-                       *ngIf="parentForm.get(getControlName(section.id))?.value">
-                    {{ parentForm.get(getControlName(section.id))?.value || '' }}
-                  </div>
+                }
+              </div>
+
+              <!-- Clean text-only version for print -->
+              <div class="hidden print:block"
+                   *ngIf="parentForm.get(getControlName(section.id))?.value">
+                <h3 class="text-lg font-bold text-gray-900">{{ section.label }}</h3>
+                <div class="min-h-[1.5rem] whitespace-pre-wrap py-1 text-sm font-medium leading-relaxed text-gray-800">
+                  {{ parentForm.get(getControlName(section.id))?.value || '' }}
                 </div>
-            </div>
-          }
+              </div>
+            }
+          </div>
         </div>
       }
     
@@ -96,38 +126,14 @@ import JsBarcode from 'jsbarcode';
               <div class="pl-20 text-gray-700 font-medium mt-1">
                 <div class="flex flex-wrap items-center gap-2">
                   <!-- Dose -->
-                  <div class="relative flex-1 min-w-[180px]">
-                    <div class="flex items-end gap-1 print:hidden">
-                      <label class="min-w-0 flex-1 text-center">
-                        <span class="mb-0.5 block text-[8px] font-bold uppercase tracking-wide text-amber-600">Morning</span>
-                        <input type="text" [value]="getDosePart(i, 0)" autocomplete="off" aria-label="Morning dose"
-                          (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 0)"
-                          (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
-                          class="w-full rounded-md border border-amber-200 bg-amber-50 px-1 py-1.5 text-center text-xs font-extrabold text-gray-800 focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-400"
-                          placeholder="0">
-                      </label>
-                      <span class="pb-1.5 text-xs font-bold text-gray-300">+</span>
-                      <label class="min-w-0 flex-1 text-center">
-                        <span class="mb-0.5 block text-[8px] font-bold uppercase tracking-wide text-sky-600">Noon</span>
-                        <input type="text" [value]="getDosePart(i, 1)" autocomplete="off" aria-label="Noon dose"
-                          (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 1)"
-                          (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
-                          class="w-full rounded-md border border-sky-200 bg-sky-50 px-1 py-1.5 text-center text-xs font-extrabold text-gray-800 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-400"
-                          placeholder="0">
-                      </label>
-                      <span class="pb-1.5 text-xs font-bold text-gray-300">+</span>
-                      <label class="min-w-0 flex-1 text-center">
-                        <span class="mb-0.5 block text-[8px] font-bold uppercase tracking-wide text-indigo-600">Night</span>
-                        <input type="text" [value]="getDosePart(i, 2)" autocomplete="off" aria-label="Night dose"
-                          (focus)="focusDosePart($event, i)" (input)="updateDosePart($event, i, 2)"
-                          (blur)="scheduleDoseDropdownClose(i)" (keydown.escape)="closeDoseDropdown()"
-                          class="w-full rounded-md border border-indigo-200 bg-indigo-50 px-1 py-1.5 text-center text-xs font-extrabold text-gray-800 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400"
-                          placeholder="0">
-                      </label>
-                      <button type="button" (mousedown)="$event.preventDefault()" (click)="openDoseDropdown(i)"
-                        class="mb-px flex h-8 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600" title="Show saved dose templates">
-                        <svg class="h-4 w-4 transition-transform" [class.rotate-180]="activeDoseDropdownIndex === i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                      </button>
+                  <div class="relative flex-1 min-w-[80px]">
+                    <div class="relative print:hidden">
+                      <input type="text" formControlName="dosage" autocomplete="off"
+                        (focus)="openDoseDropdown(i)" (click)="openDoseDropdown(i)"
+                        (input)="onDoseInput($event, i)" (blur)="scheduleDoseDropdownClose(i)"
+                        (keydown.escape)="closeDoseDropdown()"
+                        class="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent placeholder-gray-300 text-sm"
+                        placeholder="1+0+1">
                     </div>
 
                     @if (activeDoseDropdownIndex === i) {
@@ -261,6 +267,13 @@ import JsBarcode from 'jsbarcode';
             border-right: 2px solid #000; /* Thicker, clearer line */
             height: auto !important; /* Allow it to stretch */
             flex-shrink: 0 !important;
+        }
+
+        /* Keep clinical notes clear of printers' non-printable left edge. */
+        .clinical-column {
+            box-sizing: border-box !important;
+            padding-left: 11mm !important;
+            padding-right: 5mm !important;
         }
 
         /* Right Column */
@@ -401,21 +414,9 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
     this.doseSearchQuery = '';
   }
 
-  focusDosePart(event: Event, index: number): void {
-    this.openDoseDropdown(index);
-    (event.target as HTMLInputElement).select();
-  }
-
-  getDosePart(index: number, partIndex: number): string {
-    return this.splitDose(this.medicines.at(index).get('dosage')?.value || '')[partIndex];
-  }
-
-  updateDosePart(event: Event, index: number, partIndex: number): void {
-    const parts = this.splitDose(this.medicines.at(index).get('dosage')?.value || '');
-    parts[partIndex] = (event.target as HTMLInputElement).value;
-    const hasValue = parts.some(part => part.trim());
-    const dose = hasValue ? parts.map(part => part.trim() || '0').join('+') : '';
-    this.medicines.at(index).get('dosage')?.setValue(dose);
+  onDoseInput(event: Event, index: number): void {
+    this.activeDoseDropdownIndex = index;
+    this.doseSearchQuery = (event.target as HTMLInputElement).value;
   }
 
   filteredDoseTemplates(): string[] {
@@ -442,12 +443,6 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
     this.doseCloseTimer = undefined;
     this.activeDoseDropdownIndex = null;
     this.doseSearchQuery = '';
-  }
-
-  private splitDose(dose: string): [string, string, string] {
-    if (!dose) return ['', '', ''];
-    const parts = dose.split('+').map(part => part.trim());
-    return [parts[0] || '0', parts[1] || '0', parts.slice(2).join('+') || '0'];
   }
 
   getMedicineName(index: number): string {

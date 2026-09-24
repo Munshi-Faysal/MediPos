@@ -497,6 +497,13 @@ export class AuthService {
       );
   }
 
+  changePassword(currentPassword: string, newPassword: string): Observable<boolean> {
+    return this.apiService.post<boolean>('/Account/ChangePassword', {
+      currentPassword,
+      newPassword
+    });
+  }
+
   getCurrentUser(): User | null {
     return this.userSubject.value;
   }

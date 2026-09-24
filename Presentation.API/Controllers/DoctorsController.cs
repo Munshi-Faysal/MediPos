@@ -45,6 +45,27 @@ public class DoctorsController(IServiceManager service) : ControllerBase
         return doctor is null ? NotFound() : Ok(doctor);
     }
 
+    [HttpGet]
+    [Route("CurrentProfile")]
+    public async Task<IActionResult> GetCurrentProfile()
+    {
+        var profile = await service.Doctor.GetCurrentProfileAsync();
+        return profile is null
+            ? NotFound(new { message = "A doctor profile is not linked to the current account." })
+            : Ok(profile);
+    }
+
+    [HttpPut]
+    [Route("CurrentProfile")]
+    [ServiceFilter(typeof(ModelStateValidationFilter))]
+    public async Task<IActionResult> UpdateCurrentProfile(DoctorProfileDto profileDto)
+    {
+        var profile = await service.Doctor.UpdateCurrentProfileAsync(profileDto);
+        return profile is null
+            ? NotFound(new { message = "A doctor profile is not linked to the current account." })
+            : Ok(profile);
+    }
+
     [HttpPost]
     [Route("Create")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
