@@ -15,9 +15,9 @@ public class DrugController(IServiceManager service) : ControllerBase
 {
     [HttpGet]
     [Route("GetAll")]
-    public async Task<IActionResult> GetList(int take, int skip)
+    public async Task<IActionResult> GetList(int take = 20, int skip = 0, string? search = null, string? type = null)
     {
-        var result = await service.DrugMaster.GetListAsync(take, skip);
+        var result = await service.DrugMaster.GetListAsync(take, skip, search, type);
         return (result is null || !result.ItemList.Any())
             ? NoContent()
             : Ok(new ViewResponseViewModel<DrugMasterViewModel>
@@ -84,6 +84,14 @@ public class DrugController(IServiceManager service) : ControllerBase
     public async Task<IActionResult> ChangeActive(string encryptedId)
     {
         return Ok(await service.DrugMaster.ChangeActiveAsync(encryptedId));
+    }
+
+    [HttpDelete]
+    [Route("Delete/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
+    public async Task<IActionResult> Delete(string encryptedId)
+    {
+        return Ok(await service.DrugMaster.DeleteAsync(encryptedId));
     }
 
     [HttpGet]

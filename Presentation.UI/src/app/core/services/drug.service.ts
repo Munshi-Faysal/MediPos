@@ -76,20 +76,28 @@ export class DrugService {
      * Get paginated list of drugs
      * Backend uses take/skip, so we convert page/pageSize
      */
-    getDrugs(params: PaginationParams = {}): Observable<PagedResponse<DrugViewModel>> {
-        const take = params.pageSize || 1000;
+    getDrugs(params: PaginationParams & { search?: string, type?: string } = {}): Observable<PagedResponse<DrugViewModel>> {
+        const take = params.pageSize || 20;
         const skip = ((params.page || 1) - 1) * take;
-        return this.api.get<ViewResponse<DrugViewModel>>(`${this.endpoint}/GetAll?take=${take}&skip=${skip}`).pipe(
+        let url = `${this.endpoint}/GetAll?take=${take}&skip=${skip}`;
+        if (params.search) {
+            url += `&search=${encodeURIComponent(params.search)}`;
+        }
+        if (params.type && params.type !== 'All') {
+            url += `&type=${encodeURIComponent(params.type)}`;
+        }
+        return this.api.get<ViewResponse<DrugViewModel>>(url).pipe(
             map(response => {
                 const itemList = response?.data?.itemList || [];
+                const total = response?.data?.totalRecords || itemList.length;
                 return {
                     data: itemList,
                     page: params.page || 1,
                     pageSize: take,
-                    totalCount: response?.data?.totalRecords || itemList.length,
-                    totalPages: response?.data?.totalPages || 1,
+                    totalCount: total,
+                    totalPages: Math.ceil(total / take) || 1,
                     hasPreviousPage: (params.page || 1) > 1,
-                    hasNextPage: false // Would need totalRecords to calculate properly
+                    hasNextPage: (params.page || 1) * take < total
                 };
             })
         );
@@ -149,5 +157,12 @@ export class DrugService {
      */
     changeDrugActiveStatus(encryptedId: string): Observable<any> {
         return this.api.patch<any>(`${this.endpoint}/ChangeActive/${encryptedId}`, {});
+    }
+
+    /**
+     * Delete drug
+     */
+    deleteDrug(encryptedId: string): Observable<any> {
+        return this.api.delete<any>(`${this.endpoint}/Delete/${encryptedId}`);
     }
 }

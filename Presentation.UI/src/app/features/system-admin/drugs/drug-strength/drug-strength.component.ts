@@ -3,12 +3,13 @@ import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugStrengthService, DrugStrengthDto, DrugStrengthViewModel, DropdownItem } from '../../../../core/services/drug-strength.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-strength',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, PaginationComponent],
   template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
@@ -53,7 +54,7 @@ import Swal from 'sweetalert2';
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
-              @for (str of filteredStrengths(); track str) {
+              @for (str of paginatedStrengths(); track str) {
                 <tr class="hover:bg-surface-variant/20 transition-colors">
                   <td class="px-6 py-4 font-medium text-on-surface">{{ str.name }}</td>
                   <td class="px-6 py-4 text-on-surface-variant">{{ str.unit }}</td>
@@ -80,6 +81,15 @@ import Swal from 'sweetalert2';
               }
             </tbody>
           </table>
+
+          <!-- Dynamic Pagination -->
+          <app-pagination
+            [currentPage]="currentPage()"
+            [pageSize]="pageSize()"
+            [totalItems]="filteredStrengths().length"
+            (pageChange)="currentPage.set($event)"
+            (pageSizeChange)="pageSize.set($event); currentPage.set(1)">
+          </app-pagination>
         </div>
     
         <!-- Modal -->
@@ -129,6 +139,14 @@ export class DrugStrengthComponent implements OnInit {
 
   public strengths = signal<any[]>([]);
   public filteredStrengths = signal<any[]>([]);
+  public currentPage = signal(1);
+  public pageSize = signal(20);
+
+  public paginatedStrengths = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredStrengths().slice(start, start + this.pageSize());
+  });
+
   public units = signal<DropdownItem[]>([]);
   public isModalOpen = signal(false);
   public searchQuery = '';
@@ -151,7 +169,7 @@ export class DrugStrengthComponent implements OnInit {
 
   loadStrengths(): void {
     // Backend uses take/skip, not page/pageSize
-    this.strengthService.getDrugStrengths({ page: 1, pageSize: 1000 } as any).subscribe({
+    this.strengthService.getDrugStrengths({ page: 1, pageSize: 2000 } as any).subscribe({
       next: (response) => {
         // Handle ViewResponseViewModel structure
         const data = (response as any)?.data?.itemList || (response as any)?.data || [];
@@ -174,6 +192,7 @@ export class DrugStrengthComponent implements OnInit {
   }
 
   filterStrengths(): void {
+    this.currentPage.set(1);
     if (!this.searchQuery.trim()) {
       this.filteredStrengths.set(this.strengths());
     } else {

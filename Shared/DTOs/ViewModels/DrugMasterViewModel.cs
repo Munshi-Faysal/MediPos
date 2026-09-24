@@ -20,5 +20,16 @@ public class DrugMasterViewModel : BaseViewModel
     [Display(Name = "Drug Generic")]
     public string? DrugGenericName { get; set; }   
 
+    [Display(Name = "Drug Type")]
+    public string? DrugTypeName { get; set; }
+
+    [Display(Name = "Drug Strength")]
+    public string? DrugStrengthName { get; set; }
+
+    [Display(Name = "Unit Price")]
+    public decimal UnitPrice { get; set; }
+
+    public int? DrugDetailId { get; set; }
+
     public List<DrugDetailViewModel> DrugDetailList { get; set; } = [];
 }

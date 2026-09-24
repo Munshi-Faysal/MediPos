@@ -9,211 +9,246 @@ import { DrugStrengthService } from '../../../../core/services/drug-strength.ser
 import { DrugCompany } from '../../../../core/models/drug-company.model';
 import { DrugGeneric } from '../../../../core/models/drug-generic.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, PaginationComponent],
   template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
         <div>
-          <h1 class="text-3xl font-black text-on-surface tracking-tight">Drug Repository</h1>
-          <p class="text-on-surface-variant font-medium">Master Data & Prescription Details</p>
+          <h1 class="text-2xl font-bold text-on-surface">Drug Repository</h1>
+          <p class="text-on-surface-variant">Master Data & Prescription Details</p>
         </div>
         @if (isSuperAdmin()) {
-          <button (click)="openModal()" class="px-6 py-3 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary-700 transition-all shadow-xl hover:shadow-primary-500/30 active:scale-95 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <button (click)="openModal()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md">
             Add New Drug
           </button>
         }
       </div>
     
-      <!-- Search and Filters -->
-      <div class="bg-surface border border-border rounded-3xl p-6 shadow-soft space-y-4">
-        <div class="flex flex-col md:flex-row gap-4">
-          <div class="relative flex-1 group">
+      <!-- Search and Filter -->
+      <div class="bg-surface border border-border rounded-xl p-4 shadow-soft">
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div class="relative w-full max-w-md">
             <input
               type="text"
-              placeholder="Search by brand, generic name or company..."
+              placeholder="Search by brand, generic, or company..."
               [(ngModel)]="searchQuery"
-              (input)="filterDrugs()"
-              class="w-full pl-12 pr-4 py-4 bg-surface-variant/20 border border-border rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none transition-all placeholder:text-on-surface-variant/40 font-medium"
-              >
-              <svg class="w-6 h-6 absolute left-4 top-4 text-on-surface-variant/40 group-focus-within:text-primary-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
-            <div class="w-full md:w-56">
-              <select [(ngModel)]="selectedType" (change)="filterDrugs()" class="w-full px-4 py-4 bg-surface-variant/20 border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-on-surface-variant cursor-pointer appearance-none">
-                <option value="All">All Types</option>
-                @for (type of drugTypes; track type) {
-                  <option [value]="type.name">{{ type.name }}</option>
-                }
-              </select>
-            </div>
+              (input)="onSearchInput()"
+              class="w-full pl-10 pr-4 py-2 bg-surface-variant/50 border border-border rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+            >
+            <svg class="w-5 h-5 absolute left-3 top-2.5 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <div class="w-full md:w-56">
+            <select [(ngModel)]="selectedType" (change)="onTypeChange()" class="w-full px-3 py-2 bg-surface-variant/50 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium text-on-surface cursor-pointer">
+              <option value="All">All Types</option>
+              @for (type of drugTypes; track type) {
+                <option [value]="type.name">{{ type.name }}</option>
+              }
+            </select>
           </div>
         </div>
+      </div>
     
-        <!-- Drugs Table -->
-        <div class="bg-surface border border-border rounded-3xl overflow-hidden shadow-soft">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-surface-variant/10 text-[10px] uppercase font-black tracking-[0.2em] text-on-surface-variant/60 border-b border-border">
-                  <th class="px-8 py-6">Master Drug Information</th>
-                  <th class="px-8 py-6">Default Prescription</th>
-                  <th class="px-8 py-6">Status</th>
-                  @if (isSuperAdmin()) {
-                    <th class="px-8 py-6 text-right">Actions</th>
-                  }
+      <!-- Data Table -->
+      <div class="bg-surface border border-border rounded-xl overflow-hidden shadow-soft">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
+                <th class="px-6 py-4">Brand Name</th>
+                <th class="px-6 py-4">Generic Name</th>
+                <th class="px-6 py-4">Company</th>
+                <th class="px-6 py-4">Type / Strength</th>
+                <th class="px-6 py-4">Status</th>
+                @if (isSuperAdmin()) {
+                  <th class="px-6 py-4 text-right">Actions</th>
+                }
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              @if (isLoading()) {
+                <tr>
+                  <td [attr.colspan]="isSuperAdmin() ? 6 : 5" class="px-6 py-12 text-center text-on-surface-variant">
+                    <div class="flex items-center justify-center gap-3">
+                      <div class="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span class="font-medium text-sm">Loading medications...</span>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="divide-y divide-border/50 text-sm">
-                @for (drug of filteredDrugs(); track drug) {
-                  <tr class="hover:bg-surface-variant/5 transition-colors group">
-                    <td class="px-8 py-6">
-                      <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-600 font-black text-lg shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-                          {{ drug.brandName.charAt(0) }}
-                        </div>
-                        <div>
-                          <p class="font-black text-on-surface text-base leading-tight">{{ drug.brandName }}</p>
-                          <p class="text-[11px] text-on-surface-variant/50 font-bold uppercase tracking-wider mt-1">{{ drug.genericName }}</p>
-                          <div class="flex items-center gap-2 mt-2">
-                            <span class="text-[10px] bg-surface-variant/40 px-2 py-0.5 rounded-md font-bold text-on-surface-variant/70">{{ drug.company }}</span>
-                            <span class="text-[10px] text-on-surface-variant/40 font-bold">#{{ drug.sku }}</span>
-                          </div>
-                        </div>
-                      </div>
+              } @else {
+                @for (drug of drugs(); track (drug.drugDetailId || drug.id)) {
+                  <tr class="hover:bg-surface-variant/20 transition-colors">
+                    <td class="px-6 py-4">
+                      <span class="font-medium text-on-surface block">{{ drug.brandName }}</span>
+                      @if (drug.sku) {
+                        <span class="text-[11px] text-on-surface-variant/60 font-mono">#{{ drug.sku }}</span>
+                      }
                     </td>
-                    <td class="px-8 py-6">
-                      <div class="space-y-2">
-                        <div class="flex items-center gap-2">
-                          <span class="px-2 py-0.5 rounded-md bg-primary-100 text-primary-700 text-[10px] font-black uppercase">{{ drug.type }}</span>
-                          <span class="text-on-surface font-bold">{{ drug.strength }}</span>
-                        </div>
-                        <div class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-on-surface-variant/60 font-medium">
-                          <span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-primary-400"></span> {{ drug.dose }}</span>
-                          <span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-primary-400"></span> {{ drug.duration }}</span>
-                          @if (drug.advice) {
-                            <span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-primary-400"></span> {{ drug.advice }}</span>
+                    <td class="px-6 py-4 text-on-surface-variant text-sm">{{ drug.genericName || 'N/A' }}</td>
+                    <td class="px-6 py-4 text-on-surface-variant text-sm">{{ drug.company || 'N/A' }}</td>
+                    <td class="px-6 py-4 text-sm">
+                      @if (drug.type || drug.strength) {
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          @if (drug.type) {
+                            <span class="px-2 py-0.5 rounded bg-surface-variant/60 text-on-surface text-xs font-semibold">{{ drug.type }}</span>
+                          }
+                          @if (drug.strength) {
+                            <span class="text-on-surface-variant text-xs">{{ drug.strength }}</span>
                           }
                         </div>
-                      </div>
+                      } @else {
+                        <span class="text-on-surface-variant">N/A</span>
+                      }
                     </td>
-                    <td class="px-8 py-6">
+                    <td class="px-6 py-4">
                       <span [class]="drug.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
-                        class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-sm inline-block">
+                        class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
                         {{ drug.isActive ? 'Active' : 'Inactive' }}
                       </span>
                     </td>
                     @if (isSuperAdmin()) {
-                      <td class="px-8 py-6 text-right">
-                        <div class="flex items-center justify-end gap-2">
-                          <button (click)="editDrug(drug)" class="p-2.5 text-on-surface-variant hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Edit">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                          <!-- Edit Button -->
+                          <button
+                            (click)="editDrug(drug)"
+                            class="p-2 rounded-lg text-primary-600 hover:bg-primary-500/10 hover:text-primary-700 transition-colors"
+                            title="Edit">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
                           </button>
-                          <button (click)="toggleStatus(drug)" [class]="drug.isActive ? 'text-rose-600 hover:bg-rose-50' : 'text-emerald-600 hover:bg-emerald-50'" class="p-2.5 rounded-xl transition-all" [title]="drug.isActive ? 'Deactivate' : 'Activate'">
+
+                          <!-- Activate / Deactivate Button -->
+                          <button
+                            (click)="toggleStatus(drug)"
+                            [class]="drug.isActive ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-500/10' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10'"
+                            class="p-2 rounded-lg transition-colors"
+                            [title]="drug.isActive ? 'Deactivate' : 'Activate'">
                             @if (drug.isActive) {
-                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                              </svg>
+                            } @else {
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                              </svg>
                             }
-                            @if (!drug.isActive) {
-                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            }
+                          </button>
+
+                          <!-- Delete Button -->
+                          <button
+                            (click)="deleteDrug(drug)"
+                            class="p-2 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-colors"
+                            title="Delete">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
                           </button>
                         </div>
                       </td>
                     }
                   </tr>
                 }
-                @if (filteredDrugs().length === 0) {
+                @if (drugs().length === 0) {
                   <tr>
-                    <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-8 py-24 text-center">
-                      <div class="p-6 bg-surface-variant/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-on-surface-variant/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                      </div>
-                      <h3 class="text-xl font-black text-on-surface">No medications found</h3>
-                      <p class="text-on-surface-variant font-medium mt-1">Refine your search or add a new drug to the repository</p>
-                    </td>
+                    <td [attr.colspan]="isSuperAdmin() ? 6 : 5" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                   </tr>
                 }
-              </tbody>
-            </table>
-          </div>
+              }
+            </tbody>
+          </table>
         </div>
+
+        <!-- Dynamic Pagination -->
+        <app-pagination
+          [currentPage]="currentPage()"
+          [pageSize]="pageSize()"
+          [totalItems]="totalRecords()"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)">
+        </app-pagination>
+      </div>
     
         <!-- Drug Form Modal: Master-Detail Design -->
         @if (isModalOpen()) {
-          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div class="bg-surface border border-border rounded-[2.5rem] shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div class="bg-surface border border-border rounded-2xl shadow-strong max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
               <!-- Modal Header -->
-              <div class="px-10 py-8 border-b border-border/50 bg-surface-variant/5 flex justify-between items-center">
+              <div class="px-6 py-5 border-b border-border bg-surface flex justify-between items-center">
                 <div>
-                  <h2 class="text-3xl font-black text-on-surface tracking-tight">{{ editingDrug ? 'Refine' : 'Add New' }} Drug</h2>
-                  <p class="text-on-surface-variant font-medium mt-1">Configure master data and default prescription details</p>
+                  <h2 class="text-2xl font-bold text-on-surface">{{ editingDrug ? 'Edit' : 'Add New' }} Drug</h2>
+                  <p class="text-sm text-on-surface-variant mt-0.5">Configure master data and default prescription details</p>
                 </div>
-                <button (click)="closeModal()" class="p-3 hover:bg-surface-variant/50 rounded-2xl transition-all text-on-surface-variant hover:text-rose-500">
-                  <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button (click)="closeModal()" class="p-2 hover:bg-surface-variant rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
               </div>
-              <div class="p-10 overflow-y-auto custom-scrollbar space-y-10">
+
+              <!-- Modal Body -->
+              <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1">
                 <!-- Master Data Section -->
-                <section class="space-y-6">
-                  <div class="flex items-center gap-4 mb-4">
-                    <div class="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center text-[10px] font-black">M</div>
-                    <h3 class="text-[12px] font-black uppercase tracking-[0.3em] text-primary-600">Master Data Identification</h3>
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <div class="space-y-2">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Brand Name</label>
-                      <input type="text" [(ngModel)]="drugForm.brandName" placeholder="e.g. Napa Extend" class="w-full px-5 py-4 bg-surface-variant/20 border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 transition-all font-bold text-on-surface">
+                <section class="space-y-4">
+                  <h3 class="text-sm font-bold text-on-surface flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary-600"></span>
+                    Master Data Identification
+                  </h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Brand Name</label>
+                      <input type="text" [(ngModel)]="drugForm.brandName" placeholder="e.g. Napa Extend" class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all">
                     </div>
-                    <!-- Generic Name -->
-                    <div class="space-y-2">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Generic Name</label>
-                      <select [(ngModel)]="drugForm.genericId" class="w-full px-5 py-4 bg-surface-variant/20 border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 transition-all font-bold">
+                    <div>
+                      <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Generic Name</label>
+                      <select [(ngModel)]="drugForm.genericId" class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all">
                         <option [ngValue]="0" disabled>Select Generic</option>
                         @for (g of generics(); track g) {
                           <option [ngValue]="g.id">{{ g.name }}</option>
                         }
                       </select>
                     </div>
-                    <div class="space-y-2">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Company / Manufacturer</label>
-                      <select [(ngModel)]="drugForm.drugCompanyId" class="w-full px-5 py-4 bg-surface-variant/20 border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 transition-all font-bold">
+                    <div>
+                      <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Company / Manufacturer</label>
+                      <select [(ngModel)]="drugForm.drugCompanyId" class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all">
                         <option [ngValue]="0" disabled>Select Company</option>
                         @for (c of companies(); track c) {
                           <option [ngValue]="c.id">{{ c.name }}</option>
                         }
                       </select>
                     </div>
-                    <div class="space-y-2">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">SKU / Code</label>
-                      <input type="text" [(ngModel)]="drugForm.sku" placeholder="DRG-001" class="w-full px-5 py-4 bg-surface-variant/20 border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 transition-all font-bold text-on-surface">
+                    <div>
+                      <label class="text-xs font-semibold text-on-surface-variant mb-1 block">SKU / Code</label>
+                      <input type="text" [(ngModel)]="drugForm.sku" placeholder="DRG-001" class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all">
                     </div>
                   </div>
                 </section>
+
                 <!-- Detail Data Section -->
-                <section class="space-y-6 pt-6 border-t border-border/50">
-                  <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-4">
-                      <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black">D</div>
-                      <h3 class="text-[12px] font-black uppercase tracking-[0.3em] text-emerald-600">Prescription Details (Variations)</h3>
-                    </div>
-                    <button (click)="addDetail()" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-xs hover:bg-emerald-100 transition-all border border-emerald-100">
+                <section class="space-y-4 pt-4 border-t border-border">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-on-surface flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                      Prescription Details (Variations)
+                    </h3>
+                    <button (click)="addDetail()" class="px-3 py-1.5 bg-primary-600/10 text-primary-600 hover:bg-primary-600/20 rounded-lg text-xs font-semibold transition-all border border-primary-600/20">
                       + Add Variation
                     </button>
                   </div>
-                  <!-- Type removed from Master and moved to details below -->
+
                   <div class="space-y-3">
                     @for (detail of drugForm.details; track detail; let i = $index) {
-                      <div class="p-4 bg-surface-variant/5 border border-border/50 rounded-2xl flex flex-col md:flex-row gap-4 items-end animate-in fade-in slide-in-from-top-2">
+                      <div class="p-3 bg-surface-variant/20 border border-border rounded-xl flex flex-col md:flex-row gap-3 items-end">
                         <!-- Type -->
-                        <div class="flex-1 space-y-2 w-full">
-                          <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Type (Form)</label>
-                          <select [(ngModel)]="detail.drugTypeId" class="w-full px-4 py-3 bg-surface-variant/20 border border-border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-sm">
+                        <div class="flex-1 w-full">
+                          <label class="text-[11px] font-semibold text-on-surface-variant mb-1 block">Type (Form)</label>
+                          <select [(ngModel)]="detail.drugTypeId" class="w-full px-3 py-1.5 bg-surface border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-xs font-medium text-on-surface transition-all">
                             <option [ngValue]="0" disabled>Select Type</option>
                             @for (type of drugTypes; track type) {
                               <option [ngValue]="type.id">{{ type.name }}</option>
@@ -221,9 +256,9 @@ import Swal from 'sweetalert2';
                           </select>
                         </div>
                         <!-- Strength -->
-                        <div class="flex-1 space-y-2 w-full">
-                          <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Strength</label>
-                          <select [(ngModel)]="detail.drugStrengthId" class="w-full px-4 py-3 bg-surface-variant/20 border border-border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-sm">
+                        <div class="flex-1 w-full">
+                          <label class="text-[11px] font-semibold text-on-surface-variant mb-1 block">Strength</label>
+                          <select [(ngModel)]="detail.drugStrengthId" class="w-full px-3 py-1.5 bg-surface border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-xs font-medium text-on-surface transition-all">
                             <option [ngValue]="0" disabled>Select Strength</option>
                             @for (s of drugStrengths; track s) {
                               <option [ngValue]="s.id">{{ s.name }}</option>
@@ -231,58 +266,61 @@ import Swal from 'sweetalert2';
                           </select>
                         </div>
                         <!-- Unit Price -->
-                        <div class="flex-1 space-y-2 w-full">
-                          <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Unit Price</label>
-                          <div class="relative group">
-                            <span class="absolute left-4 top-3.5 text-on-surface-variant/40 font-bold text-sm group-focus-within:text-emerald-500">৳</span>
-                            <input type="number" [(ngModel)]="detail.unitPrice" placeholder="0.00" class="w-full pl-9 pr-4 py-3 bg-surface-variant/20 border border-border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-sm text-on-surface">
+                        <div class="w-full md:w-32">
+                          <label class="text-[11px] font-semibold text-on-surface-variant mb-1 block">Unit Price</label>
+                          <div class="relative">
+                            <span class="absolute left-2.5 top-1.5 text-on-surface-variant text-xs">৳</span>
+                            <input type="number" [(ngModel)]="detail.unitPrice" placeholder="0.00" class="w-full pl-6 pr-2 py-1.5 bg-surface border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-xs font-medium text-on-surface transition-all">
                           </div>
                         </div>
                         <!-- Description -->
-                        <div class="flex-[2] space-y-2 w-full">
-                          <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/60 ml-1">Description / Note</label>
-                          <input type="text" [(ngModel)]="detail.description" placeholder="e.g. Sugar Free" class="w-full px-4 py-3 bg-surface-variant/20 border border-border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-sm text-on-surface">
+                        <div class="flex-[2] w-full">
+                          <label class="text-[11px] font-semibold text-on-surface-variant mb-1 block">Description / Note</label>
+                          <input type="text" [(ngModel)]="detail.description" placeholder="e.g. 75 ml bottle" class="w-full px-3 py-1.5 bg-surface border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-xs font-medium text-on-surface transition-all">
                         </div>
                         <!-- Remove -->
-                        <button (click)="removeDetail(i)" class="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all" title="Remove Variation">
-                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <button (click)="removeDetail(i)" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all" title="Remove Variation">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                       </div>
                     }
                     @if (drugForm.details.length === 0) {
-                      <div class="p-8 text-center text-on-surface-variant/50 border border-dashed border-border rounded-2xl">
+                      <div class="p-6 text-center text-xs text-on-surface-variant border border-dashed border-border rounded-xl">
                         No variations added. Please add at least one Type + Strength combination.
                       </div>
                     }
                     @if (hasDuplicateDetails()) {
-                      <div class="px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2 text-rose-600 text-xs font-bold animate-in fade-in">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      <div class="px-4 py-2 bg-rose-500/10 border border-rose-500/20 rounded-lg flex items-center gap-2 text-rose-600 text-xs font-semibold animate-in fade-in">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Duplicate variation detected! Each combination of Type and Strength must be unique.
                       </div>
                     }
                   </div>
                 </section>
-                <div class="flex items-center gap-4 p-6 bg-primary-50 rounded-3xl border border-primary-100 group cursor-pointer" (click)="drugForm.isActive = !drugForm.isActive">
-                  <div class="relative w-12 h-6 rounded-full transition-colors duration-300" [class.bg-primary-600]="drugForm.isActive" [class.bg-gray-300]="!drugForm.isActive">
-                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 shadow-sm" [class.translate-x-6]="drugForm.isActive"></div>
+
+                <!-- Active Toggle -->
+                <div class="flex items-center gap-3 p-3 bg-surface-variant/20 rounded-xl border border-border cursor-pointer select-none" (click)="drugForm.isActive = !drugForm.isActive">
+                  <div class="relative w-10 h-5 rounded-full transition-colors duration-200" [class.bg-primary-600]="drugForm.isActive" [class.bg-surface-variant]="!drugForm.isActive">
+                    <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm" [class.translate-x-5]="drugForm.isActive"></div>
                   </div>
                   <div>
-                    <p class="text-sm font-black text-on-surface">Mark as Active</p>
-                    <p class="text-[10px] text-on-surface-variant/60 font-medium">Make this drug available for prescriptions immediately</p>
+                    <p class="text-xs font-semibold text-on-surface">Mark as Active</p>
+                    <p class="text-[11px] text-on-surface-variant">Enable this drug for prescriptions and sales</p>
                   </div>
                 </div>
               </div>
+
               <!-- Modal Footer -->
-              <button (click)="closeModal()" class="flex-1 py-4 border border-border rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] text-on-surface-variant hover:bg-surface-variant/50 transition-all hover:shadow-inner">Cancel Changes</button>
-              <button
-                (click)="saveDrug()"
-                [disabled]="!isFormValid()"
-                [class.opacity-50]="!isFormValid()"
-                [class.cursor-not-allowed]="!isFormValid()"
-                class="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-700 transition-all shadow-xl hover:shadow-primary-500/30 active:scale-95 disabled:hover:bg-primary-600 disabled:shadow-none"
-                >
-                Save Medication Data
-              </button>
+              <div class="px-6 py-4 border-t border-border bg-surface flex justify-end gap-3">
+                <button (click)="closeModal()" class="px-4 py-2 border border-border rounded-lg font-semibold text-sm text-on-surface hover:bg-surface-variant transition-all">Cancel</button>
+                <button
+                  (click)="saveDrug()"
+                  [disabled]="!isFormValid()"
+                  class="px-5 py-2 bg-primary-600 text-white rounded-lg font-bold text-sm hover:bg-primary-700 transition-all disabled:opacity-50 shadow-md"
+                  >
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
         }
@@ -306,7 +344,12 @@ export class DrugListComponent implements OnInit {
   public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
 
   public drugs = signal<any[]>([]);
-  public filteredDrugs = signal<any[]>([]);
+  public totalRecords = signal(0);
+  public isLoading = signal(false);
+  public currentPage = signal(1);
+  public pageSize = signal(20);
+  private searchDebounceTimer: any = null;
+
   public companies = signal<DrugCompany[]>([]);
   public generics = signal<DrugGeneric[]>([]);
   public isModalOpen = signal(false);
@@ -352,7 +395,7 @@ export class DrugListComponent implements OnInit {
     });
 
     // Load drug types
-    this.typeService.getDrugTypes({ page: 1, pageSize: 100 } as any).subscribe({
+    this.typeService.getDrugTypes({ page: 1, pageSize: 500 } as any).subscribe({
       next: (response) => {
         const data = (response as any)?.data?.itemList || (response as any)?.data || [];
         this.drugTypes = data.map((t: any) => ({
@@ -363,8 +406,8 @@ export class DrugListComponent implements OnInit {
       error: (err) => console.error('Error loading drug types:', err)
     });
 
-    // Load drug strengths
-    this.strengthService.getDrugStrengths({ page: 1, pageSize: 100 }).subscribe({
+    // Load drug strengths (load up to 2000 so all 1,037 are available in dropdown)
+    this.strengthService.getDrugStrengths({ page: 1, pageSize: 2000 }).subscribe({
       next: (response) => {
         const data = (response as any)?.data || [];
         // Map to "Quantity Unit" string format but keep object structure
@@ -383,66 +426,63 @@ export class DrugListComponent implements OnInit {
   }
 
   loadDrugs(): void {
-    this.drugService.getDrugs({ page: 1, pageSize: 1000 } as any).subscribe({
-      next: (response) => {
-        // Handle ViewResponseViewModel structure
-        const data = (response as any)?.data?.itemList || (response as any)?.data || [];
-        const mapped = data.map((drug: DrugViewModel) => {
-          // Get first drug detail for generic and strength
-          const firstDetail = (drug as any).drugDetailList?.[0];
-          return {
-            id: drug.encryptedId,
-            encryptedId: drug.encryptedId,
-            brandName: drug.name,
-            genericName: firstDetail?.genericName || '',
-            company: (drug as any).drugCompanyName || (drug as any).manufacturerName || '',
-            sku: (drug as any).code || '',
-            type: drug.drugTypeName || '',
-            // Map details list
-            details: (drug as any).drugDetailList?.map((d: any) => ({
-              drugTypeEncryptedId: d.drugTypeEncryptedId, // These IDs might not be in View Model, but map name for now
-              type: d.drugTypeName,
-              strength: d.strengthName,
-              unitPrice: d.unitPrice,
-              description: d.description || ''
-            })) || [],
-            // These single fields are legacy/fallback for list view
-            strength: firstDetail?.strengthName || '',
-            dose: (drug as any).drugDoseName || '',
-            duration: (drug as any).drugDurationName || '',
-            advice: '',
-            description: drug.description || '',
-            isActive: drug.isActive
-          };
-        });
+    this.isLoading.set(true);
+    this.drugService.getDrugs({
+      page: this.currentPage(),
+      pageSize: this.pageSize(),
+      search: this.searchQuery.trim(),
+      type: this.selectedType
+    } as any).subscribe({
+      next: (response: any) => {
+        const data = response?.data || [];
+        const mapped = data.map((drug: any) => ({
+          id: drug.encryptedId || drug.id,
+          encryptedId: drug.encryptedId || String(drug.id),
+          drugDetailId: drug.drugDetailId,
+          brandName: drug.name,
+          genericName: drug.drugGenericName || 'N/A',
+          company: drug.drugCompanyName || 'N/A',
+          sku: drug.code || '',
+          type: drug.drugTypeName || '',
+          strength: drug.drugStrengthName || '',
+          unitPrice: drug.unitPrice || 0,
+          isActive: drug.isActive
+        }));
         this.drugs.set(mapped);
-        this.filterDrugs();
+        this.totalRecords.set(response.totalCount || mapped.length);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error loading drugs:', err);
         this.drugs.set([]);
-        this.filterDrugs();
+        this.totalRecords.set(0);
+        this.isLoading.set(false);
       }
     });
   }
 
-  filterDrugs(): void {
-    let list = this.drugs();
+  onSearchInput(): void {
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.currentPage.set(1);
+      this.loadDrugs();
+    }, 300);
+  }
 
-    if (this.selectedType !== 'All') {
-      list = list.filter(d => d.type === this.selectedType);
-    }
+  onTypeChange(): void {
+    this.currentPage.set(1);
+    this.loadDrugs();
+  }
 
-    if (this.searchQuery.trim()) {
-      const q = this.searchQuery.toLowerCase();
-      list = list.filter(d =>
-        d.brandName.toLowerCase().includes(q) ||
-        d.genericName.toLowerCase().includes(q) ||
-        d.company.toLowerCase().includes(q)
-      );
-    }
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    this.loadDrugs();
+  }
 
-    this.filteredDrugs.set(list);
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+    this.loadDrugs();
   }
 
   openModal(): void {
@@ -466,8 +506,8 @@ export class DrugListComponent implements OnInit {
   editDrug(drug: any): void {
     if (!this.isSuperAdmin()) return;
     this.editingDrug = drug;
-    // Fetch full data with specific IDs for editing
-    this.drugService.getDrugById(drug.encryptedId).subscribe({
+    // Fetch full data with specific IDs and all variations for editing
+    this.drugService.getWithDetails(drug.encryptedId).subscribe({
       next: (dto) => {
         this.drugForm = {
           brandName: dto.name,
@@ -659,5 +699,41 @@ export class DrugListComponent implements OnInit {
         }
       });
     }
+  }
+
+  deleteDrug(drug: any): void {
+    if (!this.isSuperAdmin()) return;
+    Swal.fire({
+      title: 'Delete Drug?',
+      text: `Are you sure you want to delete "${drug.brandName}"? All its variations will also be removed.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.drugService.deleteDrug(drug.encryptedId).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'Drug deleted successfully.',
+              timer: 1500,
+              showConfirmButton: false
+            });
+            this.loadDrugs();
+          },
+          error: (err) => {
+            console.error('Error deleting drug:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to delete drug. Please try again.'
+            });
+          }
+        });
+      }
+    });
   }
 }

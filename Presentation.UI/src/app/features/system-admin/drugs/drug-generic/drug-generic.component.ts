@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { DrugGenericService } from '../../../../core/services/drug-generic.service';
 import { DrugGeneric } from '../../../../core/models/drug-generic.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-drug-generic',
     standalone: true,
-    imports: [FormsModule],
+    imports: [FormsModule, PaginationComponent],
     template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
@@ -54,7 +55,7 @@ import Swal from 'sweetalert2';
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
-              @for (generic of filteredGenerics(); track generic) {
+              @for (generic of paginatedGenerics(); track generic) {
                 <tr class="hover:bg-surface-variant/20 transition-colors">
                   <td class="px-6 py-4 font-medium text-on-surface">{{ generic.name }}</td>
                   <td class="px-6 py-4 text-on-surface-variant">{{ generic.indication || 'N/A' }}</td>
@@ -79,6 +80,15 @@ import Swal from 'sweetalert2';
               }
             </tbody>
           </table>
+
+          <!-- Dynamic Pagination -->
+          <app-pagination
+            [currentPage]="currentPage()"
+            [pageSize]="pageSize()"
+            [totalItems]="filteredGenerics().length"
+            (pageChange)="currentPage.set($event)"
+            (pageSizeChange)="pageSize.set($event); currentPage.set(1)">
+          </app-pagination>
         </div>
     
         <!-- Modal -->
@@ -127,6 +137,14 @@ export class DrugGenericComponent implements OnInit {
     public isSuperAdmin = computed(() => this.authService.isSuperAdmin());
     public generics = signal<DrugGeneric[]>([]);
     public filteredGenerics = signal<DrugGeneric[]>([]);
+    public currentPage = signal(1);
+    public pageSize = signal(20);
+
+    public paginatedGenerics = computed(() => {
+        const start = (this.currentPage() - 1) * this.pageSize();
+        return this.filteredGenerics().slice(start, start + this.pageSize());
+    });
+
     public isModalOpen = signal(false);
     public searchQuery = '';
     public editingGeneric: DrugGeneric | null = null;
@@ -137,6 +155,7 @@ export class DrugGenericComponent implements OnInit {
     }
 
     filterGenerics(): void {
+        this.currentPage.set(1);
         if (!this.searchQuery.trim()) {
             this.filteredGenerics.set(this.generics());
         } else {
@@ -265,7 +284,7 @@ export class DrugGenericComponent implements OnInit {
     }
 
     loadGenerics(): void {
-        this.genericService.getGenerics().subscribe({
+        this.genericService.getGenerics(2500, 0).subscribe({
             next: (data) => {
                 this.generics.set(data);
                 this.filterGenerics();
