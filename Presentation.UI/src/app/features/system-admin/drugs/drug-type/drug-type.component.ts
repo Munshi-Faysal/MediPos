@@ -2,12 +2,13 @@ import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugTypeService, DrugTypeDto, DrugTypeViewModel } from '../../../../core/services/drug-type.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-type',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, PaginationComponent],
   template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
@@ -52,7 +53,7 @@ import Swal from 'sweetalert2';
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
-              @for (type of filteredTypes(); track type) {
+              @for (type of paginatedTypes(); track type) {
                 <tr class="hover:bg-surface-variant/20 transition-colors">
                   <td class="px-6 py-4 font-medium text-on-surface">{{ type.name }}</td>
                   <td class="px-6 py-4 text-on-surface-variant">{{ type.description || 'N/A' }}</td>
@@ -79,6 +80,15 @@ import Swal from 'sweetalert2';
               }
             </tbody>
           </table>
+
+          <!-- Dynamic Pagination -->
+          <app-pagination
+            [currentPage]="currentPage()"
+            [pageSize]="pageSize()"
+            [totalItems]="filteredTypes().length"
+            (pageChange)="currentPage.set($event)"
+            (pageSizeChange)="pageSize.set($event); currentPage.set(1)">
+          </app-pagination>
         </div>
     
         <!-- Modal -->
@@ -123,6 +133,14 @@ export class DrugTypeComponent implements OnInit {
 
   public types = signal<any[]>([]);
   public filteredTypes = signal<any[]>([]);
+  public currentPage = signal(1);
+  public pageSize = signal(20);
+
+  public paginatedTypes = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredTypes().slice(start, start + this.pageSize());
+  });
+
   public isModalOpen = signal(false);
   public searchQuery = '';
   public editingType: any = null;
@@ -157,6 +175,7 @@ export class DrugTypeComponent implements OnInit {
   }
 
   filterTypes(): void {
+    this.currentPage.set(1);
     if (!this.searchQuery.trim()) {
       this.filteredTypes.set(this.types());
     } else {

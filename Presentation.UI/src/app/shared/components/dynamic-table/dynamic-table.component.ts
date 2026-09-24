@@ -246,15 +246,22 @@ export type TableData = Record<string, any>;
             <!-- Page Size Selector -->
             <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
               <label class="text-xs sm:text-sm font-medium text-primary-900 dark:text-primary-100 whitespace-nowrap">Show:</label>
-              <select
-                [ngModel]="pageSize"
-                (ngModelChange)="onPageSizeChange($event)"
-                class="form-input py-1.5 sm:py-1 px-2 sm:px-5 text-xs sm:text-sm min-h-[44px] sm:min-h-[40px] bg-white dark:bg-surface border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-100 focus:border-primary-500 dark:focus:border-primary-500"
-                >
-                @for (size of pageSizeOptions; track size) {
-                  <option [value]="size">{{ size }}</option>
-                }
-              </select>
+              <div class="relative inline-flex items-center">
+                <select
+                  [ngModel]="pageSize"
+                  (ngModelChange)="onPageSizeChange($event)"
+                  class="appearance-none pl-3 pr-8 py-1.5 sm:py-1 min-w-[70px] min-h-[44px] sm:min-h-[40px] text-xs sm:text-sm bg-white dark:bg-surface border border-primary-300 dark:border-primary-700 rounded-md text-primary-900 dark:text-primary-100 focus:border-primary-500 dark:focus:border-primary-500 cursor-pointer transition-all"
+                  >
+                  @for (size of pageSizeOptions; track size) {
+                    <option [value]="size">{{ size }}</option>
+                  }
+                </select>
+                <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
             </div>
             <!-- Page Navigation -->
             <div class="flex items-center gap-1 flex-wrap justify-center sm:justify-start">

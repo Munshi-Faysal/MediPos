@@ -22,10 +22,16 @@ internal sealed class DrugMasterService(
     private bool IsValidId(string? id) => !string.IsNullOrWhiteSpace(id) && id != "null" && id != "undefined";
 
     public async Task<PaginatedListViewModel<DrugMasterViewModel>?> GetListAsync(int take, int skip)
+        => await GetListAsync(take, skip, null, null);
+
+    public async Task<PaginatedListViewModel<DrugMasterViewModel>?> GetListAsync(int take, int skip, string? search = null, string? type = null)
     {
-        var list = await repository.DrugMaster.GetListAsync(take, skip);
-        var viewModels = mapper.Map<List<DrugMasterViewModel>>(list);
-        return new PaginatedListViewModel<DrugMasterViewModel>(take) { ItemList = viewModels };
+        var (items, totalCount) = await repository.DrugMaster.GetDrugPresentationsAsync(take, skip, search, type);
+        return new PaginatedListViewModel<DrugMasterViewModel>(take)
+        {
+            ItemList = items.ToList(),
+            TotalRecords = totalCount
+        };
     }
 
     public async Task<DrugMasterViewModel?> GetDetailsAsync(string id)
@@ -84,6 +90,7 @@ internal sealed class DrugMasterService(
         // Map details
         dto.DrugDetails = entity.DrugDetails.Select(d => new DrugDetailDto
         {
+            Id = d.Id,
             EncryptedId = d.Id.ToString(),
             DrugStrengthId = d.DrugStrengthId,
             DrugTypeId = d.DrugTypeId,
@@ -175,6 +182,21 @@ internal sealed class DrugMasterService(
         existing.IsActive = !existing.IsActive;
         UpdateAutoFields(existing);
         return await repository.DrugMaster.UpdateAsync(existing);
+    }
+
+    public async Task<bool> DeleteAsync(string id)
+    {
+        if (!IsValidId(id)) return false;
+        var existing = await repository.DrugMaster.GetDetailsAsync(int.Parse(id));
+        if (existing is null) return false;
+
+        var currentDetails = existing.DrugDetails.ToList();
+        foreach (var detail in currentDetails)
+        {
+            await repository.DrugDetail.DeleteAsync(detail);
+        }
+
+        return await repository.DrugMaster.DeleteAsync(existing);
     }
 
     public async Task<List<DrugMasterDto>> GetActiveListAsync()

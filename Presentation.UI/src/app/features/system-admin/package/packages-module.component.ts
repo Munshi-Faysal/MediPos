@@ -14,444 +14,427 @@ type ModalType = 'package' | 'feature' | 'packageFeature' | null;
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule, RouterModule],
   template: `
-    <div class="min-h-full bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 p-6 transition-colors duration-200">
-      <div class="max-w-[1600px] mx-auto space-y-6 animate-fade-in">
-    
-        <!-- Header Section -->
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-slate-700/60 p-8 transition-colors">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                Package Management System
-              </h1>
-              <p class="text-slate-600 dark:text-slate-400 mt-2 text-base sm:text-lg">Manage Packages, Features & Relationships</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl text-white font-bold shadow-lg">
-                <span class="text-sm opacity-80">Total Packages:</span>
-                <span class="text-2xl ml-2">{{ allPackages().length }}</span>
-              </div>
-              <div class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl text-white font-bold shadow-lg">
-                <span class="text-sm opacity-80">Total Features:</span>
-                <span class="text-2xl ml-2">{{ allFeatures().length }}</span>
-              </div>
-            </div>
+    <div class="space-y-6">
+      <!-- Header Section -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface">Package Management</h1>
+          <p class="text-sm text-on-surface-variant mt-0.5">Manage subscription packages, features & pricing tiers</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-3.5 py-1.5 bg-surface border border-border rounded-xl text-xs font-medium text-on-surface-variant shadow-soft flex items-center gap-2">
+            <span>Total Packages:</span>
+            <span class="font-bold text-primary-600 text-sm">{{ allPackages().length }}</span>
+          </div>
+          <div class="px-3.5 py-1.5 bg-surface border border-border rounded-xl text-xs font-medium text-on-surface-variant shadow-soft flex items-center gap-2">
+            <span>Total Features:</span>
+            <span class="font-bold text-emerald-600 text-sm">{{ allFeatures().length }}</span>
           </div>
         </div>
-    
-        <!-- Two Column Layout -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-    
-          <!-- FEATURES TABLE -->
-          <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-slate-700/60 overflow-hidden flex flex-col transition-colors">
-            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-700 p-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h2 class="text-2xl font-black text-white flex items-center gap-2">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    Features
-                  </h2>
-                  <p class="text-emerald-100 text-sm mt-1">{{ allFeatures().length }} total features</p>
-                </div>
-                <button
-                  (click)="openModal('feature')"
-                  class="bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-800 px-4 py-2 rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center gap-2 hover:scale-105"
-                  >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                  </svg>
-                  Add Feature
-                </button>
-              </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <!-- FEATURES TABLE -->
+        <div class="bg-surface border border-border rounded-xl shadow-soft overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-border bg-surface-variant/10 flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Features
+              </h2>
+              <p class="text-xs text-on-surface-variant mt-0.5">{{ allFeatures().length }} available features</p>
             </div>
-    
-            <div class="p-4 flex-1 overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-emerald-400 dark:scrollbar-thumb-emerald-600 scrollbar-track-emerald-100 dark:scrollbar-track-slate-900">
-              <div class="space-y-3">
-                @for (feature of allFeatures(); track feature) {
-                  <div
-                    class="group bg-gradient-to-br from-white to-emerald-50/30 dark:from-slate-800/90 dark:to-slate-800/50 border-2 border-emerald-100 dark:border-slate-700/80 rounded-2xl p-4 hover:border-emerald-400 dark:hover:border-emerald-500/60 hover:shadow-lg transition-all cursor-pointer"
-                    >
-                    <div class="flex items-start justify-between mb-2">
-                      <div class="flex-1">
-                        <h3 class="font-black text-slate-800 dark:text-slate-100 text-lg group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                          {{ feature.name }}
-                        </h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{ feature.description || 'No description' }}</p>
-                      </div>
-                      <span
-                        class="px-2 py-1 rounded-lg text-xs font-bold uppercase"
-                        [class]="feature.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border dark:border-emerald-800/60' : 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 dark:border dark:border-red-800/60'"
-                        >
-                        {{ feature.isActive ? 'Active' : 'Inactive' }}
-                      </span>
-                    </div>
-                    <div class="flex items-center gap-2 mt-3 pt-3 border-t border-emerald-100 dark:border-slate-700/70">
-                      <button
-                        (click)="editFeature(feature)"
-                        class="flex-1 bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        Edit
-                      </button>
-                      <button
-                        (click)="toggleFeatureStatus(feature)"
-                        class="flex-1 bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                        </svg>
-                        {{ feature.isActive ? 'Deactivate' : 'Activate' }}
-                      </button>
-                      <button
-                        (click)="deleteFeature(feature)"
-                        class="flex-1 bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                }
-    
-                @if (allFeatures().length === 0) {
-                  <div class="text-center py-12">
-                    <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <svg class="w-8 h-8 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                    </div>
-                    <p class="text-slate-500 dark:text-slate-400 font-medium">No features yet</p>
-                  </div>
-                }
-              </div>
-            </div>
+            <button
+              (click)="openModal('feature')"
+              class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5"
+              >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add Feature
+            </button>
           </div>
-    
-          <!-- PACKAGES TABLE -->
-          <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-slate-700/60 overflow-hidden flex flex-col transition-colors">
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-700 p-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h2 class="text-2xl font-black text-white flex items-center gap-2">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    Packages
-                  </h2>
-                  <p class="text-indigo-100 text-sm mt-1">{{ allPackages().length }} total packages</p>
-                </div>
-                <button
-                  (click)="openModal('package')"
-                  class="bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 px-4 py-2 rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center gap-2 hover:scale-105"
-                  >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                  </svg>
-                  Add Package
-                </button>
-              </div>
-            </div>
-    
-            <div class="p-4 flex-1 overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-indigo-400 dark:scrollbar-thumb-indigo-600 scrollbar-track-indigo-100 dark:scrollbar-track-slate-900">
-              <div class="space-y-3">
-                @for (pkg of allPackages(); track pkg) {
-                  <div
-                    class="group bg-gradient-to-br from-white to-indigo-50/30 dark:from-slate-800/90 dark:to-slate-800/50 border-2 rounded-2xl p-4 hover:shadow-lg transition-all cursor-pointer"
-                    [class]="pkg.isPopular ? 'border-amber-400 dark:border-amber-500' : 'border-indigo-100 dark:border-slate-700/80 hover:border-indigo-400 dark:hover:border-indigo-500/60'"
+
+          <div class="p-4 flex-1 overflow-auto max-h-[620px] space-y-3">
+            @for (feature of allFeatures(); track feature) {
+              <div class="p-4 bg-surface border border-border rounded-xl hover:border-emerald-500/40 transition-all">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-on-surface text-sm">{{ feature.name }}</h3>
+                    <p class="text-xs text-on-surface-variant mt-1 line-clamp-2">{{ feature.description || 'No description provided' }}</p>
+                  </div>
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border flex-shrink-0"
+                    [class]="feature.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
                     >
-                    <div class="flex items-start justify-between mb-2">
-                      <div class="flex-1">
-                        <div class="flex items-center gap-2">
-                          <h3 class="font-black text-slate-800 dark:text-slate-100 text-lg group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                            {{ pkg.name }}
-                          </h3>
-                          @if (pkg.isPopular) {
-                            <span class="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-400 text-white text-[10px] font-black uppercase rounded-full">
-                              Popular
-                            </span>
-                          }
-                        </div>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{ pkg.description || 'No description' }}</p>
-                      </div>
-                      <span
-                        class="px-2 py-1 rounded-lg text-xs font-bold uppercase"
-                        [class]="pkg.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border dark:border-emerald-800/60' : 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 dark:border dark:border-red-800/60'"
-                        >
-                        {{ pkg.isActive ? 'Active' : 'Inactive' }}
-                      </span>
-                    </div>
-                    <div class="flex items-center gap-3 my-3">
-                      <div class="flex-1 bg-indigo-50 dark:bg-slate-900/90 dark:border dark:border-indigo-900/40 rounded-xl p-2 text-center">
-                        <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">৳{{ pkg.price }}</p>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Price</p>
-                      </div>
-                      <div class="flex-1 bg-purple-50 dark:bg-slate-900/90 dark:border dark:border-purple-900/40 rounded-xl p-2 text-center">
-                        <p class="text-2xl font-black text-purple-600 dark:text-purple-400">{{ pkg.duration }}</p>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Duration</p>
-                      </div>
-                    </div>
-                    @if (pkg.featureList && pkg.featureList.length > 0) {
-                      <div class="mb-3 px-1">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Includes:</p>
-                        <div class="flex flex-wrap gap-1.5">
-                          @for (feat of (expandedPackages().includes(pkg.encryptedId || '') ? pkg.featureList : pkg.featureList.slice(0, 5)); track feat) {
-                            <span class="px-2 py-1 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold rounded-md shadow-sm">
-                              {{ feat }}
-                            </span>
-                          }
-                          @if (pkg.featureList.length > 5 && !expandedPackages().includes(pkg.encryptedId || '')) {
-                            <button
-                              (click)="togglePackageExpansion(pkg.encryptedId || '', $event)"
-                              class="px-2 py-1 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold rounded-md transition-colors cursor-pointer"
-                              >
-                              +{{ pkg.featureList.length - 5 }} More
-                            </button>
-                          }
-                          @if (pkg.featureList.length > 5 && expandedPackages().includes(pkg.encryptedId || '')) {
-                            <button
-                              (click)="togglePackageExpansion(pkg.encryptedId || '', $event)"
-                              class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 text-[10px] font-bold rounded-md transition-colors cursor-pointer"
-                              >
-                              Show Less
-                            </button>
-                          }
-                        </div>
-                      </div>
-                    }
-                    <div class="flex items-center gap-2 pt-3 border-t border-indigo-100 dark:border-slate-700/70">
-                      <button
-                        (click)="editPackage(pkg)"
-                        class="flex-1 bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        Edit
-                      </button>
-                      <button
-                        (click)="togglePackageStatus(pkg)"
-                        class="flex-1 bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                        </svg>
-                        {{ pkg.isActive ? 'Deactivate' : 'Activate' }}
-                      </button>
-                      <button
-                        (click)="deletePackage(pkg)"
-                        class="flex-1 bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
-                        >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                }
-    
-                @if (allPackages().length === 0) {
-                  <div class="text-center py-12">
-                    <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-950/60 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <svg class="w-8 h-8 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                      </svg>
-                    </div>
-                    <p class="text-slate-500 dark:text-slate-400 font-medium">No packages yet</p>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-    
-          <!-- Feature Modal -->
-          @if (activeModal() === 'feature') {
-            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in" (click)="closeModal()">
-              <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-transparent dark:border-slate-700 max-w-md w-full animate-slide-up" (click)="$event.stopPropagation()">
-                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-700 p-6 rounded-t-3xl">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-black text-white">{{ editingFeature ? 'Edit Feature' : 'Create Feature' }}</h3>
-                    <button (click)="closeModal()" class="text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </button>
-                  </div>
+                    {{ feature.isActive ? 'Active' : 'Inactive' }}
+                  </span>
                 </div>
-                <form [formGroup]="featureForm" class="p-6 space-y-4">
-                  <div>
-                    <label class="block text-sm font-black text-slate-700 dark:text-slate-200 mb-2">Feature Name *</label>
-                    <input
-                      type="text"
-                      formControlName="name"
-                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium"
-                      placeholder="e.g. Advanced Analytics"
-                      />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-black text-slate-700 dark:text-slate-200 mb-2">Description</label>
-                    <textarea
-                      formControlName="description"
-                      rows="3"
-                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium resize-none"
-                      placeholder="Describe this feature..."
-                    ></textarea>
-                  </div>
-                  <div class="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/40 dark:border dark:border-emerald-900/50 rounded-xl">
-                    <label class="flex items-center gap-3 cursor-pointer group">
-                      <div class="relative">
-                        <input type="checkbox" formControlName="isActive" class="sr-only peer" />
-                        <div class="w-12 h-6 bg-slate-300 dark:bg-slate-700 peer-checked:bg-emerald-500 rounded-full transition-all duration-300"></div>
-                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md"></div>
-                      </div>
-                      <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Is Active</span>
-                    </label>
-                  </div>
-                </form>
-                <div class="p-6 border-t border-slate-100 dark:border-slate-700/80 flex justify-end gap-3">
-                  <button (click)="closeModal()" class="px-6 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all">
-                    Cancel
+                <div class="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                  <button
+                    (click)="editFeature(feature)"
+                    class="px-2.5 py-1 text-xs font-medium text-primary-600 hover:bg-primary-500/10 rounded-md transition-colors flex items-center gap-1"
+                    >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
                   </button>
                   <button
-                    (click)="saveFeature()"
-                    [disabled]="featureForm.invalid || isSubmitting()"
-                    class="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+                    (click)="toggleFeatureStatus(feature)"
+                    [class]="feature.isActive ? 'text-amber-600 hover:bg-amber-500/10' : 'text-emerald-600 hover:bg-emerald-500/10'"
+                    class="px-2.5 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1"
                     >
-                    {{ editingFeature ? 'Update' : 'Create' }} Feature
+                    {{ feature.isActive ? 'Deactivate' : 'Activate' }}
+                  </button>
+                  <button
+                    (click)="deleteFeature(feature)"
+                    class="px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-500/10 rounded-md transition-colors flex items-center gap-1 ml-auto"
+                    >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete
                   </button>
                 </div>
               </div>
+            }
+
+            @if (allFeatures().length === 0) {
+              <div class="text-center py-12 text-on-surface-variant">
+                <div class="w-12 h-12 bg-surface-variant/40 rounded-full flex items-center justify-center mx-auto mb-2 text-on-surface-variant">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium">No features created yet</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- PACKAGES TABLE -->
+        <div class="bg-surface border border-border rounded-xl shadow-soft overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-border bg-surface-variant/10 flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-bold text-on-surface flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                Packages
+              </h2>
+              <p class="text-xs text-on-surface-variant mt-0.5">{{ allPackages().length }} subscription plans</p>
             </div>
-          }
-    
-          <!-- Package Modal -->
-          @if (activeModal() === 'package') {
-            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in" (click)="closeModal()">
-              <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-transparent dark:border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up" (click)="$event.stopPropagation()">
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-700 p-6 rounded-t-3xl">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-black text-white">{{ editingPackage ? 'Edit Package' : 'Create Package' }}</h3>
-                    <button (click)="closeModal()" class="text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </button>
+            <button
+              (click)="openModal('package')"
+              class="px-3.5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5"
+              >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add Package
+            </button>
+          </div>
+
+          <div class="p-4 flex-1 overflow-auto max-h-[620px] space-y-3">
+            @for (pkg of allPackages(); track pkg) {
+              <div class="p-4 bg-surface border border-border rounded-xl hover:border-primary-500/40 transition-all space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-on-surface text-base">{{ pkg.name }}</h3>
+                      @if (pkg.isPopular) {
+                        <span class="px-2 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                          Popular
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-on-surface-variant mt-0.5 line-clamp-2">{{ pkg.description || 'No description provided' }}</p>
+                  </div>
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border flex-shrink-0"
+                    [class]="pkg.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
+                    >
+                    {{ pkg.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+
+                <!-- Pricing & Duration Banner -->
+                <div class="flex items-center gap-4 p-3 bg-surface-variant/20 rounded-lg border border-border">
+                  <div class="flex-1">
+                    <span class="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider block">Price</span>
+                    <p class="text-lg font-bold text-primary-600">৳{{ pkg.price }}</p>
+                  </div>
+                  <div class="w-px h-8 bg-border"></div>
+                  <div class="flex-1">
+                    <span class="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider block">Duration</span>
+                    <p class="text-sm font-semibold text-on-surface">{{ pkg.duration }}</p>
                   </div>
                 </div>
-                <form [formGroup]="packageForm" class="p-6 space-y-4 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-indigo-400 dark:scrollbar-thumb-indigo-600 scrollbar-track-indigo-100 dark:scrollbar-track-slate-900">
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-black text-slate-700 dark:text-slate-200 mb-2">Package Name *</label>
-                      <input
-                        type="text"
-                        formControlName="name"
-                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium"
-                        placeholder="e.g. Premium Plus"
-                        />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-black text-slate-700 dark:text-slate-200 mb-2">Price (BDT) *</label>
-                      <input
-                        type="number"
-                        formControlName="price"
-                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium"
-                        placeholder="0.00"
-                        />
-                    </div>
-                  </div>
+
+                @if (pkg.featureList && pkg.featureList.length > 0) {
                   <div>
-                    <label class="block text-sm font-black text-slate-700 dark:text-slate-200 mb-2">Description</label>
-                    <textarea
-                      formControlName="description"
-                      rows="2"
-                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium resize-none"
-                      placeholder="Brief summary..."
-                    ></textarea>
-                  </div>
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-black text-slate-700 dark:text-slate-200 mb-2">Duration (e.g. 30 Days) *</label>
-                      <input
-                        type="text"
-                        formControlName="duration"
-                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium"
-                        placeholder="30 Days"
-                        />
-                    </div>
-                  </div>
-                  <!-- Feature Selection inside Package Modal directly -->
-                  <div>
-                    <div class="flex items-center justify-between mb-3">
-                      <label class="block text-sm font-black text-slate-700 dark:text-slate-200">Select Features *</label>
-                      <button
-                        type="button"
-                        (click)="toggleSelectAllFeatures()"
-                        class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
-                        >
-                        {{ selectedFeatureIds().length === allFeatures().length ? 'Deselect All' : 'Select All' }}
-                      </button>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80 rounded-xl scrollbar-thin scrollbar-thumb-indigo-400 dark:scrollbar-thumb-indigo-600 scrollbar-track-indigo-100 dark:scrollbar-track-slate-900">
-                      @for (feat of allFeatures(); track feat) {
-                        <label
-                          class="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer hover:border-pink-400 transition-all"
-                          [class]="selectedFeatureIds().includes(feat.encryptedId || '') ? 'border-pink-500 bg-pink-50 dark:bg-pink-950/30' : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700'"
+                    <span class="text-[11px] font-semibold text-on-surface-variant block mb-1.5">Includes:</span>
+                    <div class="flex flex-wrap gap-1.5">
+                      @for (feat of (expandedPackages().includes(pkg.encryptedId || '') ? pkg.featureList : pkg.featureList.slice(0, 5)); track feat) {
+                        <span class="px-2 py-0.5 bg-surface-variant/40 border border-border/60 text-on-surface text-xs font-medium rounded-md">
+                          {{ feat }}
+                        </span>
+                      }
+                      @if (pkg.featureList.length > 5 && !expandedPackages().includes(pkg.encryptedId || '')) {
+                        <button
+                          (click)="togglePackageExpansion(pkg.encryptedId || '', $event)"
+                          class="px-2 py-0.5 text-primary-600 hover:text-primary-700 text-xs font-semibold"
                           >
-                          <input
-                            type="checkbox"
-                            [checked]="selectedFeatureIds().includes(feat.encryptedId || '')"
-                            (change)="toggleFeatureSelection(feat.encryptedId || '')"
-                            class="w-5 h-5 text-pink-600 rounded border-slate-300 dark:border-slate-600 focus:ring-pink-500"
-                            />
-                          <div class="flex-1">
-                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ feat.name }}</p>
-                          </div>
-                        </label>
+                          +{{ pkg.featureList.length - 5 }} More
+                        </button>
+                      }
+                      @if (pkg.featureList.length > 5 && expandedPackages().includes(pkg.encryptedId || '')) {
+                        <button
+                          (click)="togglePackageExpansion(pkg.encryptedId || '', $event)"
+                          class="px-2 py-0.5 text-on-surface-variant hover:text-on-surface text-xs font-semibold"
+                          >
+                          Show Less
+                        </button>
                       }
                     </div>
                   </div>
-                  <div class="flex items-center gap-6 p-4 bg-indigo-50 dark:bg-indigo-950/40 dark:border dark:border-indigo-900/50 rounded-xl">
-                    <label class="flex items-center gap-3 cursor-pointer">
-                      <div class="relative">
-                        <input type="checkbox" formControlName="isPopular" class="sr-only peer" />
-                        <div class="w-12 h-6 bg-slate-300 dark:bg-slate-700 peer-checked:bg-amber-500 rounded-full transition-all duration-300"></div>
-                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md"></div>
-                      </div>
-                      <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Popular</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer">
-                      <div class="relative">
-                        <input type="checkbox" formControlName="isActive" class="sr-only peer" />
-                        <div class="w-12 h-6 bg-slate-300 dark:bg-slate-700 peer-checked:bg-emerald-500 rounded-full transition-all duration-300"></div>
-                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md"></div>
-                      </div>
-                      <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Is Active</span>
-                    </label>
-                  </div>
-                </form>
-                <div class="p-6 border-t border-slate-100 dark:border-slate-700/80 flex justify-end gap-3">
-                  <button (click)="closeModal()" class="px-6 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all">
-                    Cancel
+                }
+
+                <div class="flex items-center gap-2 pt-3 border-t border-border">
+                  <button
+                    (click)="editPackage(pkg)"
+                    class="px-2.5 py-1 text-xs font-medium text-primary-600 hover:bg-primary-500/10 rounded-md transition-colors flex items-center gap-1"
+                    >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
                   </button>
                   <button
-                    (click)="savePackage()"
-                    [disabled]="packageForm.invalid || isSubmitting()"
-                    class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
+                    (click)="togglePackageStatus(pkg)"
+                    [class]="pkg.isActive ? 'text-amber-600 hover:bg-amber-500/10' : 'text-emerald-600 hover:bg-emerald-500/10'"
+                    class="px-2.5 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1"
                     >
-                    {{ editingPackage ? 'Update' : 'Create' }} Package
+                    {{ pkg.isActive ? 'Deactivate' : 'Activate' }}
+                  </button>
+                  <button
+                    (click)="deletePackage(pkg)"
+                    class="px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-500/10 rounded-md transition-colors flex items-center gap-1 ml-auto"
+                    >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete
                   </button>
                 </div>
               </div>
-            </div>
-          }
+            }
+
+            @if (allPackages().length === 0) {
+              <div class="text-center py-12 text-on-surface-variant">
+                <div class="w-12 h-12 bg-surface-variant/40 rounded-full flex items-center justify-center mx-auto mb-2 text-on-surface-variant">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium">No packages created yet</p>
+              </div>
+            }
+          </div>
         </div>
+
       </div>
+
+      <!-- Feature Modal -->
+      @if (activeModal() === 'feature') {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" (click)="closeModal()">
+          <div class="bg-surface border border-border rounded-2xl shadow-strong max-w-md w-full overflow-hidden flex flex-col animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+            <div class="px-6 py-5 border-b border-border bg-surface flex justify-between items-center">
+              <div>
+                <h3 class="text-xl font-bold text-on-surface">{{ editingFeature ? 'Edit Feature' : 'Create Feature' }}</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">Define feature name and details</p>
+              </div>
+              <button (click)="closeModal()" class="p-2 hover:bg-surface-variant rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <form [formGroup]="featureForm" class="p-6 space-y-4">
+              <div>
+                <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Feature Name *</label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all"
+                  placeholder="e.g. Advanced Analytics"
+                  />
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Description</label>
+                <textarea
+                  formControlName="description"
+                  rows="3"
+                  class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all resize-none"
+                  placeholder="Describe this feature..."
+                ></textarea>
+              </div>
+              <div class="flex items-center gap-3 p-3 bg-surface-variant/20 rounded-xl border border-border cursor-pointer select-none" (click)="featureForm.patchValue({ isActive: !featureForm.get('isActive')?.value })">
+                <div class="relative w-10 h-5 rounded-full transition-colors duration-200" [class.bg-emerald-600]="featureForm.get('isActive')?.value" [class.bg-surface-variant]="!featureForm.get('isActive')?.value">
+                  <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm" [class.translate-x-5]="featureForm.get('isActive')?.value"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-semibold text-on-surface">Active Status</p>
+                  <p class="text-[11px] text-on-surface-variant">Enable this feature for packages</p>
+                </div>
+              </div>
+            </form>
+            <div class="px-6 py-4 border-t border-border bg-surface flex justify-end gap-3">
+              <button (click)="closeModal()" class="px-4 py-2 border border-border rounded-lg font-semibold text-sm text-on-surface hover:bg-surface-variant transition-all">
+                Cancel
+              </button>
+              <button
+                (click)="saveFeature()"
+                [disabled]="featureForm.invalid || isSubmitting()"
+                class="px-5 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm hover:bg-emerald-700 transition-all disabled:opacity-50 shadow-md"
+                >
+                {{ editingFeature ? 'Update' : 'Create' }} Feature
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Package Modal -->
+      @if (activeModal() === 'package') {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" (click)="closeModal()">
+          <div class="bg-surface border border-border rounded-2xl shadow-strong max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
+            <div class="px-6 py-5 border-b border-border bg-surface flex justify-between items-center">
+              <div>
+                <h3 class="text-xl font-bold text-on-surface">{{ editingPackage ? 'Edit Package' : 'Create Package' }}</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">Configure package pricing, duration and features</p>
+              </div>
+              <button (click)="closeModal()" class="p-2 hover:bg-surface-variant rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <form [formGroup]="packageForm" class="p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Package Name *</label>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all"
+                    placeholder="e.g. Premium Plus"
+                    />
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Price (BDT) *</label>
+                  <input
+                    type="number"
+                    formControlName="price"
+                    class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all"
+                    placeholder="0.00"
+                    />
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Description</label>
+                <textarea
+                  formControlName="description"
+                  rows="2"
+                  class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all resize-none"
+                  placeholder="Brief summary..."
+                ></textarea>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Duration *</label>
+                <input
+                  type="text"
+                  formControlName="duration"
+                  class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-medium text-sm text-on-surface transition-all"
+                  placeholder="e.g. 1 Month, 30 Days"
+                  />
+              </div>
+
+              <!-- Feature Selection inside Package Modal -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-semibold text-on-surface-variant">Select Features *</label>
+                  <button
+                    type="button"
+                    (click)="toggleSelectAllFeatures()"
+                    class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                    >
+                    {{ selectedFeatureIds().length === allFeatures().length ? 'Deselect All' : 'Select All' }}
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 gap-1.5 max-h-[180px] overflow-y-auto p-2 bg-surface-variant/20 border border-border rounded-xl">
+                  @for (feat of allFeatures(); track feat) {
+                    <label
+                      class="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-all border"
+                      [class]="selectedFeatureIds().includes(feat.encryptedId || '') ? 'border-primary-500/50 bg-primary-500/10' : 'bg-surface border-border hover:border-border/80'"
+                      >
+                      <input
+                        type="checkbox"
+                        [checked]="selectedFeatureIds().includes(feat.encryptedId || '')"
+                        (change)="toggleFeatureSelection(feat.encryptedId || '')"
+                        class="w-4 h-4 text-primary-600 rounded border-border focus:ring-primary-500"
+                        />
+                      <span class="text-xs font-medium text-on-surface">{{ feat.name }}</span>
+                    </label>
+                  }
+                  @if (allFeatures().length === 0) {
+                    <p class="text-xs text-on-surface-variant text-center py-4">No features available yet. Create features first.</p>
+                  }
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 pt-2">
+                <div class="flex items-center gap-3 p-3 bg-surface-variant/20 rounded-xl border border-border cursor-pointer select-none" (click)="packageForm.patchValue({ isPopular: !packageForm.get('isPopular')?.value })">
+                  <div class="relative w-10 h-5 rounded-full transition-colors duration-200" [class.bg-amber-500]="packageForm.get('isPopular')?.value" [class.bg-surface-variant]="!packageForm.get('isPopular')?.value">
+                    <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm" [class.translate-x-5]="packageForm.get('isPopular')?.value"></div>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-on-surface">Popular</p>
+                    <p class="text-[10px] text-on-surface-variant">Featured badge</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3 p-3 bg-surface-variant/20 rounded-xl border border-border cursor-pointer select-none" (click)="packageForm.patchValue({ isActive: !packageForm.get('isActive')?.value })">
+                  <div class="relative w-10 h-5 rounded-full transition-colors duration-200" [class.bg-emerald-600]="packageForm.get('isActive')?.value" [class.bg-surface-variant]="!packageForm.get('isActive')?.value">
+                    <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm" [class.translate-x-5]="packageForm.get('isActive')?.value"></div>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-on-surface">Active</p>
+                    <p class="text-[10px] text-on-surface-variant">Available for purchase</p>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div class="px-6 py-4 border-t border-border bg-surface flex justify-end gap-3">
+              <button (click)="closeModal()" class="px-4 py-2 border border-border rounded-lg font-semibold text-sm text-on-surface hover:bg-surface-variant transition-all">
+                Cancel
+              </button>
+              <button
+                (click)="savePackage()"
+                [disabled]="packageForm.invalid || isSubmitting()"
+                class="px-5 py-2 bg-primary-600 text-white rounded-lg font-bold text-sm hover:bg-primary-700 transition-all disabled:opacity-50 shadow-md"
+                >
+                {{ editingPackage ? 'Update' : 'Create' }} Package
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
