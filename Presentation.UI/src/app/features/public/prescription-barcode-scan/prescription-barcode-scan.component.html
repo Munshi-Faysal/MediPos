@@ -1,0 +1,37 @@
+<main class="scan-page">
+  <section class="scan-card">
+    <a routerLink="/" class="brand">MediPOS</a>
+    <div class="icon" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <p class="eyebrow">PRESCRIPTION LOOKUP</p>
+    <h1>Scan a prescription barcode</h1>
+    <p class="intro">Point your camera at the short barcode printed on the prescription, or enter its number.</p>
+
+    <div class="camera" [class.active]="scanning">
+      <video #cameraPreview autoplay muted playsinline></video>
+      @if (!scanning) {
+        <div class="camera-placeholder">Camera preview appears here</div>
+      } @else {
+        <div class="scan-line" aria-hidden="true"></div>
+      }
+    </div>
+
+    @if (scanning) {
+      <button type="button" class="camera-button secondary" (click)="stopCamera()">Stop camera</button>
+    } @else {
+      <button type="button" class="camera-button" (click)="startCamera()">Use camera</button>
+    }
+
+    <div class="separator"><span>or enter the code</span></div>
+    <form (ngSubmit)="submitCode()">
+      <label for="barcode-code">16-digit barcode number</label>
+      <div class="code-input-row">
+        <input id="barcode-code" name="barcode-code" type="text" inputmode="numeric" autocomplete="off" maxlength="16"
+          placeholder="0000000000000000" [(ngModel)]="code">
+        <button type="submit">View</button>
+      </div>
+    </form>
+
+    @if (error) { <p class="error" role="alert">{{ error }}</p> }
+    <p class="hint">Only the prescription matching this barcode will be shown.</p>
+  </section>
+</main>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Services.Contracts.Base;
 using Shared.DTOs.MainDTOs.Prescription;
 
@@ -15,6 +16,15 @@ public class PrescriptionController(IServiceManager service) : ControllerBase
     public async Task<IActionResult> GetByScanToken(string scanToken)
     {
         var result = await service.Prescription.GetByScanTokenAsync(scanToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("prescription-barcode")]
+    [HttpGet("barcode/{barcodeCode}")]
+    public async Task<IActionResult> GetByBarcodeCode(string barcodeCode)
+    {
+        var result = await service.Prescription.GetByBarcodeCodeAsync(barcodeCode);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -64,7 +74,7 @@ public class PrescriptionController(IServiceManager service) : ControllerBase
             return BadRequest(new { message = "Prescription ID is required for update" });
         
         var result = await service.Prescription.UpdateAsync(dto);
-        if (result) return Ok(new { message = "Prescription updated successfully" });
+        if (result is not null) return Ok(result);
         return BadRequest(new { message = "Failed to update prescription" });
     }
 

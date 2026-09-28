@@ -7,8 +7,9 @@ public interface IPrescriptionService
 {
     Task<PrescriptionDto?> GetByIdAsync(string encryptedId);
     Task<PrescriptionScanViewModel?> GetByScanTokenAsync(string scanToken);
+    Task<PrescriptionScanViewModel?> GetByBarcodeCodeAsync(string barcodeCode);
     Task<IEnumerable<PrescriptionViewModel>> GetPrescriptionsByDoctorAsync();
     Task<PrescriptionDto?> CreateAsync(PrescriptionDto dto);
-    Task<bool> UpdateAsync(PrescriptionDto dto);
+    Task<PrescriptionDto?> UpdateAsync(PrescriptionDto dto);
     Task<bool> DeleteAsync(string encryptedId);
 }

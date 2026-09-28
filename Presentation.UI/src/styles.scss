@@ -447,9 +447,11 @@ app-dynamic-button button[data-custom-color]:hover {
   /* But show the app-root and the layout containers (so they take up space/structure) */
   app-root,
   app-doctor-layout,
+  app-prescription,
   main,
   #main-content,
   app-prescription-form,
+  app-prescription-detail,
   .h-screen,
   .overflow-hidden,
   .flex-1 {
@@ -472,6 +474,12 @@ app-dynamic-button button[data-custom-color]:hover {
   /* Target the paper and make it and its children visible */
   #prescription-paper,
   #prescription-paper * {
+    visibility: visible !important;
+  }
+
+  /* The saved-prescription detail page has its own A4 layout. */
+  #prescription-detail-print,
+  #prescription-detail-print * {
     visibility: visible !important;
   }
 

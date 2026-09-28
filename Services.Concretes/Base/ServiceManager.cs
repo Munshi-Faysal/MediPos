@@ -44,7 +44,7 @@ public class ServiceManager(IRepositoryManager repository,
     private readonly Lazy<IUnitService> _unit = new(() => new UnitService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IDrugMasterService> _drugMaster = new(() => new DrugMasterService(userManager, httpContextAccessor, repository, mapper));
     private readonly Lazy<IAppointmentService> _appointment = new(() => new AppointmentService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
-    private readonly Lazy<IPatientService> _patient = new(() => new PatientService(userManager, httpContextAccessor, repository, mapper));
+    private readonly Lazy<IPatientService> _patient = new(() => new PatientService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<ITreatmentService> _treatment = new(() => new TreatmentService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IChiefComplaintService> _chiefComplaint = new(() => new ChiefComplaintService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IOnExaminationService> _onExamination = new(() => new OnExaminationService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));

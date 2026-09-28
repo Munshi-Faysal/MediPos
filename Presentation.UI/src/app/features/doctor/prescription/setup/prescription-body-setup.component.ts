@@ -51,14 +51,6 @@ import { confirmAppAction } from '../../../../core/utils/app-alert';
                   </div>
                 </div>
     
-                <!-- Barcode Toggle moved here -->
-                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <div>
-                    <p class="text-sm font-bold text-gray-700 whitespace-nowrap">Show ID Barcode</p>
-                    <p class="text-[10px] text-gray-400">Display scannable barcode at the top of left column.</p>
-                  </div>
-                  <input type="checkbox" [(ngModel)]="localConfig.showBarcode" (ngModelChange)="onConfigChange()" class="h-6 w-6 text-blue-600 rounded cursor-pointer">
-                </div>
               </div>
             </div>
     

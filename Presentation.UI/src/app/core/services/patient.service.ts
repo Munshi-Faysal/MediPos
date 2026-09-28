@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 
 export interface PatientDto {
   encryptedId?: string;
-  id?: string; // Some endpoints might expect 'id'
+  id?: number | string;
   name: string;
   age: number;
   gender: string;
@@ -18,7 +18,8 @@ export interface PatientDto {
 
 export interface PatientViewModel {
   encryptedId: string;
-  id?: string;
+  id: number;
+  isActive: boolean;
   name: string;
   age: number;
   gender: string;
@@ -27,7 +28,23 @@ export interface PatientViewModel {
   bloodGroup?: string;
   address?: string;
   image?: string;
-  lastVisit?: Date;
+  lastVisit?: Date | string | null;
+}
+
+export interface PatientVisitViewModel {
+  date: Date | string;
+  diagnosis?: string;
+  doctor?: string;
+  status: string;
+  prescriptionEncryptedId?: string;
+}
+
+export interface PatientDetailsViewModel extends PatientViewModel {
+  totalVisits: number;
+  prescriptionCount: number;
+  nextAppointment?: Date | string | null;
+  latestWeight?: string;
+  visitHistory: PatientVisitViewModel[];
 }
 
 @Injectable({
@@ -38,14 +55,14 @@ export class PatientService {
 
   private readonly baseUrl = 'Patient';
 
-  getAllPatients(take: number = 50): Observable<any> {
+  getAllPatients(take: number = 1000): Observable<PatientViewModel[]> {
     return this.apiService.get(`${this.baseUrl}/list?take=${take}`).pipe(
       map((res: any) => res.data)
     );
   }
 
-  searchPatients(term: string, take: number = 50): Observable<any> {
-    return this.apiService.get(`${this.baseUrl}/search?term=${term}&take=${take}`).pipe(
+  searchPatients(term: string, take: number = 50): Observable<PatientViewModel[]> {
+    return this.apiService.get(`${this.baseUrl}/search?term=${encodeURIComponent(term)}&take=${take}`).pipe(
       map((res: any) => res.data)
     );
   }
@@ -59,9 +76,6 @@ export class PatientService {
   }
 
   updatePatient(patient: PatientDto): Observable<any> {
-    // Try sending ID both in payload and URL pattern if needed, 
-    // but following PrescriptionService pattern of just the body might be safer if URL failed.
-    // However, keeping the body ID is most important.
     return this.apiService.put(this.baseUrl, patient);
   }
 
@@ -71,9 +85,18 @@ export class PatientService {
   }
 
   getPatientById(id: string): Observable<any> {
-    return this.apiService.get(`${this.baseUrl}/${id}`);
+    return this.apiService.get(`${this.baseUrl}/${encodeURIComponent(id)}`).pipe(
+      map((res: any) => res.data)
+    );
   }
+
+  getPatientDetails(id: string): Observable<PatientDetailsViewModel> {
+    return this.apiService.get(`${this.baseUrl}/${encodeURIComponent(id)}`).pipe(
+      map((res: any) => res.data)
+    );
+  }
+
   deletePatient(id: string): Observable<any> {
-    return this.apiService.delete(`${this.baseUrl}/${id}`);
+    return this.apiService.delete(`${this.baseUrl}/${encodeURIComponent(id)}`);
   }
 }

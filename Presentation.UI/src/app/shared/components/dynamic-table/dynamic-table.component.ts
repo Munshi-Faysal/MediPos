@@ -473,8 +473,10 @@ export class DynamicTableComponent implements OnInit, OnChanges {
     }
     // For client-side pagination, slice the data
     const allData = this.filteredData().length > 0 ? this.filteredData() : this.dataSignal();
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
+    const page = this.currentPageSignal();
+    const size = this.pageSizeSignal();
+    const start = (page - 1) * size;
+    const end = start + size;
     return allData.slice(start, end);
   });
 
@@ -550,9 +552,14 @@ export class DynamicTableComponent implements OnInit, OnChanges {
     this.emitPageChange();
   }
 
-  onPageSizeChange(size: number): void {
-    this.pageSize = size;
+  onPageSizeChange(size: number | string): void {
+    const normalizedSize = Number(size);
+    if (!Number.isFinite(normalizedSize) || normalizedSize <= 0) return;
+
+    this.pageSize = normalizedSize;
+    this.pageSizeSignal.set(normalizedSize);
     this.currentPage = 1;
+    this.currentPageSignal.set(1);
     this.emitPageChange();
   }
 
@@ -570,6 +577,7 @@ export class DynamicTableComponent implements OnInit, OnChanges {
   onSearchChange(query: string): void {
     this.searchQuery = query;
     this.currentPage = 1;
+    this.currentPageSignal.set(1);
     this.applyFilters();
     this.searchChange.emit(query);
   }

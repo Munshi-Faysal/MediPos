@@ -14,3 +14,21 @@ public class PatientViewModel : BaseViewModel
     public string? Image { get; set; }
     public DateTime? LastVisit { get; set; }
 }
+
+public class PatientDetailsViewModel : PatientViewModel
+{
+    public int TotalVisits { get; set; }
+    public int PrescriptionCount { get; set; }
+    public DateTime? NextAppointment { get; set; }
+    public string? LatestWeight { get; set; }
+    public List<PatientVisitViewModel> VisitHistory { get; set; } = [];
+}
+
+public class PatientVisitViewModel
+{
+    public DateTime Date { get; set; }
+    public string? Diagnosis { get; set; }
+    public string? Doctor { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string? PrescriptionEncryptedId { get; set; }
+}

@@ -24,6 +24,7 @@ export interface Prescription {
   patientName?: string;
   patientPhone?: string;
   prescriptionDate: Date;
+  scanToken?: string;
 
   // Clinical sections
   disease?: string;

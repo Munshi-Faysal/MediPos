@@ -188,8 +188,8 @@ public class ToDtoMappingProfile : Profile
         // Prescription mappings
         CreateMap<Prescription, PrescriptionDto>();
         CreateMap<Prescription, PrescriptionViewModel>()
-            .ForMember(d => d.PatientName, opt => opt.MapFrom(s => s.Patient != null ? s.Patient.Name : null))
-            .ForMember(d => d.PatientPhone, opt => opt.MapFrom(s => s.Patient != null ? s.Patient.Phone : null));
+            .ForMember(d => d.PatientName, opt => opt.MapFrom(s => s.PatientName ?? (s.Patient != null ? s.Patient.Name : null)))
+            .ForMember(d => d.PatientPhone, opt => opt.MapFrom(s => s.PatientPhone ?? (s.Patient != null ? s.Patient.Phone : null)));
         CreateMap<PrescriptionMedicine, PrescriptionMedicineDto>()
             .ForMember(d => d.MedicineName, opt => opt.MapFrom(s => s.DrugDetail != null && s.DrugDetail.DrugMaster != null ? s.DrugDetail.DrugMaster.Name : null))
             .ForMember(d => d.DrugTypeName, opt => opt.MapFrom(s => s.DrugDetail != null && s.DrugDetail.DrugType != null ? s.DrugDetail.DrugType.Name : null))

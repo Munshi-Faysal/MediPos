@@ -75,39 +75,30 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
       </div>
     
       <!-- Dynamic Patient Info Bar -->
-      <div class="patient-info-bar bg-white p-3 pl-12 border-b-2 border-gray-800 text-[12px] leading-relaxed"
+      <div class="patient-info-bar"
            [class.print-patient-info-blank]="isPrintHeaderHidden">
-        <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div class="patient-info-grid">
           @for (field of sortedFields; track field.id) {
-            <div [class]="getFieldClasses(field.id)">
-              <span class="font-bold text-gray-900 whitespace-nowrap">{{ field.label }}</span>
-              <span class="mx-1">:</span>
-              <div class="flex-1 border-b border-gray-200 px-1 relative top-[1px] min-h-[1.2rem]">
+            <div class="patient-field" [class.patient-field-date]="field.id === 'date'">
+              <span class="patient-field-label">{{ field.label }}</span>
+              <div class="patient-field-value">
                 @if (isEditable(field.id)) {
-                  <!-- Input/Select for Screen -->
                   @if (field.id === 'sex') {
-                    <select [formControlName]="getControlName(field.id)" 
-                            [class.appearance-none]="parentForm.get(getControlName(field.id))?.value"
-                            class="w-full bg-transparent border-0 focus:ring-0 p-0 text-gray-800 text-sm font-medium placeholder-gray-300 print:hidden cursor-pointer"
+                    <select [formControlName]="getControlName(field.id)" [attr.aria-label]="field.label"
+                            class="patient-field-control print:hidden"
                             (click)="$event.stopPropagation()">
-                      <option value="" style="display:none"></option>
+                      <option value="" disabled>Select</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
                   } @else {
-                    <input [formControlName]="getControlName(field.id)" 
-                           class="w-full bg-transparent border-0 focus:ring-0 p-0 text-gray-800 font-medium placeholder-gray-300 print:hidden"
-                           [placeholder]="field.label">
+                    <input [formControlName]="getControlName(field.id)" [attr.aria-label]="field.label"
+                           class="patient-field-control print:hidden" [placeholder]="field.label">
                   }
-                  <!-- Text for Print -->
-                  <span class="hidden print:block text-gray-800 font-bold">
-                    {{ parentForm.get(getControlName(field.id))?.value || '' }}
-                  </span>
+                  <span class="patient-field-print">{{ parentForm.get(getControlName(field.id))?.value || '' }}</span>
                 } @else {
-                  <span class="text-gray-800 font-bold whitespace-nowrap">
-                    {{ getFieldValue(field.id) }}
-                  </span>
+                  <span class="patient-field-static">{{ getFieldValue(field.id) }}</span>
                 }
               </div>
             </div>
@@ -123,9 +114,82 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
         color-adjust: exact;
         width: 100%;
     }
-    input {
-        line-height: inherit;
-        font-size: inherit;
+    .patient-info-bar {
+      padding: 12px 24px 14px;
+      background: #ffffff;
+      border-bottom: 2px solid #233657;
+    }
+    .patient-info-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px 10px;
+    }
+    .patient-field {
+      min-width: 0;
+      min-height: 43px;
+      padding: 5px 9px 4px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      transition: border-color .15s ease, background-color .15s ease;
+    }
+    .patient-field:focus-within {
+      background: #ffffff;
+      border-color: #2563eb;
+    }
+    .patient-field-date {
+      background: #eef4ff;
+      border-color: #dbe7fb;
+    }
+    .patient-field-label {
+      display: block;
+      color: #64748b;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      line-height: 12px;
+      text-transform: uppercase;
+    }
+    .patient-field-value {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      min-height: 19px;
+      color: #0f172a;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 19px;
+    }
+    .patient-field-control {
+      width: 100%;
+      min-width: 0;
+      height: 19px;
+      margin: 0;
+      padding: 0;
+      color: #0f172a;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      box-shadow: none;
+      font: inherit;
+      line-height: 19px;
+    }
+    .patient-field-control:focus {
+      outline: 0;
+      box-shadow: none;
+    }
+    .patient-field-control::placeholder {
+      color: #a6b2c3;
+      font-weight: 400;
+    }
+    .patient-field-static,
+    .patient-field-print {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .patient-field-print {
+      display: none;
     }
     @media print {
       .print-letterhead-blank,
@@ -135,9 +199,31 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
       .header-container {
         border: none !important;
       }
-      input {
-        border: none !important;
-        outline: none !important;
+      .patient-info-bar {
+        padding: 8px 24px 10px;
+        background: #ffffff !important;
+      }
+      .patient-info-grid {
+        gap: 4px 16px;
+      }
+      .patient-field,
+      .patient-field-date {
+        min-height: 33px;
+        padding: 2px 0;
+        background: #ffffff !important;
+        border: 0;
+        border-bottom: 1px solid #cbd5e1;
+        border-radius: 0;
+      }
+      .patient-field-print {
+        display: block;
+      }
+      .patient-field-print,
+      .patient-field-static {
+        overflow: visible;
+        text-overflow: clip;
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
     }
   `]
@@ -175,21 +261,6 @@ export class PrescriptionHeaderComponent implements OnChanges {
       case 'regNo': return 'patientRegNo';
       case 'address': return 'patientAddress';
       default: return '';
-    }
-  }
-
-  getFieldClasses(id: string): string {
-    const base = 'flex items-baseline ';
-    switch (id) {
-      case 'name': return base + 'flex-grow min-w-[30%]';
-      case 'address': return base + 'flex-grow min-w-[40%]';
-      case 'phone': return base + 'min-w-[180px]';
-      case 'date': return base + 'min-w-[140px]';
-      case 'age': return base + 'min-w-[80px]';
-      case 'sex': return base + 'min-w-[100px]';
-      case 'weight': return base + 'min-w-[80px]';
-      case 'regNo': return base + 'min-w-[150px]';
-      default: return base + 'flex-grow';
     }
   }
 

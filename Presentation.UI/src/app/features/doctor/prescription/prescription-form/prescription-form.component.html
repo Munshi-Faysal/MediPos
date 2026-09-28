@@ -29,17 +29,35 @@
       @if (!selectedPatient) {
       <div class="relative w-64">
         <div class="flex gap-2">
-          <input type="text" #searchInput (input)="searchPatient(searchInput.value)" (focus)="onSearchFocus()"
-            (blur)="onSearchBlur()" placeholder="Search Patient (Name/Mobile)..."
+          <input type="text" #searchInput (input)="searchPatient(searchInput.value)" (focus)="onSearchFocus(searchInput.value)"
+            (blur)="onSearchBlur()" placeholder="Search patient or saved prescription..."
             class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
         </div>
 
-        @if (showPatientDropdown && patients().length > 0) {
+        @if (showPatientDropdown && (patients().length > 0 || matchingPrescriptions().length > 0 || loadingSavedPrescriptions)) {
         <div
-          class="absolute top-full left-0 right-0 mt-2 w-72 -ml-4 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto z-50 divide-y divide-gray-100">
+          class="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto z-50">
+          @if (matchingPrescriptions().length > 0) {
+          <div class="border-b border-gray-100 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50">Saved prescriptions · Open with medicines</div>
+          @for (prescription of matchingPrescriptions(); track prescription.encryptedId) {
+          <button type="button" (click)="selectSavedPrescription(prescription)"
+            class="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors border-b border-gray-100 group">
+            <div class="flex items-center justify-between gap-3">
+              <span class="min-w-0 truncate font-semibold text-gray-900 text-sm group-hover:text-blue-700">{{ prescription.patientName || 'Patient' }}</span>
+              <span class="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">{{ prescription.medicinesCount }} medicines</span>
+            </div>
+            <div class="mt-0.5 text-xs text-gray-500">{{ prescription.patientPhone }} · {{ prescription.prescriptionDate | date:'dd MMM yyyy' }}</div>
+          </button>
+          }
+          }
+          @if (loadingSavedPrescriptions) {
+          <div class="px-4 py-2 text-xs text-gray-500">Loading saved prescriptions...</div>
+          }
+          @if (patients().length > 0) {
+          <div class="border-b border-gray-100 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-500 bg-gray-50">Patients · Start new prescription</div>
           @for (p of patients(); track p.id) {
           <button type="button" (click)="selectPatient(p)"
-            class="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors group">
+            class="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors group border-b border-gray-100 last:border-b-0">
             <div class="flex justify-between items-start">
               <div>
                 <div class="font-bold text-gray-900 text-sm group-hover:text-blue-700">{{ p.name }}</div>
@@ -52,6 +70,7 @@
               }
             </div>
           </button>
+          }
           }
         </div>
         }
@@ -113,6 +132,7 @@
     <!-- Body Module -->
     <div class="prescription-body-shell flex-1">
       <app-prescription-body [parentForm]="prescriptionForm" [config]="bodyConfig" [patient]="selectedPatient"
+        [scanToken]="prescriptionScanToken"
         [doseTemplates]="doseTemplates()" [adviceTemplates]="adviceTemplates()"
         [durationTemplates]="durationTemplates()" [ccTemplates]="ccTemplates()" [oeTemplates]="oeTemplates()"
         [ixTemplates]="ixTemplates()" [dxTemplates]="dxTemplates()" (addMedicineStr)="openMedicineSearch()"

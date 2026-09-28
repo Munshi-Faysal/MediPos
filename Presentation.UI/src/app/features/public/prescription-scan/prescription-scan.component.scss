@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+:host main,
+:host article,
+:host article * {
+  box-sizing: border-box;
+}
+
+:host article * {
+  min-width: 0;
+}
+
+@media print {
+  :host {
+    color-adjust: exact;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

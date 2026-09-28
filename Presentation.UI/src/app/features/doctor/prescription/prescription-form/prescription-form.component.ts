@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, inject, OnDestroy, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Prescription, PrescriptionStatus, PrescriptionMedicine } from '../../../../core/models/prescription.model';
@@ -32,6 +32,14 @@ import { debounceTime, distinctUntilChanged, finalize, timeout } from 'rxjs/oper
 
 type PrescriptionSaveAction = 'save' | 'print' | 'printWithoutHeader';
 
+interface SavedPrescriptionSearchResult {
+  encryptedId: string;
+  patientName: string | null;
+  patientPhone: string | null;
+  prescriptionDate: string;
+  medicinesCount: number;
+}
+
 @Component({
   selector: 'app-prescription-form',
   standalone: true,
@@ -50,6 +58,7 @@ type PrescriptionSaveAction = 'save' | 'print' | 'printWithoutHeader';
   styleUrls: ['./prescription-form.component.scss']
 })
 export class PrescriptionFormComponent implements OnInit, OnDestroy {
+  @ViewChild(PrescriptionBodyComponent) private prescriptionBody?: PrescriptionBodyComponent;
   private fb = inject(FormBuilder);
   private prescriptionService = inject(PrescriptionService);
   private patientService = inject(PatientService);
@@ -69,6 +78,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
   prescriptionForm!: FormGroup;
   isEditMode = false;
   prescriptionId: string | null = null;
+  prescriptionScanToken: string | null = null;
   isLoading = false;
 
   private patientSearchSubject = new Subject<string>();
@@ -87,6 +97,11 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
 
   // Patient Data
   patients = signal<Patient[]>([]);
+  savedPrescriptions: SavedPrescriptionSearchResult[] = [];
+  matchingPrescriptions = signal<SavedPrescriptionSearchResult[]>([]);
+  loadingSavedPrescriptions = false;
+  private savedPrescriptionsLoaded = false;
+  private patientSearchQuery = '';
   selectedPatient: Patient | null = null;
   loadingPatients = false;
 
@@ -186,6 +201,13 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.route.queryParamMap.subscribe(params => {
+      const appointmentId = params.get('appointmentId');
+      if (appointmentId && !this.isEditMode) {
+        this.loadAppointmentForPrescription(appointmentId);
+      }
+    });
+
     // Watch for mode changes to load data if needed
     // Assuming simple switch logic, logic can be added in setSelectionMode
   }
@@ -260,12 +282,47 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
 
   showPatientDropdown = false;
 
-  onSearchFocus(): void {
+  onSearchFocus(query: string): void {
+    this.patientSearchQuery = query;
+    this.updateSavedPrescriptionMatches();
     // Check if we need to load initial list
     if (this.patients().length === 0) {
       this.loadPatients(5);
     }
+    this.loadSavedPrescriptions();
     this.showPatientDropdown = true;
+  }
+
+  private loadSavedPrescriptions(): void {
+    if (this.savedPrescriptionsLoaded || this.loadingSavedPrescriptions) return;
+
+    this.loadingSavedPrescriptions = true;
+    this.prescriptionService.getPrescriptions().subscribe({
+      next: (prescriptions: SavedPrescriptionSearchResult[]) => {
+        this.savedPrescriptions = prescriptions.filter(p => !!p.encryptedId);
+        this.savedPrescriptionsLoaded = true;
+        this.updateSavedPrescriptionMatches();
+        this.loadingSavedPrescriptions = false;
+      },
+      error: () => {
+        this.loadingSavedPrescriptions = false;
+      }
+    });
+  }
+
+  private updateSavedPrescriptionMatches(): void {
+    const query = this.patientSearchQuery.trim().toLowerCase();
+    const matches = this.savedPrescriptions.filter(p =>
+      !query ||
+      (p.patientName || '').toLowerCase().includes(query) ||
+      (p.patientPhone || '').toLowerCase().includes(query)
+    );
+    this.matchingPrescriptions.set(query ? matches : matches.slice(0, 5));
+  }
+
+  selectSavedPrescription(prescription: SavedPrescriptionSearchResult): void {
+    this.showPatientDropdown = false;
+    this.router.navigate(['/doctor/prescriptions', prescription.encryptedId, 'edit']);
   }
 
   onSearchBlur(): void {
@@ -354,9 +411,11 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.prescriptionService.getPrescriptionById(this.prescriptionId).subscribe({
       next: (prescription) => {
+        this.prescriptionScanToken = prescription.scanToken || null;
         // Create an object to track which sections should be shown
         const updates: any = {
-          patientId: prescription.patientId,
+          patientId: prescription.patientEncryptedId || prescription.patientId,
+          appointmentId: prescription.appointmentEncryptedId || '',
           prescriptionDate: this.formatDateForInput(prescription.prescriptionDate),
           chiefComplaint: prescription.chiefComplaint || '',
           onExamination: prescription.onExamination || '',
@@ -371,23 +430,21 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
           patientWeight: prescription.patientWeight || '',
           patientPhone: prescription.patientPhone || '',
           patientAddress: prescription.patientAddress || '',
-          patientRegNo: prescription.patientRegNo || ''
+          patientRegNo: prescription.patientRegNo || '',
+          showChiefComplaint: !!prescription.chiefComplaint,
+          showOnExamination: !!prescription.onExamination,
+          showAdvice: !!prescription.advice,
+          showInvestigation: !!prescription.investigation,
+          showDiagnosis: !!prescription.diagnosis,
+          showDisease: !!prescription.disease,
+          showDrugHistory: !!prescription.drugHistory
         };
-
-        // Auto-enable toggles if data exists
-        if (prescription.chiefComplaint) updates['showChiefComplaint'] = true;
-        if (prescription.onExamination) updates['showOnExamination'] = true;
-        if (prescription.advice) updates['showAdvice'] = true;
-        if (prescription.investigation) updates['showInvestigation'] = true;
-        if (prescription.diagnosis) updates['showDiagnosis'] = true;
-        if (prescription.disease) updates['showDisease'] = true;
-        if (prescription.drugHistory) updates['showDrugHistory'] = true;
 
         this.prescriptionForm.patchValue(updates);
 
         // Reconstruct selectedPatient for UI components
         this.selectedPatient = {
-          id: prescription.patientId,
+          id: prescription.patientEncryptedId || prescription.patientId,
           name: prescription.patientName || 'Unknown',
           phone: prescription.patientPhone || '',
           age: parseInt(prescription.patientAge as any) || 0,
@@ -399,7 +456,8 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
         };
 
         // Load medicines
-        prescription.medicines.forEach((med: any) => {
+        this.medicinesFormArray.clear();
+        (prescription.medicines || []).forEach((med: any) => {
           // Construct a mock Medicine object from the DTO info to avoid "Unknown"
           const medicineMock: any = {
             id: med.medicineEncryptedId,
@@ -466,6 +524,9 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
   }
 
   searchPatient(query: string): void {
+    this.patientSearchQuery = query;
+    this.updateSavedPrescriptionMatches();
+    this.showPatientDropdown = true;
     this.patientSearchSubject.next(query);
   }
 
@@ -830,6 +891,7 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
       finalize(() => this.resetSubmitState())
     ).subscribe({
       next: (savedPrescription) => {
+        this.prescriptionScanToken = savedPrescription?.scanToken || savedPrescription?.ScanToken || this.prescriptionScanToken;
         this.saveNewTemplatesInBackground();
 
         if (action !== 'save') {
@@ -841,15 +903,16 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
             // Quietly update URL without reloading
             window.history.replaceState({}, '', `/doctor/prescriptions/${savedId}`);
           }
-          // Print after a short delay to ensure DOM is ready
-          setTimeout(() => {
+          // Render the saved prescription's barcode before opening print preview.
+          setTimeout(async () => {
+            await this.prescriptionBody?.generateBarcode();
             if (action === 'printWithoutHeader') {
               window.addEventListener('afterprint', () => {
                 this.hideHeaderOnPrint = false;
               }, { once: true });
             }
             window.print();
-          }, 500);
+          }, 0);
         } else {
           // Save Only -> Navigate to List or Detail
           this.router.navigate(['/doctor/prescriptions']);
@@ -862,6 +925,22 @@ export class PrescriptionFormComponent implements OnInit, OnDestroy {
           ? 'The server took too long to respond. Please check the connection and try again.'
           : (apiMessage || `Failed to ${this.isEditMode ? 'update' : 'create'} prescription. Please try again.`);
         alert(message);
+      }
+    });
+  }
+
+  private loadAppointmentForPrescription(appointmentId: string): void {
+    this.loadingAppointments = true;
+    this.appointmentService.getAppointmentById(appointmentId).subscribe({
+      next: appointment => {
+        this.selectionMode = 'appointment';
+        this.selectAppointment(appointment);
+        this.loadingAppointments = false;
+      },
+      error: error => {
+        console.error('Failed to load appointment for prescription', error);
+        this.loadingAppointments = false;
+        alert('The selected appointment could not be loaded.');
       }
     });
   }

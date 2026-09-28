@@ -13,48 +13,9 @@
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <!-- Search -->
-      <div class="md:col-span-2">
-        <input type="text" [value]="searchQuery()" (input)="onSearch($any($event.target).value)"
-          placeholder="Search by diagnosis, patient..."
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-      </div>
-
-      <!-- Status Filter -->
-      <div>
-        <select [value]="selectedStatus()" (change)="onStatusFilterChange($any($event.target).value)"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="">All Status</option>
-          @for (status of prescriptionStatuses; track status) {
-          <option [value]="status">{{ status }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Date Range -->
-      <div class="flex gap-2">
-        <input type="date" [value]="dateFrom()" (change)="onDateFromChange($any($event.target).value)"
-          placeholder="From"
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-        <input type="date" [value]="dateTo()" (change)="onDateToChange($any($event.target).value)" placeholder="To"
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-      </div>
-    </div>
-
-    <!-- Clear Filters -->
-    <div class="mt-4">
-      <button (click)="clearFilters()" class="text-sm text-gray-600 hover:text-gray-800">
-        Clear Filters
-      </button>
-    </div>
-  </div>
-
   <!-- Table -->
   <div class="bg-white rounded-lg shadow">
-    <app-dynamic-table [columns]="columns" [data]="getTableData()" [loading]="loading()" [pageSize]="10"
+    <app-dynamic-table [columns]="columns" [data]="getTableData()" [loading]="loading()" [pageSize]="50"
       (rowClick)="onRowClick($event)">
       <!-- Status Badge Template -->
       <ng-template #statusTemplate let-row>

@@ -4,6 +4,18 @@ import { AdminGuard } from './core/guards/admin.guard';
 import { SystemAdminGuard } from './core/guards/system-admin.guard';
 
 export const routes: Routes = [
+  {
+    path: 'scan',
+    loadComponent: () => import('./features/public/prescription-barcode-scan/prescription-barcode-scan.component').then(m => m.PrescriptionBarcodeScanComponent)
+  },
+  {
+    path: 'p/code/:code',
+    loadComponent: () => import('./features/public/prescription-scan/prescription-scan.component').then(m => m.PrescriptionScanComponent)
+  },
+  {
+    path: 'p/:token',
+    loadComponent: () => import('./features/public/prescription-scan/prescription-scan.component').then(m => m.PrescriptionScanComponent)
+  },
   // Root - Landing page
   {
     path: '',
@@ -208,12 +220,12 @@ export const routes: Routes = [
             loadComponent: () => import('./features/doctor/prescription/prescription-form/prescription-form.component').then(m => m.PrescriptionFormComponent)
           },
           {
-            path: ':id',
-            loadComponent: () => import('./features/doctor/prescription/prescription-detail/prescription-detail.component').then(m => m.PrescriptionDetailComponent)
-          },
-          {
             path: ':id/edit',
             loadComponent: () => import('./features/doctor/prescription/prescription-form/prescription-form.component').then(m => m.PrescriptionFormComponent)
+          },
+          {
+            path: ':id',
+            loadComponent: () => import('./features/doctor/prescription/prescription-detail/prescription-detail.component').then(m => m.PrescriptionDetailComponent)
           }
         ]
       },

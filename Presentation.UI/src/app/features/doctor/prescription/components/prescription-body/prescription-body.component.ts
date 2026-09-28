@@ -1,28 +1,30 @@
-import { Component, Input, Output, EventEmitter, OnChanges, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { PrescriptionBodyConfig, DEFAULT_BODY_CONFIG, BodySectionConfig } from '../../../../../core/models/prescription-settings.model';
 import { Patient } from '../../../../../core/models/patient.model';
-import JsBarcode from 'jsbarcode';
+import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescription-barcode.component';
 
 @Component({
   selector: 'app-prescription-body',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PrescriptionBarcodeComponent],
   template: `
     <div class="flex flex-col md:flex-row min-h-[800px]" [formGroup]="parentForm">
-    
       <!-- Left Column: Dynamic Sections -->
       @if (config.showLeftColumn) {
         <div class="clinical-column w-full md:w-1/3 border-r border-slate-200 px-4 pb-4 pt-4 print:w-1/3 print:border-gray-800 print:pt-2 relative">
-          <!-- Barcode at TOP of left column -->
-          @if (config.showBarcode && patient?.id) {
-            <div class="mb-6 flex flex-col items-center">
-              <div class="barcode-container bg-white p-1 pb-0 rounded">
-                <svg #barcodeCanvas></svg>
-              </div>
-              <p class="text-[10px] font-bold text-gray-600 mt-1 uppercase tracking-tight">Reg: {{ patient?.id }}</p>
+          @if (scanToken) {
+            <div class="mb-4 flex justify-center">
+              <app-prescription-barcode [scanToken]="scanToken"></app-prescription-barcode>
             </div>
+          } @else {
+              <div class="mb-5 flex flex-col items-center print:hidden">
+                <div class="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-300">
+                  <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 4h4v4H3V4zm14 0h4v4h-4V4zM3 16h4v4H3v-4zm7-12h3m-3 4h3m-3 4h3m4 0h4m-4 4h4M10 16v4h4v-7h3"></path></svg>
+                </div>
+                <p class="mt-1.5 text-center text-[9px] font-semibold leading-3 text-slate-400">Save prescription<br>to generate scan code</p>
+              </div>
           }
           <div class="mb-3 flex items-center justify-between print:hidden">
             <div>
@@ -102,7 +104,13 @@ import JsBarcode from 'jsbarcode';
       <!-- Right Column: Rx (Medicines) -->
       <div class="p-6 relative"
         [ngClass]="config.showLeftColumn ? 'w-full md:w-2/3 print:w-2/3' : 'w-full print:w-full'">
-    
+
+        @if (!config.showLeftColumn && scanToken) {
+          <div class="mb-4 flex justify-center">
+            <app-prescription-barcode [scanToken]="scanToken"></app-prescription-barcode>
+          </div>
+        }
+
         <!-- Rx Header -->
         <h2 class="text-4xl font-serif font-bold italic mb-6">{{ config.labelRx }}</h2>
     
@@ -230,10 +238,6 @@ import JsBarcode from 'jsbarcode';
     .font-hindi {
         font-family: 'Noto Sans Bengali', sans-serif;
     }
-    .barcode-container svg {
-        width: 120px;
-        height: 60px;
-    }
     @media print {
         @page {
             size: A4;
@@ -294,6 +298,7 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
   @Input() parentForm!: FormGroup;
   @Input() config: PrescriptionBodyConfig = DEFAULT_BODY_CONFIG;
   @Input() patient: Patient | null = null;
+  @Input() scanToken: string | null = null;
   @Input() doseTemplates: string[] = [];
   @Input() adviceTemplates: string[] = [];
   @Input() durationTemplates: string[] = [];
@@ -305,7 +310,7 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
   @Output() addMedicineStr = new EventEmitter<void>();
   @Output() removeMedicineIdx = new EventEmitter<number>();
 
-  @ViewChild('barcodeCanvas') barcodeCanvas!: ElementRef;
+  @ViewChild(PrescriptionBarcodeComponent) barcode?: PrescriptionBarcodeComponent;
 
   sortedSections: BodySectionConfig[] = [];
   activeDoseDropdownIndex: number | null = null;
@@ -321,21 +326,8 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
     this.generateBarcode();
   }
 
-  private generateBarcode() {
-    if (this.barcodeCanvas && this.patient?.id && this.config.showBarcode) {
-      try {
-        JsBarcode(this.barcodeCanvas.nativeElement, this.patient.id.toString(), {
-          format: "CODE128",
-          lineColor: "#000",
-          width: 2,
-          height: 40,
-          displayValue: false,
-          margin: 0
-        });
-      } catch (e) {
-        console.error("Barcode generation failed", e);
-      }
-    }
+  generateBarcode(): void {
+    this.barcode?.renderBarcode();
   }
 
   private updateSortedSections() {

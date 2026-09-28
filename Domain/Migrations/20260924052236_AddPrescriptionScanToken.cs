@@ -15,8 +15,23 @@ namespace Domain.Migrations
                 table: "Prescription",
                 type: "nvarchar(64)",
                 maxLength: 64,
+                nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE [Prescription] " +
+                "SET [ScanToken] = LOWER(REPLACE(CONVERT(nvarchar(36), NEWID()), '-', '')) " +
+                "WHERE [ScanToken] IS NULL OR [ScanToken] = ''");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "ScanToken",
+                table: "Prescription",
+                type: "nvarchar(64)",
+                maxLength: 64,
                 nullable: false,
-                defaultValue: "");
+                oldClrType: typeof(string),
+                oldType: "nvarchar(64)",
+                oldMaxLength: 64,
+                oldNullable: true);
 
             migrationBuilder.CreateIndex(
                 name: "UX_Prescription_ScanToken",

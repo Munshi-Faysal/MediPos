@@ -2,6 +2,7 @@ using Application.ConfigureServices;
 using Application.Middleware;
 using Hangfire;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Threading.RateLimiting;
 using Presentation.API;
 using Scalar.AspNetCore;
 using Serilog;
@@ -33,6 +34,20 @@ try
     services.AddSignalR();
     services.AddAuthentication();
     services.AddAuthorization();
+    services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.AddPolicy("prescription-barcode", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 30,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                }));
+    });
     services.ConfigureOpenApi();
 
     var app = builder.Build();
@@ -79,6 +94,8 @@ try
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
     });
+
+    app.UseRateLimiter();
 
     app.UseAuthentication();
     app.UseAuthorization();

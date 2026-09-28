@@ -5,17 +5,20 @@ export enum Gender {
 }
 
 export interface Patient {
-  id: string;
+  id: string | number;
+  encryptedId?: string;
   name: string;
   age: number;
-  gender: Gender;
+  gender: Gender | string;
   phone: string;
   email?: string;
   address?: string;
+  bloodGroup?: string;
+  image?: string;
   weight?: string;
   medicalHistory?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface PatientFilters {

@@ -27,3 +27,10 @@ public class AppointmentDto : BaseDto
     [StringLength(1000)]
     public string? Notes { get; set; }
 }
+
+public class AppointmentStatusDto
+{
+    [Required]
+    [StringLength(50)]
+    public string Status { get; set; } = null!;
+}

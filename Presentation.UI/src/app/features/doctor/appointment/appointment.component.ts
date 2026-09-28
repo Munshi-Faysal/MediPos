@@ -1,230 +1,446 @@
-import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AppointmentService, AppointmentDto, AppointmentViewModel } from '../../../core/services/appointment.service';
-import { PatientService, PatientViewModel } from '../../../core/services/patient.service';
+import { Router, RouterModule } from '@angular/router';
+import {
+  AppointmentDto,
+  AppointmentService,
+  AppointmentViewModel
+} from '../../../core/services/appointment.service';
+import {
+  PatientDto,
+  PatientService,
+  PatientViewModel
+} from '../../../core/services/patient.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { confirmAppAction } from '../../../core/utils/app-alert';
 
 export interface Appointment {
-    id: number;
-    encryptedId: string;
-    patientId: number;
-    patientName: string;
-    patientImage?: string;
-    dateTime: Date;
-    reason: string;
-    status: string;
-    type: string;
-    notes?: string;
-    contact: string;
+  id: number;
+  encryptedId: string;
+  patientId: number;
+  patientEncryptedId?: string;
+  patientName: string;
+  patientImage?: string;
+  dateTime: Date;
+  reason: string;
+  status: string;
+  type: string;
+  notes?: string;
+  contact: string;
+  prescriptionEncryptedId?: string;
 }
 
 @Component({
-    selector: 'app-appointment',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    templateUrl: './appointment.component.html',
-    styles: []
+  selector: 'app-appointment',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './appointment.component.html',
+  styles: []
 })
 export class AppointmentComponent implements OnInit {
-    private appointmentService = inject(AppointmentService);
-    private patientService = inject(PatientService);
-    private authService = inject(AuthService);
+  private readonly appointmentService = inject(AppointmentService);
+  private readonly patientService = inject(PatientService);
+  private readonly authService = inject(AuthService);
+  private readonly notification = inject(NotificationService);
+  private readonly router = inject(Router);
 
-    currentView: 'list' | 'create' | 'view' = 'list';
-    searchTerm = '';
-    selectedDate: string = new Date().toISOString().split('T')[0]; // Default to today
-    selectedAppointment: Appointment | null = null;
-    appointments: Appointment[] = [];
-    filteredAppointments: Appointment[] = [];
+  currentView: 'list' | 'create' | 'view' = 'list';
+  searchTerm = '';
+  selectedDate = this.formatLocalDate(new Date());
+  selectedAppointment: Appointment | null = null;
+  appointments: Appointment[] = [];
+  filteredAppointments: Appointment[] = [];
+  newAppointment: Partial<Appointment> = this.emptyAppointment();
 
-    // Form Model
-    newAppointment: Partial<Appointment> = {
-        status: 'Scheduled',
-        type: 'New Visit',
-        dateTime: new Date()
+  patientSearchTerm = '';
+  patientSearchResults: PatientViewModel[] = [];
+  foundPatient: PatientViewModel | null = null;
+  patientSearchMessage = '';
+
+  isEditing = false;
+  isLoading = false;
+  isSearching = false;
+  isSaving = false;
+  isUpdatingStatus = false;
+  errorMessage = '';
+  formError = '';
+
+  readonly pageSize = 50;
+  currentPage = 1;
+
+  ngOnInit(): void {
+    this.loadAppointments();
+  }
+
+  get paginatedAppointments(): Appointment[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredAppointments.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredAppointments.length / this.pageSize));
+  }
+
+  get resultStart(): number {
+    return this.filteredAppointments.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get resultEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredAppointments.length);
+  }
+
+  get dateTimeMin(): string {
+    const minimum = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000);
+    return minimum.toISOString().slice(0, 16);
+  }
+
+  loadAppointments(): void {
+    if (!this.selectedDate) return;
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.appointmentService.getAppointmentsByCurrentDoctorAndDate(this.selectedDate).subscribe({
+      next: (response: any) => {
+        this.appointments = (response?.data || []).map((appointment: AppointmentViewModel) =>
+          this.mapAppointment(appointment));
+        this.filterAppointments(false);
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading appointments:', error);
+        this.appointments = [];
+        this.filteredAppointments = [];
+        this.errorMessage = 'Appointments could not be loaded. Please try again.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  onDateChange(): void {
+    this.currentPage = 1;
+    this.loadAppointments();
+  }
+
+  filterAppointments(resetPage = true): void {
+    const term = this.searchTerm.trim().toLowerCase();
+    const filtered = !term
+      ? [...this.appointments]
+      : this.appointments.filter(appointment =>
+          appointment.patientName.toLowerCase().includes(term) ||
+          appointment.contact.toLowerCase().includes(term) ||
+          appointment.reason.toLowerCase().includes(term)
+        );
+
+    this.filteredAppointments = filtered.sort((first, second) =>
+      first.dateTime.getTime() - second.dateTime.getTime());
+    if (resetPage) this.currentPage = 1;
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) this.currentPage = page;
+  }
+
+  showList(): void {
+    this.currentView = 'list';
+    this.selectedAppointment = null;
+    this.newAppointment = this.emptyAppointment();
+    this.isEditing = false;
+    this.formError = '';
+    this.resetPatientSearch();
+  }
+
+  showCreate(): void {
+    this.currentView = 'create';
+    this.isEditing = false;
+    this.formError = '';
+    this.newAppointment = this.emptyAppointment(this.getInitialAppointmentDate());
+    this.resetPatientSearch();
+  }
+
+  showEdit(appointment: Appointment): void {
+    if (appointment.status !== 'Scheduled') return;
+
+    this.currentView = 'create';
+    this.isEditing = true;
+    this.formError = '';
+    this.newAppointment = { ...appointment };
+    this.patientSearchTerm = appointment.contact;
+    this.foundPatient = {
+      id: appointment.patientId,
+      encryptedId: appointment.patientEncryptedId || '',
+      isActive: true,
+      name: appointment.patientName,
+      age: 0,
+      gender: '',
+      phone: appointment.contact,
+      image: appointment.patientImage
+    };
+    this.patientSearchResults = [];
+    this.patientSearchMessage = '';
+  }
+
+  showDetails(appointment: Appointment): void {
+    this.selectedAppointment = appointment;
+    this.currentView = 'view';
+    this.errorMessage = '';
+  }
+
+  searchPatient(): void {
+    const term = this.patientSearchTerm.trim();
+    if (!term || this.isSearching) {
+      this.patientSearchMessage = term ? '' : 'Enter a patient name or mobile number.';
+      return;
+    }
+
+    this.isSearching = true;
+    this.foundPatient = null;
+    this.patientSearchResults = [];
+    this.patientSearchMessage = '';
+    this.patientService.searchPatients(term, 10).subscribe({
+      next: (patients) => {
+        this.patientSearchResults = patients || [];
+        const exactPhoneMatch = this.patientSearchResults.find(patient => patient.phone.trim() === term);
+        if (exactPhoneMatch) this.selectPatient(exactPhoneMatch);
+        else if (this.patientSearchResults.length === 0) {
+          this.patientSearchMessage = 'No patient found. Enter name and contact below to register a new patient.';
+          this.newAppointment.contact = term;
+        }
+        this.isSearching = false;
+      },
+      error: (error) => {
+        console.error('Error searching patient:', error);
+        this.patientSearchMessage = 'Patient search failed. Please try again.';
+        this.isSearching = false;
+      }
+    });
+  }
+
+  selectPatient(patient: PatientViewModel): void {
+    this.foundPatient = patient;
+    this.patientSearchTerm = patient.phone;
+    this.newAppointment.patientId = patient.id;
+    this.newAppointment.patientEncryptedId = patient.encryptedId;
+    this.newAppointment.patientName = patient.name;
+    this.newAppointment.contact = patient.phone;
+    this.newAppointment.patientImage = patient.image;
+    this.patientSearchResults = [];
+    this.patientSearchMessage = '';
+  }
+
+  clearSelectedPatient(): void {
+    this.foundPatient = null;
+    this.patientSearchResults = [];
+    this.newAppointment.patientId = undefined;
+    this.newAppointment.patientEncryptedId = undefined;
+  }
+
+  saveAppointment(): void {
+    if (this.isSaving || !this.validateAppointment()) return;
+
+    if (this.newAppointment.patientId) {
+      this.persistAppointment(this.newAppointment.patientId);
+      return;
+    }
+
+    this.isSaving = true;
+    const patient: PatientDto = {
+      name: this.newAppointment.patientName!.trim(),
+      phone: this.newAppointment.contact!.trim(),
+      age: 0,
+      gender: 'Other',
+      email: '',
+      bloodGroup: '',
+      address: ''
     };
 
-    patientSearchTerm = '';
-    foundPatient: PatientViewModel | null = null;
-    isSearching = false;
+    this.patientService.createPatient(patient).subscribe({
+      next: (createdPatient: PatientViewModel) => {
+        if (!createdPatient?.id) {
+          this.handleSaveError(null, 'Patient was created but its ID was not returned.');
+          return;
+        }
+        this.newAppointment.patientId = createdPatient.id;
+        this.newAppointment.patientEncryptedId = createdPatient.encryptedId;
+        this.persistAppointment(createdPatient.id, true);
+      },
+      error: (error) => this.handleSaveError(error, 'The patient could not be registered.')
+    });
+  }
 
-    ngOnInit() {
+  async updateStatus(status: 'Completed' | 'Cancelled' | 'No Show'): Promise<void> {
+    const appointment = this.selectedAppointment;
+    if (!appointment?.encryptedId || this.isUpdatingStatus) return;
+
+    const confirmed = await confirmAppAction({
+      title: `${status} appointment?`,
+      text: `This will change ${appointment.patientName}'s appointment status to ${status}.`,
+      confirmButtonText: `Yes, mark ${status}`,
+      confirmButtonColor: status === 'Completed' ? '#16a34a' : '#dc2626'
+    });
+    if (!confirmed) return;
+
+    this.isUpdatingStatus = true;
+    this.appointmentService.updateStatus(appointment.encryptedId, status).subscribe({
+      next: () => {
+        appointment.status = status;
+        const listAppointment = this.appointments.find(item => item.encryptedId === appointment.encryptedId);
+        if (listAppointment) listAppointment.status = status;
+        this.filterAppointments(false);
+        this.isUpdatingStatus = false;
+        this.notification.success('Success', `Appointment marked as ${status}.`);
+      },
+      error: (error) => {
+        console.error('Error updating appointment status:', error);
+        this.isUpdatingStatus = false;
+        this.notification.error('Error', 'Appointment status could not be updated.');
+      }
+    });
+  }
+
+  openPrescription(appointment: Appointment): void {
+    if (appointment.prescriptionEncryptedId) {
+      void this.router.navigate(['/doctor/prescriptions', appointment.prescriptionEncryptedId]);
+      return;
+    }
+
+    void this.router.navigate(['/doctor/prescriptions/new'], {
+      queryParams: { appointmentId: appointment.encryptedId }
+    });
+  }
+
+  initials(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part[0].toUpperCase())
+      .join('') || 'P';
+  }
+
+  get dateTimeValue(): string {
+    if (!this.newAppointment.dateTime) return '';
+    const date = new Date(this.newAppointment.dateTime);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return date.toISOString().slice(0, 16);
+  }
+
+  set dateTimeValue(value: string) {
+    this.newAppointment.dateTime = value ? new Date(value) : undefined;
+  }
+
+  private persistAppointment(patientId: number, patientAlreadySaving = false): void {
+    this.isSaving = true;
+    const dto: AppointmentDto = {
+      encryptedId: this.isEditing ? this.newAppointment.encryptedId : undefined,
+      patientId,
+      doctorId: Number(this.authService.user()?.doctorId || 0),
+      dateTime: this.newAppointment.dateTime!,
+      reason: this.newAppointment.reason?.trim(),
+      status: this.newAppointment.status || 'Scheduled',
+      type: this.newAppointment.type || 'New Visit',
+      notes: this.newAppointment.notes?.trim()
+    };
+    const request = this.isEditing
+      ? this.appointmentService.updateAppointment(dto)
+      : this.appointmentService.createAppointment(dto);
+
+    request.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.selectedDate = this.formatLocalDate(new Date(dto.dateTime));
+        this.notification.success(
+          'Success',
+          this.isEditing ? 'Appointment updated successfully.' : 'Appointment scheduled successfully.'
+        );
+        this.showList();
         this.loadAppointments();
+      },
+      error: (error) => this.handleSaveError(
+        error,
+        patientAlreadySaving
+          ? 'Patient was registered, but the appointment could not be scheduled.'
+          : this.isEditing
+            ? 'Appointment could not be updated.'
+            : 'Appointment could not be scheduled.'
+      )
+    });
+  }
+
+  private validateAppointment(): boolean {
+    if (!this.newAppointment.patientName?.trim()) {
+      this.formError = 'Patient name is required.';
+      return false;
     }
-
-    loadAppointments() {
-        const doctorId = this.authService.user()?.doctorId;
-        if (!doctorId) {
-            console.warn('DoctorId not found in user profile');
-            return;
-        }
-
-        this.appointmentService.getAppointmentsByCurrentDoctorAndDate(this.selectedDate).subscribe({
-            next: (res: any) => {
-                const data = res.data || [];
-                this.appointments = data.map((a: AppointmentViewModel) => ({
-                    id: 0,
-                    encryptedId: a.encryptedId,
-                    patientId: a.patientId,
-                    patientName: a.patientName,
-                    patientImage: a.patientImage || 'https://i.pravatar.cc/150?u=' + a.patientId,
-                    dateTime: new Date(a.dateTime),
-                    reason: a.reason || '',
-                    status: a.status,
-                    type: a.type,
-                    contact: a.patientPhone,
-                    notes: a.notes
-                }));
-                this.filterAppointments();
-            },
-            error: (err: any) => console.error('Error loading appointments:', err)
-        });
+    if (!this.newAppointment.contact?.trim()) {
+      this.formError = 'Patient contact number is required.';
+      return false;
     }
-
-    filterAppointments() {
-        let filtered = this.appointments;
-
-        // Filter by Date
-        if (this.selectedDate) {
-            const dateStr = new Date(this.selectedDate).toDateString();
-            filtered = filtered.filter(a => new Date(a.dateTime).toDateString() === dateStr);
-        }
-
-        // Filter by Search Term
-        if (this.searchTerm) {
-            const term = this.searchTerm.toLowerCase();
-            filtered = filtered.filter(a =>
-                a.patientName.toLowerCase().includes(term) ||
-                a.contact.includes(term)
-            );
-        }
-
-        this.filteredAppointments = filtered.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    if (!this.newAppointment.dateTime || Number.isNaN(new Date(this.newAppointment.dateTime).getTime())) {
+      this.formError = 'Select a valid appointment date and time.';
+      return false;
     }
-
-    // Views
-    showList() {
-        this.currentView = 'list';
-        this.selectedAppointment = null;
-        this.newAppointment = { status: 'Scheduled', type: 'New Visit', dateTime: new Date() };
-        this.resetSearch();
+    if (new Date(this.newAppointment.dateTime).getTime() < Date.now() - 60_000) {
+      this.formError = 'Appointment date and time cannot be in the past.';
+      return false;
     }
+    this.formError = '';
+    return true;
+  }
 
-    showCreate() {
-        this.currentView = 'create';
-        const initialDate = this.selectedDate ? new Date(this.selectedDate) : new Date();
-        initialDate.setMinutes(0, 0, 0);
-        initialDate.setHours(initialDate.getHours() + 1);
+  private handleSaveError(error: any, fallback: string): void {
+    console.error(fallback, error);
+    this.isSaving = false;
+    this.formError = error?.error?.message || fallback;
+    this.notification.error('Error', this.formError);
+  }
 
-        this.newAppointment = {
-            status: 'Scheduled',
-            type: 'New Visit',
-            dateTime: initialDate
-        };
-        this.resetSearch();
+  private mapAppointment(appointment: AppointmentViewModel): Appointment {
+    return {
+      id: appointment.id,
+      encryptedId: appointment.encryptedId,
+      patientId: appointment.patientId,
+      patientEncryptedId: appointment.patientEncryptedId,
+      patientName: appointment.patientName,
+      patientImage: appointment.patientImage || undefined,
+      dateTime: new Date(appointment.dateTime),
+      reason: appointment.reason || '',
+      status: appointment.status,
+      type: appointment.type,
+      contact: appointment.patientPhone,
+      notes: appointment.notes,
+      prescriptionEncryptedId: appointment.prescriptionEncryptedId
+    };
+  }
+
+  private emptyAppointment(dateTime = new Date()): Partial<Appointment> {
+    return { status: 'Scheduled', type: 'New Visit', dateTime };
+  }
+
+  private resetPatientSearch(): void {
+    this.patientSearchTerm = '';
+    this.foundPatient = null;
+    this.patientSearchResults = [];
+    this.patientSearchMessage = '';
+    this.isSearching = false;
+  }
+
+  private getInitialAppointmentDate(): Date {
+    const now = new Date();
+    const selectedDay = new Date(`${this.selectedDate}T09:00:00`);
+    if (this.formatLocalDate(now) === this.selectedDate) {
+      now.setMinutes(0, 0, 0);
+      now.setHours(now.getHours() + 1);
+      return now;
     }
+    return selectedDay;
+  }
 
-    showDetails(appointment: Appointment) {
-        this.selectedAppointment = appointment;
-        this.currentView = 'view';
-    }
-
-    // Patient Search Logic
-    searchPatient() {
-        if (!this.patientSearchTerm) return;
-
-        this.isSearching = true;
-        this.patientService.getByPhone(this.patientSearchTerm).subscribe({
-            next: (res: any) => {
-                const found = res.data;
-                if (found) {
-                    this.foundPatient = found;
-                    this.newAppointment.patientName = found.name;
-                    this.newAppointment.contact = found.phone;
-                    this.newAppointment.patientId = Number(found.id || 0); // Need numeric ID
-                    this.newAppointment.patientImage = found.image;
-                } else {
-                    this.foundPatient = null;
-                    this.newAppointment.contact = this.patientSearchTerm;
-                }
-                this.isSearching = false;
-            },
-            error: (err: any) => {
-                console.error('Error searching patient:', err);
-                this.isSearching = false;
-            }
-        });
-    }
-
-    useFoundPatient() {
-        if (this.foundPatient) {
-            this.newAppointment.patientName = this.foundPatient.name;
-            this.newAppointment.contact = this.foundPatient.phone;
-            // ... set other fields
-        }
-    }
-
-    resetSearch() {
-        this.patientSearchTerm = '';
-        this.foundPatient = null;
-        this.isSearching = false;
-    }
-
-    // Actions
-    createAppointment() {
-        if (!this.newAppointment.patientName || !this.newAppointment.dateTime) return;
-
-        const doctorId = this.authService.user()?.doctorId;
-        if (!doctorId) {
-            console.error('DoctorId not found in user profile');
-            return;
-        }
-
-        // If patient doesn't exist, we might need to create it first, 
-        // but for now let's assume patientId is available or we just create for existing.
-        // In a real app, if patientId is null, we'd call patientService.createPatient first.
-
-        const dto: AppointmentDto = {
-            patientId: this.newAppointment.patientId || 0,
-            doctorId: doctorId,
-            dateTime: this.newAppointment.dateTime,
-            reason: this.newAppointment.reason,
-            status: this.newAppointment.status || 'Scheduled',
-            type: this.newAppointment.type || 'New Visit',
-            notes: this.newAppointment.notes
-        };
-
-        this.appointmentService.createAppointment(dto).subscribe({
-            next: () => {
-                this.loadAppointments();
-                this.showList();
-            },
-            error: (err: any) => console.error('Error creating appointment:', err)
-        });
-    }
-
-    updateStatus(status: any) {
-        if (this.selectedAppointment && this.selectedAppointment.encryptedId) {
-            this.appointmentService.updateStatus(this.selectedAppointment.encryptedId, status).subscribe({
-                next: () => {
-                    this.selectedAppointment!.status = status;
-                    this.loadAppointments();
-                },
-                error: (err: any) => console.error('Error updating status:', err)
-            });
-        }
-    }
-
-    // Helper for Date Input (datetime-local format: YYYY-MM-DDTHH:mm)
-    get dateTimeValue(): string {
-        if (!this.newAppointment.dateTime) return '';
-        const d = new Date(this.newAppointment.dateTime);
-        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-        return d.toISOString().slice(0, 16);
-    }
-
-    set dateTimeValue(v: string) {
-        this.newAppointment.dateTime = new Date(v);
-    }
+  private formatLocalDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 }

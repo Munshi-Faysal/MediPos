@@ -1,0 +1,29 @@
+:host { display: block; min-height: 100vh; }
+.scan-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 16px; background: #f1f5f9; font-family: Inter, Arial, sans-serif; }
+.scan-card { box-sizing: border-box; width: 100%; max-width: 460px; padding: 32px; border: 1px solid #e2e8f0; border-radius: 20px; background: #fff; box-shadow: 0 18px 50px #0f172a14; text-align: center; }
+.brand { display: inline-block; color: #1e40af; font-size: 19px; font-weight: 800; text-decoration: none; }
+.icon { display: flex; align-items: center; justify-content: center; gap: 3px; width: 56px; height: 56px; margin: 26px auto 14px; border-radius: 16px; background: #eff6ff; }
+.icon span { width: 3px; height: 24px; border-radius: 2px; background: #2563eb; }
+.icon span:nth-child(2), .icon span:nth-child(6) { height: 31px; width: 5px; }
+.icon span:nth-child(4) { height: 34px; width: 2px; }
+.eyebrow { margin: 0; color: #64748b; font-size: 10px; font-weight: 800; letter-spacing: .18em; }
+h1 { margin: 8px 0; color: #0f172a; font-size: 24px; line-height: 1.25; }
+.intro { margin: 0 auto 22px; max-width: 330px; color: #64748b; font-size: 13px; line-height: 1.6; }
+.camera { position: relative; overflow: hidden; height: 182px; border: 1px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; }
+.camera.active { border-color: #93c5fd; background: #0f172a; }
+video { width: 100%; height: 100%; object-fit: cover; }
+.camera-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; }
+.scan-line { position: absolute; top: 50%; right: 12%; left: 12%; height: 2px; background: #60a5fa; box-shadow: 0 0 10px #60a5fa; }
+.camera-button { width: 100%; margin-top: 12px; padding: 11px; border: 0; border-radius: 9px; background: #2563eb; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.camera-button.secondary { background: #e2e8f0; color: #334155; }
+.separator { margin: 22px 0 15px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 11px; }
+.separator span { position: relative; top: -7px; padding: 0 10px; background: #fff; }
+form { text-align: left; }
+label { display: block; margin-bottom: 7px; color: #475569; font-size: 11px; font-weight: 700; }
+.code-input-row { display: flex; gap: 8px; }
+input { box-sizing: border-box; min-width: 0; flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: ui-monospace, Consolas, monospace; font-size: 13px; letter-spacing: .05em; }
+input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px #dbeafe; }
+.code-input-row button { padding: 0 16px; border: 0; border-radius: 8px; background: #0f172a; color: #fff; font-weight: 700; cursor: pointer; }
+.error { margin: 14px 0 0; color: #b91c1c; font-size: 12px; }
+.hint { margin: 18px 0 0; color: #94a3b8; font-size: 11px; }
+@media (max-width: 480px) { .scan-card { padding: 24px 20px; } }

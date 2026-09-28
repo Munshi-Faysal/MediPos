@@ -11,5 +11,6 @@ public interface IAppointmentService
     Task<IEnumerable<AppointmentViewModel>> GetAppointmentsByDateAsync(string doctorEncryptedId, DateTime date);
     Task<AppointmentViewModel?> GetByIdAsync(string encryptedId);
     Task<bool> CreateAsync(AppointmentDto dto);
+    Task<bool> UpdateAsync(AppointmentDto dto);
     Task<bool> UpdateStatusAsync(string encryptedId, string status);
 }

@@ -3,6 +3,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
+using System.Globalization;
 using Repositories.Contracts.Base;
 using Services.Concretes.Base;
 using Services.Contracts.ServiceInterfaces;
@@ -29,6 +30,8 @@ internal sealed class PrescriptionService(
         dto.EncryptedId = encryptedId;
         dto.DoctorEncryptedId = encryptionHelper.Encrypt(entity.DoctorId.ToString());
         dto.PatientEncryptedId = encryptionHelper.Encrypt(entity.PatientId.ToString());
+        dto.PatientName ??= entity.Patient?.Name;
+        dto.PatientPhone ??= entity.Patient?.Phone;
         if (entity.AppointmentId.HasValue)
             dto.AppointmentEncryptedId = encryptionHelper.Encrypt(entity.AppointmentId.Value.ToString());
 
@@ -88,6 +91,19 @@ internal sealed class PrescriptionService(
         };
     }
 
+    public async Task<PrescriptionScanViewModel?> GetByBarcodeCodeAsync(string barcodeCode)
+    {
+        // The 16 decimal digits encode the first 52 random bits of the scan token.
+        if (barcodeCode.Length != 16 || barcodeCode.Any(c => c < '0' || c > '9') ||
+            !ulong.TryParse(barcodeCode, NumberStyles.None, CultureInfo.InvariantCulture, out var value) ||
+            value >= (1UL << 52))
+            return null;
+
+        var prefix = value.ToString("x13", CultureInfo.InvariantCulture);
+        var entity = await repository.Prescription.GetPrescriptionByBarcodePrefixAsync(prefix);
+        return entity is null ? null : await GetByScanTokenAsync(entity.ScanToken);
+    }
+
     public async Task<IEnumerable<PrescriptionViewModel>> GetPrescriptionsByDoctorAsync()
     {
         if (CurrentUser is null) 
@@ -124,7 +140,15 @@ internal sealed class PrescriptionService(
     public async Task<PrescriptionDto?> CreateAsync(PrescriptionDto dto)
     {
         var entity = mapper.Map<Prescription>(dto);
-        entity.ScanToken = GenerateScanToken();
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            var candidate = GenerateScanToken();
+            if (await repository.Prescription.BarcodePrefixExistsAsync(candidate[..13])) continue;
+            entity.ScanToken = candidate;
+            break;
+        }
+        if (string.IsNullOrEmpty(entity.ScanToken))
+            throw new InvalidOperationException("Could not generate a unique prescription barcode.");
         
         if (CurrentUser is not null)
         {
@@ -199,22 +223,49 @@ internal sealed class PrescriptionService(
         return encryptionHelper.Decrypt(value);
     }
 
-    public async Task<bool> UpdateAsync(PrescriptionDto dto)
+    public async Task<PrescriptionDto?> UpdateAsync(PrescriptionDto dto)
     {
         var id = encryptionHelper.Decrypt(dto.EncryptedId!);
-        var existing = await repository.Prescription.GetPrescriptionDetailsAsync(id);
-        if (existing is null) return false;
+        if (id <= 0) return null;
+
+        var existing = await repository.Prescription.GetPrescriptionForUpdateAsync(id);
+        if (existing is null) return null;
+
+        var patientId = ResolveId(dto.PatientEncryptedId);
+        if (patientId <= 0 || !await repository.Patient.AnyAsync(patient => patient.Id == patientId))
+            throw new ArgumentException("The selected patient could not be found. Please select the patient again.");
+
+        int? appointmentId = null;
+        if (!string.IsNullOrWhiteSpace(dto.AppointmentEncryptedId))
+        {
+            var resolvedAppointmentId = ResolveId(dto.AppointmentEncryptedId);
+            if (resolvedAppointmentId <= 0 || !await repository.Appointment.AnyAsync(appointment => appointment.Id == resolvedAppointmentId))
+                throw new ArgumentException("The selected appointment could not be found.");
+            appointmentId = resolvedAppointmentId;
+        }
 
         mapper.Map(dto, existing);
         existing.Id = id;
+        existing.PatientId = patientId;
+        existing.AppointmentId = appointmentId;
 
-        // Simplified: Clear and Re-add medicines for update if needed, 
-        // or more complex logic to update existing ones.
-        // For now, let's just update header fields. 
-        // Real implementation usually replaces the collection or updates by ID.
-        
+        existing.Medicines.Clear();
+        foreach (var medDto in dto.Medicines)
+        {
+            var medicineId = ResolveId(medDto.MedicineEncryptedId);
+            if (medicineId <= 0 || !await repository.DrugDetail.AnyAsync(medicine => medicine.Id == medicineId))
+                throw new ArgumentException("One of the selected medicines could not be found. Please select it again.");
+
+            var medicine = mapper.Map<PrescriptionMedicine>(medDto);
+            medicine.PrescriptionId = id;
+            medicine.DrugDetailId = medicineId;
+            CreateAutoFields(medicine);
+            existing.Medicines.Add(medicine);
+        }
+
         UpdateAutoFields(existing);
-        return await repository.Prescription.UpdateAsync(existing);
+        var updated = await repository.Prescription.UpdateAsync(existing);
+        return updated ? await GetByIdAsync(dto.EncryptedId!) : null;
     }
 
     public async Task<bool> DeleteAsync(string encryptedId)

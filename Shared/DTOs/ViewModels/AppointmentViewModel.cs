@@ -5,6 +5,7 @@ namespace Shared.DTOs.ViewModels;
 public class AppointmentViewModel : BaseViewModel
 {
     public int PatientId { get; set; }
+    public string? PatientEncryptedId { get; set; }
     public string PatientName { get; set; } = null!;
     public string? PatientImage { get; set; }
     public string PatientPhone { get; set; } = null!;
@@ -15,4 +16,5 @@ public class AppointmentViewModel : BaseViewModel
     public string Status { get; set; } = null!;
     public string Type { get; set; } = null!;
     public string? Notes { get; set; }
+    public string? PrescriptionEncryptedId { get; set; }
 }

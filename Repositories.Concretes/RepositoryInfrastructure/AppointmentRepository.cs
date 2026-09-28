@@ -12,8 +12,10 @@ public class AppointmentRepository(WfDbContext context) : BaseRepository<Appoint
     {
         return await context.Appointments
             .Include(a => a.Patient)
-            .Where(a => a.DoctorId == doctorId)
+            .Include(a => a.Doctor)
+            .Where(a => a.DoctorId == doctorId && a.IsActive)
             .OrderBy(a => a.DateTime)
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -21,8 +23,9 @@ public class AppointmentRepository(WfDbContext context) : BaseRepository<Appoint
     {
         return await context.Appointments
             .Include(a => a.Doctor)
-            .Where(a => a.PatientId == patientId)
+            .Where(a => a.PatientId == patientId && a.IsActive)
             .OrderByDescending(a => a.DateTime)
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -33,8 +36,19 @@ public class AppointmentRepository(WfDbContext context) : BaseRepository<Appoint
 
         return await context.Appointments
             .Include(a => a.Patient)
-            .Where(a => a.DoctorId == doctorId && a.DateTime >= startOfDay && a.DateTime <= endOfDay)
+            .Include(a => a.Doctor)
+            .Where(a => a.DoctorId == doctorId && a.IsActive && a.DateTime >= startOfDay && a.DateTime <= endOfDay)
             .OrderBy(a => a.DateTime)
+            .AsNoTracking()
             .ToListAsync();
+    }
+
+    public async Task<Appointment?> GetAppointmentDetailsAsync(int id)
+    {
+        return await context.Appointments
+            .Include(appointment => appointment.Patient)
+            .Include(appointment => appointment.Doctor)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(appointment => appointment.Id == id && appointment.IsActive);
     }
 }

@@ -36,17 +36,37 @@ public class AppointmentController(IServiceManager service) : ControllerBase
         return Ok(new { data = await service.Appointment.GetAppointmentsByCurrentDoctorAndDateAsync(date) });
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        var result = await service.Appointment.GetByIdAsync(id);
+        return result is null ? NotFound() : Ok(new { data = result });
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AppointmentDto dto)
     {
         var result = await service.Appointment.CreateAsync(dto);
-        return result ? Ok() : BadRequest();
+        return result
+            ? Ok(new { message = "Appointment scheduled successfully." })
+            : BadRequest(new { message = "Unable to schedule the appointment. Check the patient, date and time." });
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] AppointmentDto dto)
+    {
+        var result = await service.Appointment.UpdateAsync(dto);
+        return result
+            ? Ok(new { message = "Appointment updated successfully." })
+            : BadRequest(new { message = "Unable to update the appointment. Check the patient, date and time." });
     }
 
     [HttpPatch("{id}/status")]
-    public async Task<IActionResult> UpdateStatus(string id, [FromBody] string status)
+    public async Task<IActionResult> UpdateStatus(string id, [FromBody] AppointmentStatusDto dto)
     {
-        var result = await service.Appointment.UpdateStatusAsync(id, status);
-        return result ? Ok() : BadRequest();
+        var result = await service.Appointment.UpdateStatusAsync(id, dto.Status);
+        return result
+            ? Ok(new { message = "Appointment status updated successfully." })
+            : BadRequest(new { message = "Unable to update appointment status." });
     }
 }

@@ -15,7 +15,15 @@ export class PrescriptionService {
   }
 
   getPrescriptionById(encryptedId: string): Observable<any> {
-    return this.api.get<any>(`${this.endpoint}/${encryptedId}`);
+    return this.api.get<any>(`${this.endpoint}/${encodeURIComponent(encryptedId)}`);
+  }
+
+  getPrescriptionByScanToken(scanToken: string): Observable<any> {
+    return this.api.get<any>(`${this.endpoint}/scan/${encodeURIComponent(scanToken)}`);
+  }
+
+  getPrescriptionByBarcodeCode(barcodeCode: string): Observable<any> {
+    return this.api.get<any>(`${this.endpoint}/barcode/${encodeURIComponent(barcodeCode)}`);
   }
 
   createPrescription(data: any): Observable<any> {
@@ -27,7 +35,7 @@ export class PrescriptionService {
   }
 
   deletePrescription(encryptedId: string): Observable<any> {
-    return this.api.delete<any>(`${this.endpoint}/${encryptedId}`);
+    return this.api.delete<any>(`${this.endpoint}/${encodeURIComponent(encryptedId)}`);
   }
 
   // Legacy compatibility methods

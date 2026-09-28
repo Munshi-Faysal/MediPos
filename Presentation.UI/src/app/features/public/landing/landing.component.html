@@ -37,6 +37,7 @@
 
         <!-- Desktop Navigation Links -->
         <div class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600">
+          <a routerLink="/scan" class="hover:text-violet-600 transition-colors">Scan Prescription</a>
           <button (click)="scrollToSection('features')" class="hover:text-violet-600 transition-colors cursor-pointer">
             Features
           </button>
@@ -87,6 +88,7 @@
       <!-- Mobile Dropdown Menu -->
       @if (mobileMenuOpen) {
         <div class="lg:hidden pt-4 pb-3 border-t border-slate-200/60 mt-3 space-y-2 animate-in slide-in-from-top-2 duration-200">
+          <a routerLink="/scan" class="block w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">Scan Prescription</a>
           <button (click)="scrollToSection('features')" class="w-full text-left px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-violet-50 rounded-lg">
             Features
           </button>
@@ -940,7 +942,7 @@
             <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">Generic Drug Index</button></li>
             <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">Patient History</button></li>
             <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">Chamber Queues</button></li>
-            <li><button (click)="scrollToSection('features')" class="hover:text-white transition-colors">QR Verification</button></li>
+            <li><a routerLink="/scan" class="hover:text-white transition-colors">Prescription Barcode Scan</a></li>
           </ul>
         </div>
 
