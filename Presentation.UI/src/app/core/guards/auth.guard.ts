@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { CanActivateFn, CanActivateChildFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable, map, take, of } from 'rxjs';
+import { map, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth.service';
-import { UserActivityService } from '../services/user-activity.service';
 
 /**
  * Auth Guard - Protects routes requiring authentication
@@ -16,7 +15,6 @@ export const AuthGuard: CanActivateFn = (
   state: RouterStateSnapshot
 ) => {
   const authService = inject(AuthService);
-  const userActivityService = inject(UserActivityService);
   const router = inject(Router);
 
   // Check if user is authenticated
@@ -39,30 +37,17 @@ export const AuthGuard: CanActivateFn = (
 
   // Check if token is expired
   if (authService.isTokenExpired()) {
-    // If user is active, try to refresh token
-    if (userActivityService.isUserActive()) {
-      return authService.refreshToken().pipe(
-        map(() => {
-          // Token refreshed successfully
-          return true;
-        }),
-        catchError(() => {
-          // Refresh failed, logout and redirect
-          authService.forceLogout();
+    return authService.refreshToken().pipe(
+      map(() => true),
+      catchError((error) => {
+        if (error?.status === 400 || error?.status === 401 || error?.status === 403) {
           router.navigate(['/auth/login'], {
             queryParams: { returnUrl: state.url }
           });
-          return of(false);
-        })
-      );
-    } else {
-      // User inactive and token expired, logout
-      authService.forceLogout();
-      router.navigate(['/auth/login'], {
-        queryParams: { returnUrl: state.url }
-      });
-      return of(false);
-    }
+        }
+        return of(false);
+      })
+    );
   }
 
   // Token is valid, allow access

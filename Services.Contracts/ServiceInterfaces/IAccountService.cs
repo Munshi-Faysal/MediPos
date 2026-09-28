@@ -10,6 +10,7 @@ public interface IAccountService
     Task<IdentityResult> RegisterAsync(RegisterDto registerDto);
     Task<IdentityResult> RegisterWithPackageAsync(RegisterWithPackageDto registerDto);
     Task<LoginResponseDto> LoginAsync(LoginDto loginDto);
+    Task<LoginResponseDto> RefreshTokenAsync(string refreshToken);
     Task<bool> VerifyLoginOtpAsync(LoginOtpDto loginOtpDto);
     Task<IdentityResult> ChangePasswordAsync(ClaimsPrincipal user, ChangePasswordDto changePasswordDto);
     Task<string?> RequestOtpAsync(ApplicationUser userNameEmail);

@@ -50,8 +50,7 @@ export class SessionTimeoutService implements OnDestroy {
     this.timeRemaining.set(timeRemaining);
 
     if (timeRemaining <= 0) {
-      // Token expired, force logout
-      this.handleSessionExpired();
+      this.extendSession();
     } else {
       // Hide warning if time increased (token refreshed)
       this.showWarning.set(false);
@@ -73,7 +72,9 @@ export class SessionTimeoutService implements OnDestroy {
         this.checkSessionStatus();
       },
       error: () => {
-        this.handleSessionExpired();
+        if (!this.authService.getRefreshToken()) {
+          this.handleSessionExpired();
+        }
       }
     });
   }

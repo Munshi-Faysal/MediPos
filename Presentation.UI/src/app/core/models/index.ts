@@ -65,6 +65,7 @@ export interface IdentityResult {
 export interface LoginResponseDto {
   result: IdentityResult;
   token?: string;
+  refreshToken?: string;
   userId?: number;
   doctorId?: number;
   is2FaRequired: boolean;

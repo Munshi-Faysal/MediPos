@@ -42,6 +42,7 @@ export class LoginComponent implements OnInit {
 
   private userId: number | undefined;
   private jwtToken: string | undefined;
+  private refreshToken: string | undefined;
   private returnUrl: string | undefined;
   private deviceId: string;
 
@@ -109,21 +110,20 @@ export class LoginComponent implements OnInit {
         if (response.result.succeeded) {
           if (!response.is2FaRequired) {
             // No 2FA required, complete login
-            if (response.token && response.userId) {
-              // Store token using Client project's key for consistency
-              localStorage.setItem('hrm_access_token', response.token);
-              localStorage.setItem('userId', response.userId.toString());
-
-              // Also store as access_token for compatibility with UI project structure
-              localStorage.setItem('access_token', response.token);
+            if (response.token && response.refreshToken && response.userId) {
+              this.authService.setSessionTokens(response.token, response.refreshToken);
+              sessionStorage.setItem('userId', response.userId.toString());
 
               // Fetch user details and set in AuthService so AuthGuard can verify
               this.fetchAndSetUser(response.userId.toString(), response.token);
+            } else {
+              this.errorMessage.set('The server did not return a complete browser session. Please try again.');
             }
           } else {
             // 2FA required, show OTP input
             this.userId = response.userId;
             this.jwtToken = response.token;
+            this.refreshToken = response.refreshToken;
             this.isOtpRequired.set(true);
           }
         } else {
@@ -191,10 +191,9 @@ export class LoginComponent implements OnInit {
         this.isLoading.set(false);
 
         if (response.succeeded) {
-          if (this.jwtToken && this.userId) {
-            localStorage.setItem('hrm_access_token', this.jwtToken);
-            localStorage.setItem('userId', this.userId.toString());
-            localStorage.setItem('access_token', this.jwtToken);
+          if (this.jwtToken && this.refreshToken && this.userId) {
+            this.authService.setSessionTokens(this.jwtToken, this.refreshToken);
+            sessionStorage.setItem('userId', this.userId.toString());
 
             this.notificationService.success('Success', 'Login successful!');
 
