@@ -32,7 +32,7 @@ export interface MenuItem {
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
         <aside 
-          class="bg-surface border-r border-border flex flex-col fixed lg:static inset-y-0 left-0 z-50 lg:z-auto"
+          class="app-sidebar bg-surface border-r border-border flex flex-col fixed lg:static inset-y-0 left-0 z-50 lg:z-auto"
           [class.w-64]="!sidebarCollapsed()"
           [class.w-16]="sidebarCollapsed()"
           [style.transform]="(!showMobileMenu() && isMobile()) ? 'translateX(-100%)' : 'translateX(0)'"
@@ -130,7 +130,7 @@ export interface MenuItem {
         <!-- Main Content -->
         <main
           id="main-content"
-          class="flex-1 overflow-y-auto focus:outline-none w-full lg:w-auto"
+          class="app-main flex-1 overflow-y-auto focus:outline-none w-full lg:w-auto"
         >
           <!-- Page Content -->
           <div class="p-3 sm:p-4 md:p-5 lg:p-6">

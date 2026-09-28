@@ -27,3 +27,48 @@ input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px #dbeafe; }
 .error { margin: 14px 0 0; color: #b91c1c; font-size: 12px; }
 .hint { margin: 18px 0 0; color: #94a3b8; font-size: 11px; }
 @media (max-width: 480px) { .scan-card { padding: 24px 20px; } }
+
+:host-context(.dark) .scan-page {
+  background:
+    radial-gradient(circle at 78% 8%, rgba(37, 99, 235, .14), transparent 24rem),
+    #080d1a;
+}
+
+:host-context(.dark) .scan-card {
+  border-color: #28364b;
+  background: linear-gradient(145deg, #151e30, #101827);
+  box-shadow: 0 28px 70px -34px rgba(0, 0, 0, .9), inset 0 1px rgba(255, 255, 255, .03);
+}
+
+:host-context(.dark) .brand { color: #93c5fd; }
+:host-context(.dark) .icon { background: rgba(37, 99, 235, .15); }
+:host-context(.dark) h1 { color: #e8eef7; }
+:host-context(.dark) .eyebrow,
+:host-context(.dark) .intro,
+:host-context(.dark) label { color: #9fb0c7; }
+
+:host-context(.dark) .camera {
+  border-color: #3a4962;
+  background: #0d1523;
+}
+
+:host-context(.dark) .camera-button.secondary {
+  background: #253249;
+  color: #dbe5f2;
+}
+
+:host-context(.dark) .separator { border-color: #28364b; }
+:host-context(.dark) .separator span { background: #121b2c; }
+:host-context(.dark) input {
+  border-color: #3a4962;
+  background: #0d1523;
+  color: #e8eef7;
+}
+
+:host-context(.dark) input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .2);
+}
+
+:host-context(.dark) .code-input-row button { background: #334155; }
+:host-context(.dark) .error { color: #fca5a5; }

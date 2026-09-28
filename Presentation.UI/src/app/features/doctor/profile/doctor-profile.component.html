@@ -1,16 +1,25 @@
 <div class="p-6 max-w-5xl mx-auto animate-in fade-in duration-500">
   <div class="mb-8">
     <h1 class="text-3xl font-black text-gray-900 tracking-tight">Doctor Administration</h1>
-    <p class="text-gray-500 mt-2 font-medium">Manage your professional profile.</p>
+    <p class="text-gray-500 mt-2 font-medium">Manage your professional profile and account password.</p>
   </div>
 
   <div class="flex border-b border-gray-100 mb-8 overflow-x-auto" role="tablist" aria-label="Doctor profile sections">
-    <button type="button" role="tab" aria-selected="true"
-      class="px-8 py-4 font-bold text-sm uppercase tracking-widest border-b-4 border-blue-600 text-blue-600 whitespace-nowrap">
+    <button id="professional-tab" type="button" role="tab" (click)="activeTab.set('personal')"
+      [attr.aria-selected]="activeTab() === 'personal'" aria-controls="professional-panel"
+      [class]="activeTab() === 'personal' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'"
+      class="px-8 py-4 font-bold text-sm uppercase tracking-widest border-b-4 transition-colors whitespace-nowrap">
       Professional info
+    </button>
+    <button id="password-tab" type="button" role="tab" (click)="activeTab.set('password')"
+      [attr.aria-selected]="activeTab() === 'password'" aria-controls="password-panel"
+      [class]="activeTab() === 'password' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'"
+      class="px-8 py-4 font-bold text-sm uppercase tracking-widest border-b-4 transition-colors whitespace-nowrap">
+      Change Password
     </button>
   </div>
 
+  <div id="professional-panel" role="tabpanel" aria-labelledby="professional-tab" [hidden]="activeTab() !== 'personal'">
   @if (isLoading()) {
     <div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-soft flex items-center justify-center gap-3 text-gray-500">
       <span class="h-5 w-5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"></span>
@@ -83,4 +92,60 @@
         </div>
     </form>
   }
+  </div>
+  <div id="password-panel" role="tabpanel" aria-labelledby="password-tab" [hidden]="activeTab() !== 'password'">
+    <form (ngSubmit)="changePassword()" class="max-w-2xl mx-auto animate-in slide-in-from-bottom-4 duration-300">
+      <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-soft">
+        <div class="flex items-start gap-4 mb-8">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600" aria-hidden="true">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="5" y="10" width="14" height="11" rx="2" stroke-width="1.8"></rect>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-black text-gray-900">Change your password</h2>
+            <p class="mt-1 text-sm text-gray-500">Enter your current password, then choose a new one.</p>
+          </div>
+        </div>
+
+        <div class="space-y-5">
+          <div>
+            <label for="current-password" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Current Password</label>
+            <input id="current-password" name="currentPassword" type="password" required
+              [(ngModel)]="securityInfo().currentPassword" autocomplete="current-password"
+              class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium text-gray-800">
+          </div>
+          <div>
+            <label for="new-password" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">New Password</label>
+            <input id="new-password" name="newPassword" type="password" required minlength="8"
+              [(ngModel)]="securityInfo().newPassword" autocomplete="new-password"
+              class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium text-gray-800">
+          </div>
+          <div>
+            <label for="confirm-password" class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Confirm New Password</label>
+            <input id="confirm-password" name="confirmPassword" type="password" required minlength="8"
+              [(ngModel)]="securityInfo().confirmPassword" autocomplete="new-password"
+              class="w-full bg-gray-50/50 border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium text-gray-800">
+          </div>
+        </div>
+
+        <p class="mt-5 rounded-2xl bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          Use at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a symbol.
+        </p>
+
+        <div class="mt-8 flex justify-end">
+          <button type="submit" [disabled]="isChangingPassword()"
+            class="inline-flex min-w-52 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-blue-100 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+            @if (isChangingPassword()) {
+              <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+              Updating...
+            } @else {
+              Update Password
+            }
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

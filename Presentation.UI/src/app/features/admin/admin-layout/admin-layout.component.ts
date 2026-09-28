@@ -42,7 +42,7 @@ export interface MenuItem {
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
         <aside
-          class="bg-surface border-r border-border flex flex-col fixed lg:static inset-y-0 left-0 z-50 lg:z-auto top-14 xs:top-14 sm:top-16 lg:top-auto h-[calc(100vh-3.5rem)] xs:h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-auto transition-transform duration-300 ease-in-out"
+          class="app-sidebar bg-surface border-r border-border flex flex-col fixed lg:static inset-y-0 left-0 z-50 lg:z-auto top-14 xs:top-14 sm:top-16 lg:top-auto h-[calc(100vh-3.5rem)] xs:h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-auto transition-transform duration-300 ease-in-out"
           data-menu
           [class.w-56]="!sidebarCollapsed()"
           [class.w-16]="sidebarCollapsed()"
@@ -148,7 +148,7 @@ export interface MenuItem {
         <!-- Main Content -->
         <main
           id="main-content"
-          class="flex-1 overflow-y-auto focus:outline-none w-full"
+          class="app-main flex-1 overflow-y-auto focus:outline-none w-full"
           >
           <!-- Loading Indicator -->
           @if (isLoading()) {
@@ -167,7 +167,7 @@ export interface MenuItem {
       </div>
     
       <!-- Footer -->
-      <footer class="bg-surface border-t border-border flex-shrink-0">
+      <footer class="app-footer bg-surface border-t border-border flex-shrink-0">
         <div class="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 py-2 xs:py-3 sm:py-4">
           <div class="flex flex-col xs:flex-col sm:flex-row justify-between items-center gap-2 xs:gap-3 sm:gap-4">
             <div class="text-xs xs:text-xs sm:text-sm text-on-surface-variant text-center sm:text-left">

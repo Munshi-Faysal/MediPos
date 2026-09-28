@@ -45,7 +45,7 @@ export interface MenuItem {
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
         <aside
-          class="bg-surface border-r border-border flex flex-col fixed lg:static inset-y-0 left-0 z-50 lg:z-auto top-14 xs:top-14 sm:top-16 lg:top-auto h-[calc(100vh-3.5rem)] xs:h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-auto transition-transform duration-300 ease-in-out"
+          class="app-sidebar bg-surface border-r border-border flex flex-col fixed lg:static inset-y-0 left-0 z-50 lg:z-auto top-14 xs:top-14 sm:top-16 lg:top-auto h-[calc(100vh-3.5rem)] xs:h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-auto transition-transform duration-300 ease-in-out"
           data-menu
           [class.w-56]="!sidebarCollapsed()"
           [class.w-16]="sidebarCollapsed()"
@@ -69,7 +69,7 @@ export interface MenuItem {
                       (click)="isMobile() && closeMobileMenu()"
                       [routerLinkActive]="item.activeClass || 'bg-primary-50 text-primary-700'"
                       [routerLinkActiveOptions]="item.route === '/doctor/dashboard' ? { exact: true } : { exact: false }"
-                      class="group flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2.5 xs:py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-200 min-h-[48px] border-l-4 border-transparent hover:border-gray-200"
+                      class="group flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2.5 xs:py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/70 transition-all duration-200 min-h-[48px] border-l-4 border-transparent hover:border-border-variant"
                       [class.justify-center]="sidebarCollapsed()"
                       [title]="sidebarCollapsed() ? item.label : ''"
                       >
@@ -86,7 +86,7 @@ export interface MenuItem {
                     <div class="mb-1">
                       <button
                         (click)="toggleMenuItem(item.id)"
-                        class="group w-full flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2.5 xs:py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl text-gray-500 hover:bg-gray-50 transition-all duration-200 min-h-[48px] border-l-4 border-transparent hover:border-gray-200"
+                        class="group w-full flex items-center gap-1.5 xs:gap-2 sm:gap-3 px-1.5 xs:px-2 sm:px-3 py-2.5 xs:py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/70 transition-all duration-200 min-h-[48px] border-l-4 border-transparent hover:border-border-variant"
                         [class.justify-center]="sidebarCollapsed()"
                         [title]="sidebarCollapsed() ? item.label : ''"
                         [ngClass]="isMenuItemActive(item) ? (item.activeClass || 'bg-primary-50 text-primary-700 border-primary-600') : ''"
@@ -98,7 +98,7 @@ export interface MenuItem {
                           <span class="truncate">{{ item.label }}</span>
                         }
                         @if (!sidebarCollapsed()) {
-                          <svg class="h-4 w-4 ml-auto transition-transform duration-200 flex-shrink-0 text-gray-400"
+                          <svg class="h-4 w-4 ml-auto transition-transform duration-200 flex-shrink-0 text-on-surface-variant"
                             [class.rotate-90]="isMenuItemExpanded(item.id)"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -106,13 +106,13 @@ export interface MenuItem {
                         }
                       </button>
                       @if (!sidebarCollapsed() && isMenuItemExpanded(item.id) && item.children) {
-                        <div class="ml-6 xs:ml-7 sm:ml-8 mt-1 space-y-1 mb-2 border-l-2 border-gray-100 pl-2">
+                        <div class="ml-6 xs:ml-7 sm:ml-8 mt-1 space-y-1 mb-2 border-l-2 border-border pl-2">
                           @for (child of item.children; track child) {
                             <a
                               [routerLink]="child.route!"
                               (click)="isMobile() && closeMobileMenu()"
                               [routerLinkActive]="item.childActiveClass || 'text-blue-600 bg-blue-50 font-bold'"
-                              class="group flex items-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors min-h-[36px]"
+                              class="group flex items-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/70 transition-colors min-h-[36px]"
                               >
                               <div class="w-1.5 h-1.5 rounded-full bg-current opacity-40 group-hover:opacity-100 transition-opacity"></div>
                               <span class="truncate">{{ child.label }}</span>
@@ -148,7 +148,7 @@ export interface MenuItem {
         <!-- Main Content -->
         <main
           id="main-content"
-          class="flex-1 overflow-y-auto focus:outline-none w-full"
+          class="app-main flex-1 overflow-y-auto focus:outline-none w-full"
           >
           <!-- Loading Indicator -->
           @if (isLoading()) {
@@ -167,7 +167,7 @@ export interface MenuItem {
       </div>
     
       <!-- Footer -->
-      <footer class="bg-surface border-t border-border flex-shrink-0">
+      <footer class="app-footer bg-surface border-t border-border flex-shrink-0">
         <div class="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 py-2 xs:py-3 sm:py-4">
           <div class="flex flex-col xs:flex-col sm:flex-row justify-between items-center gap-2 xs:gap-3 sm:gap-4">
             <div class="text-xs xs:text-xs sm:text-sm text-on-surface-variant text-center sm:text-left">

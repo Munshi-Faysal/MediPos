@@ -11,18 +11,20 @@ export class ThemeService {
   private readonly DEFAULT_THEME: ThemeMode = 'system';
 
   private themeSubject = new BehaviorSubject<ThemeMode>(this.DEFAULT_THEME);
+  private systemPrefersDark = signal(false);
   
   // Signals for reactive programming
   public theme = signal<ThemeMode>(this.DEFAULT_THEME);
   public isDark = computed(() => {
     const currentTheme = this.theme();
     if (currentTheme === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return this.systemPrefersDark();
     }
     return currentTheme === 'dark';
   });
 
   constructor() {
+    this.systemPrefersDark.set(window.matchMedia('(prefers-color-scheme: dark)').matches);
     this.initializeTheme();
     this.setupSystemThemeListener();
   }
@@ -51,8 +53,9 @@ export class ThemeService {
   }
 
   toggleTheme(): void {
-    const currentTheme = this.theme();
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    // Toggle from the effective theme so the first click also works when the
+    // saved preference is "system".
+    const newTheme: ThemeMode = this.isDark() ? 'light' : 'dark';
     this.setTheme(newTheme);
   }
 
@@ -65,12 +68,16 @@ export class ThemeService {
     } else {
       htmlElement.classList.remove('dark');
     }
+
+    htmlElement.dataset['theme'] = isDark ? 'dark' : 'light';
+    htmlElement.style.colorScheme = isDark ? 'dark' : 'light';
   }
 
   private setupSystemThemeListener(): void {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
-    mediaQuery.addEventListener('change', () => {
+    mediaQuery.addEventListener('change', (event) => {
+      this.systemPrefersDark.set(event.matches);
       if (this.theme() === 'system') {
         this.applyTheme();
       }
