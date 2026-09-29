@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
     PrescriptionHeaderConfig,
+    PrescriptionDoctorDetails,
     PrescriptionBodyConfig,
     PrescriptionFooterConfig,
     DEFAULT_HEADER_CONFIG,
@@ -67,7 +68,7 @@ export class PrescriptionSettingsService {
         if (saved) {
             try {
                 const settings = JSON.parse(saved);
-                if (settings.header) this.headerConfigSubject.next({ ...DEFAULT_HEADER_CONFIG, ...settings.header });
+                if (settings.header) this.headerConfigSubject.next(this.normalizeHeaderConfig(settings.header));
 
                 if (settings.body) {
                     const legacyIdMap: Record<string, string> = {
@@ -138,5 +139,81 @@ export class PrescriptionSettingsService {
                 console.error('Failed to load prescription settings', e);
             }
         }
+    }
+
+    private normalizeHeaderConfig(savedHeader: any): PrescriptionHeaderConfig {
+        const emptyDoctor = DEFAULT_HEADER_CONFIG.banglaDoctor;
+        const defaultEnglishDoctor = DEFAULT_HEADER_CONFIG.englishDoctor;
+
+        if (savedHeader.banglaDoctor || savedHeader.englishDoctor) {
+            return {
+                ...DEFAULT_HEADER_CONFIG,
+                ...savedHeader,
+                banglaDoctor: {
+                    ...emptyDoctor,
+                    ...(savedHeader.banglaDoctor || {})
+                },
+                englishDoctor: {
+                    ...defaultEnglishDoctor,
+                    ...(savedHeader.englishDoctor || {})
+                },
+                patientFields: savedHeader.patientFields || DEFAULT_HEADER_CONFIG.patientFields
+            };
+        }
+
+        const primaryDoctor: PrescriptionDoctorDetails = {
+            name: savedHeader.doctorName || '',
+            degrees: savedHeader.degrees || '',
+            higherTraining: savedHeader.fellowship || '',
+            designation: savedHeader.designation || '',
+            specialty: savedHeader.specialtiesText || (savedHeader.specialties || []).join(', '),
+            department: savedHeader.department || '',
+            institute: savedHeader.institute || '',
+            regNo: savedHeader.regNo || '',
+            phone: '',
+            additionalInfo: savedHeader.additionalDoctorInfo || ''
+        };
+
+        const alternateDoctor: PrescriptionDoctorDetails = {
+            name: savedHeader.alternateDoctorName || '',
+            degrees: savedHeader.alternateDegrees || '',
+            higherTraining: savedHeader.alternateHigherTraining || '',
+            designation: savedHeader.alternateDesignation || '',
+            specialty: '',
+            department: savedHeader.alternateDepartment || '',
+            institute: savedHeader.alternateInstitute || '',
+            regNo: '',
+            phone: savedHeader.alternatePhone || '',
+            additionalInfo: ''
+        };
+
+        const hasAlternateDoctor = Boolean(
+            savedHeader.showAlternateDoctorDetails &&
+            Object.values(alternateDoctor).some(value => value.trim().length > 0)
+        );
+
+        const normalized: Record<string, any> = {
+            ...DEFAULT_HEADER_CONFIG,
+            ...savedHeader,
+            banglaDoctor: hasAlternateDoctor ? primaryDoctor : { ...emptyDoctor },
+            englishDoctor: hasAlternateDoctor ? alternateDoctor : {
+                ...defaultEnglishDoctor,
+                ...primaryDoctor
+            },
+            patientFields: savedHeader.patientFields || DEFAULT_HEADER_CONFIG.patientFields
+        };
+
+        [
+            'doctorName', 'showDoctorName', 'designation', 'showDesignation',
+            'degrees', 'showDegrees', 'fellowship', 'showFellowship',
+            'specialties', 'showSpecialties', 'specialtiesText', 'department',
+            'showDepartment', 'institute', 'showInstitute', 'regNo', 'showRegNo',
+            'email', 'showEmail', 'additionalDoctorInfo', 'showAdditionalDoctorInfo',
+            'showAlternateDoctorDetails', 'alternateDoctorName', 'alternateDegrees',
+            'alternateHigherTraining', 'alternateDesignation', 'alternateDepartment',
+            'alternateInstitute', 'alternatePhone'
+        ].forEach(key => delete normalized[key]);
+
+        return normalized as PrescriptionHeaderConfig;
     }
 }

@@ -1,12 +1,10 @@
-import { Injectable, signal, computed, inject, effect } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, of, map, interval, Subscription, delay, from } from 'rxjs';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { BehaviorSubject, Observable, tap, catchError, of, map, interval, Subscription, delay, from, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 import { User, LoginRequest, LoginResponse, AuthTokens, BackendAuthResponseDto, LoginDto, LoginOtpDto, LoginResponseDto, IdentityResult } from '../models';
 import { ConfirmationDialogService } from './confirmation-dialog.service';
 import { ApiService } from './api.service';
-import { UserActivityService } from './user-activity.service';
 import { findMockUser, generateMockToken } from '../data/mock-users';
 import { environment } from '../../../environments/environment';
 import { confirmAppAction } from '../utils/app-alert';
@@ -15,7 +13,6 @@ import { confirmAppAction } from '../utils/app-alert';
   providedIn: 'root'
 })
 export class AuthService {
-  private http = inject(HttpClient);
   private router = inject(Router);
   private confirmationDialog = inject(ConfirmationDialogService);
   private apiService = inject(ApiService);
@@ -32,14 +29,12 @@ export class AuthService {
   public isAuthenticated = computed(() => this.user() !== null);
   public isLoading = signal(false);
 
-  private tokenRefreshInterval?: Subscription;
   private tokenCheckInterval?: Subscription;
-  private readonly TOKEN_CHECK_INTERVAL = 10000; // Check every 10 seconds (for testing with 1 minute tokens)
-  private readonly TOKEN_REFRESH_BEFORE_EXPIRY = 10 * 1000; // Refresh 10 seconds before expiry (for testing)
-
-  private userActivityService = inject(UserActivityService);
+  private readonly TOKEN_CHECK_INTERVAL = 30 * 1000;
+  private readonly TOKEN_REFRESH_BEFORE_EXPIRY = 2 * 60 * 1000;
 
   constructor() {
+    this.clearLegacyPersistentAuthData();
     this.initializeAuth();
     this.startTokenMonitoring();
   }
@@ -49,42 +44,14 @@ export class AuthService {
     const user = this.getStoredUser();
 
     if (token && user) {
-      // Check if token is expired
+      this.userSubject.next(user);
+      this.isAuthenticatedSubject.next(true);
+      this.user.set(user);
+
       if (this.isTokenExpired()) {
-        // Try to refresh token if user is active
-        if (this.userActivityService.isUserActive()) {
-          this.refreshToken().subscribe({
-            next: (response) => {
-              if (response && response.token && response.user) {
-                const tokens: AuthTokens = {
-                  token: response.token,
-                  refreshToken: response.refreshToken,
-                  expiresAt: response.expiresAt
-                };
-                this.setAuthData(response.user, tokens);
-                this.userSubject.next(response.user);
-                this.isAuthenticatedSubject.next(true);
-                this.user.set(response.user);
-              } else {
-                this.userSubject.next(user);
-                this.isAuthenticatedSubject.next(true);
-                this.user.set(user);
-              }
-            },
-            error: (error) => {
-              console.error('Token refresh failed on init:', error);
-              // If refresh fails, logout
-              this.forceLogout();
-            }
-          });
-        } else {
-          // User inactive and token expired, logout
-          this.forceLogout();
-        }
-      } else {
-        this.userSubject.next(user);
-        this.isAuthenticatedSubject.next(true);
-        this.user.set(user);
+        this.refreshToken().subscribe({
+          error: (error) => console.error('Token refresh failed on init:', error)
+        });
       }
     }
   }
@@ -93,6 +60,10 @@ export class AuthService {
    * Start monitoring token expiration and refresh automatically
    */
   private startTokenMonitoring(): void {
+    if (this.tokenCheckInterval && !this.tokenCheckInterval.closed) {
+      return;
+    }
+
     // Check token expiration periodically
     this.tokenCheckInterval = interval(this.TOKEN_CHECK_INTERVAL).subscribe(() => {
       if (this.isAuthenticated()) {
@@ -115,11 +86,8 @@ export class AuthService {
             },
             error: (error) => {
               console.error('Token refresh failed:', error);
-              // Only logout if refresh fails multiple times
-              // Give it a chance to retry on next interval (wait 5s)
-              setTimeout(() => {
-                // checks again later
-              }, 5000);
+              // Transient failures are retried on the next interval. Invalid
+              // refresh tokens are cleared by refreshToken().
             }
           });
         }
@@ -127,9 +95,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Check if token is expiring soon (within 10 seconds for testing with 1 minute tokens)
-   */
   private isTokenExpiringSoon(): boolean {
     const token = this.getToken();
     if (!token) return false;
@@ -138,8 +103,7 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const now = Date.now() / 1000;
       const timeUntilExpiry = payload.exp - now;
-      // Return true if token expires within 10 seconds (for testing with 1 minute tokens)
-      return timeUntilExpiry > 0 && timeUntilExpiry < 10; // 10 seconds
+      return timeUntilExpiry > 0 && timeUntilExpiry * 1000 < this.TOKEN_REFRESH_BEFORE_EXPIRY;
     } catch {
       return false;
     }
@@ -402,63 +366,30 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    const refreshToken = this.getRefreshToken();
-
-    if (refreshToken) {
-      // Backend expects RefreshTokenDto with RefreshToken property
-      return this.apiService.post('/Auth/logout', { refreshToken: refreshToken })
-        .pipe(
-          tap(() => {
-            this.clearAuthData();
-          }),
-          catchError((error) => {
-            // Even if logout fails on server, clear local data
-            this.clearAuthData();
-            return of(null);
-          })
-        );
-    } else {
-      this.clearAuthData();
-      return of(null);
-    }
+    this.clearAuthData();
+    return of(null);
   }
 
   refreshToken(): Observable<LoginResponse> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       this.forceLogout();
-      return of(null as any);
+      return throwError(() => new Error('No refresh token is available.'));
     }
 
-    // Backend will use cookie if available, otherwise use body
-    // withCredentials is set by default in ApiService
-    return this.apiService.post<BackendAuthResponseDto>('/Auth/refresh',
-      refreshToken ? { refreshToken: refreshToken } : {}
-    ).pipe(
-      map((backendResponse: BackendAuthResponseDto) => {
-        // Map backend response to frontend LoginResponse format
-        const frontendUser: User = {
-          id: backendResponse.user.id,
-          userName: backendResponse.user.userName,
-          email: backendResponse.user.email,
-          userFName: backendResponse.user.firstName,
-          userLName: backendResponse.user.lastName,
-          mobile: backendResponse.user.phoneNumber,
-          profileImageUrl: backendResponse.user.profilePictureUrl,
-          isActive: backendResponse.user.isActive,
-          roles: backendResponse.user.roles || [],
-          doctorId: backendResponse.user.doctorId,
-          createdAt: backendResponse.user.createdAt ? new Date(backendResponse.user.createdAt) : undefined
-        };
+    return this.apiService.post<LoginResponseDto>('/Account/RefreshToken', { refreshToken }).pipe(
+      map((response: LoginResponseDto) => {
+        const user = this.getCurrentUser() ?? this.getStoredUser();
+        if (!response.result.succeeded || !response.token || !response.refreshToken || !user) {
+          throw new Error('The server returned an invalid token refresh response.');
+        }
 
-        const frontendResponse: LoginResponse = {
-          token: backendResponse.accessToken,
-          refreshToken: backendResponse.refreshToken,
-          expiresAt: new Date(backendResponse.expiresAt),
-          user: frontendUser
+        return {
+          token: response.token,
+          refreshToken: response.refreshToken,
+          expiresAt: this.getTokenExpirationDate(response.token),
+          user
         };
-
-        return frontendResponse;
       }),
       tap((response: LoginResponse) => {
         if (response && response.token && response.user) {
@@ -467,16 +398,16 @@ export class AuthService {
             refreshToken: response.refreshToken,
             expiresAt: response.expiresAt
           };
-          // Store in localStorage as backup (cookies are primary)
           this.setTokens(tokens);
           this.setUser(response.user);
-          // Update user activity
-          this.userActivityService.reset();
         }
       }),
       catchError((error) => {
-        // If refresh fails, logout
-        this.forceLogout();
+        // Invalid/expired credentials end the session. Network/server outages do
+        // not erase it, so the next monitoring cycle can retry.
+        if (error?.status === 400 || error?.status === 401 || error?.status === 403) {
+          this.forceLogout();
+        }
         throw error;
       })
     );
@@ -517,39 +448,26 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    // Try to get from cookie first (set by backend), then fallback to localStorage
-    const cookieToken = this.getCookie('accessToken');
-    if (cookieToken) {
-      return cookieToken;
-    }
-    return localStorage.getItem(this.TOKEN_KEY);
+    return sessionStorage.getItem(this.TOKEN_KEY);
   }
 
   getRefreshToken(): string | null {
-    // Try to get from cookie first (set by backend), then fallback to localStorage
-    const cookieToken = this.getCookie('refreshToken');
-    if (cookieToken) {
-      return cookieToken;
-    }
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    return sessionStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
-  /**
-   * Get cookie value by name
-   */
-  private getCookie(name: string): string | null {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-      return parts.pop()?.split(';').shift() || null;
-    }
-    return null;
+  setSessionTokens(token: string, refreshToken: string): void {
+    this.setTokens({
+      token,
+      refreshToken,
+      expiresAt: this.getTokenExpirationDate(token)
+    });
+    this.startTokenMonitoring();
   }
 
   private setAuthData(user: User, tokens: AuthTokens): void {
-    localStorage.setItem(this.TOKEN_KEY, tokens.token);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, tokens.refreshToken);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    sessionStorage.setItem(this.TOKEN_KEY, tokens.token);
+    sessionStorage.setItem(this.REFRESH_TOKEN_KEY, tokens.refreshToken);
+    sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
 
     // Update authentication state
     this.userSubject.next(user);
@@ -558,25 +476,28 @@ export class AuthService {
   }
 
   setTokens(tokens: AuthTokens): void {
-    localStorage.setItem(this.TOKEN_KEY, tokens.token);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, tokens.refreshToken);
+    sessionStorage.setItem(this.TOKEN_KEY, tokens.token);
+    sessionStorage.setItem(this.REFRESH_TOKEN_KEY, tokens.refreshToken);
     // Store full tokens object for mock token expiration checking
-    localStorage.setItem(this.TOKEN_KEY + '_tokens', JSON.stringify(tokens));
+    sessionStorage.setItem(this.TOKEN_KEY + '_tokens', JSON.stringify(tokens));
   }
 
   setUser(user: User): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this.userSubject.next(user);
     this.isAuthenticatedSubject.next(true);
     this.user.set(user);
+    this.startTokenMonitoring();
   }
 
   private clearAuthData(): void {
-    // Clear localStorage
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    localStorage.removeItem(this.TOKEN_KEY + '_tokens');
-    localStorage.removeItem(this.USER_KEY);
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(this.TOKEN_KEY + '_tokens');
+    sessionStorage.removeItem(this.USER_KEY);
+    sessionStorage.removeItem('userId');
+
+    this.clearLegacyPersistentAuthData();
 
     // Clear cookies (backend will handle this, but we can also clear client-side)
     this.deleteCookie('accessToken');
@@ -584,7 +505,7 @@ export class AuthService {
 
     // Stop token monitoring
     this.tokenCheckInterval?.unsubscribe();
-    this.tokenRefreshInterval?.unsubscribe();
+    this.tokenCheckInterval = undefined;
 
     this.userSubject.next(null);
     this.isAuthenticatedSubject.next(false);
@@ -600,8 +521,31 @@ export class AuthService {
   }
 
   private getStoredUser(): User | null {
-    const userStr = localStorage.getItem(this.USER_KEY);
+    const userStr = sessionStorage.getItem(this.USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
+  }
+
+  private getTokenExpirationDate(token: string): Date {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (typeof payload.exp === 'number') {
+        return new Date(payload.exp * 1000);
+      }
+    } catch {
+      // The backend remains the source of truth; use its access-token lifetime
+      // as a safe local fallback if the payload cannot be decoded.
+    }
+
+    return new Date(Date.now() + 30 * 60 * 1000);
+  }
+
+  private clearLegacyPersistentAuthData(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.TOKEN_KEY + '_tokens');
+    localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('userId');
   }
 
   hasRole(role: string): boolean {
@@ -682,7 +626,7 @@ export class AuthService {
     );
   }
 
-  // Check if user should be logged out due to inactivity
+  // Renew an expired access token while the browser session is still open.
   checkSessionTimeout(): void {
     const token = this.getToken();
     // Skip session timeout check for mock tokens (no real login logic)
@@ -690,7 +634,9 @@ export class AuthService {
       return; // Don't check expiration for mock tokens
     }
     if (token && this.isTokenExpired()) {
-      this.forceLogout();
+      this.refreshToken().subscribe({
+        error: (error) => console.error('Session renewal failed:', error)
+      });
     }
   }
 
@@ -729,7 +675,7 @@ export class AuthService {
   // Get stored tokens (for checking expiration of mock tokens)
   private getStoredTokens(): AuthTokens | null {
     try {
-      const tokensStr = localStorage.getItem(this.TOKEN_KEY + '_tokens');
+      const tokensStr = sessionStorage.getItem(this.TOKEN_KEY + '_tokens');
       if (tokensStr) {
         return JSON.parse(tokensStr);
       }

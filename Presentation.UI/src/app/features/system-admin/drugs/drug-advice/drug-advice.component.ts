@@ -49,8 +49,8 @@ import Swal from 'sweetalert2';
             <tbody class="divide-y divide-border">
               @for (adv of filteredAdvice(); track adv) {
                 <tr class="hover:bg-surface-variant/20 transition-colors">
-                  <td class="px-6 py-4 font-medium text-on-surface">{{ adv.name }}</td>
-                  <td class="px-6 py-4 text-on-surface-variant">{{ adv.description || 'N/A' }}</td>
+                  <td class="bangla-instruction px-6 py-4 font-medium text-on-surface">{{ adv.name }}</td>
+                  <td class="bangla-instruction px-6 py-4 text-on-surface-variant">{{ adv.description || 'N/A' }}</td>
                   <td class="px-6 py-4">
                     <span [class]="adv.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
                       class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
@@ -109,6 +109,11 @@ import Swal from 'sweetalert2';
     `,
   styles: [`
     :host { display: block; }
+    .bangla-instruction,
+    input,
+    textarea {
+      font-family: 'SutonnyMJ', 'SutonnyOMJ', 'Kalpurush', 'Noto Sans Bengali', 'Nirmala UI', 'Vrinda', sans-serif;
+    }
   `]
 })
 export class DrugAdviceComponent implements OnInit {

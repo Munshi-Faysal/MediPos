@@ -23,7 +23,7 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
         </button>
       </div>
     
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
     
         <!-- EDITOR PANEL -->
         <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
@@ -32,93 +32,102 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
           </div>
     
           <div class="p-6 space-y-6 h-[700px] overflow-y-auto">
-    
-            <!-- Doctor Info -->
-            <div>
-              <h3 class="text-sm font-bold text-blue-600 uppercase mb-3 tracking-wide">Doctor Details</h3>
-              <div class="grid grid-cols-1 gap-4">
 
-                <!-- Doctor Name -->
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+              <h3 class="text-sm font-bold uppercase tracking-wide text-emerald-700">বাংলা ডাক্তারের তথ্য — ডান পাশ</h3>
+              <p class="mt-1 text-xs leading-5 text-emerald-600">প্রেসক্রিপশন হেডারের ডান পাশে এই তথ্যগুলো দেখাবে। খালি field দেখানো হবে না।</p>
+              <div class="mt-4 grid grid-cols-1 gap-3 border-t border-emerald-200 pt-4">
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Doctor Name</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showDoctorName" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.doctorName" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDoctorName">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">ডাক্তারের নাম</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.name" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Designation -->
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Designation</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showDesignation" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.designation" (ngModelChange)="onConfigChange()" placeholder="e.g. Consultant Physician" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDesignation">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">ডিগ্রি / যোগ্যতা</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.degrees" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Degrees -->
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Degrees</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showDegrees" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.degrees" (ngModelChange)="onConfigChange()" placeholder="e.g. MBBS, MD" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDegrees">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">উচ্চতর প্রশিক্ষণ</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.higherTraining" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Fellowship -->
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Fellowship / Extra Credentials</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showFellowship" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.fellowship" (ngModelChange)="onConfigChange()" placeholder="e.g. FCPS (Medicine), FRCP" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showFellowship">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">পদবি</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.designation" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Specialties -->
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Specialties <span class="text-gray-400 font-normal text-xs">(comma-separated)</span></label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showSpecialties" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.specialtiesText" (ngModelChange)="onSpecialtiesChange()" placeholder="e.g. Medicine Specialist, Diabetes Expert" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showSpecialties">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">বিশেষজ্ঞতা</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.specialty" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Department -->
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Department</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showDepartment" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.department" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showDepartment">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">বিভাগ</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.department" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Institute/Hospital -->
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Institute/Hospital</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showInstitute" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.institute" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showInstitute">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">প্রতিষ্ঠান / হাসপাতাল</label>
+                  <input type="text" [(ngModel)]="localConfig.banglaDoctor.institute" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
                 </div>
-
-                <!-- Reg No -->
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-700">রেজিস্ট্রেশন নম্বর</label>
+                    <input type="text" [(ngModel)]="localConfig.banglaDoctor.regNo" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-700">ফোন / জরুরি যোগাযোগ</label>
+                    <input type="text" [(ngModel)]="localConfig.banglaDoctor.phone" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">
+                  </div>
+                </div>
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">BMDC Reg No</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showRegNo" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="text" [(ngModel)]="localConfig.regNo" (ngModelChange)="onConfigChange()" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showRegNo">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">অতিরিক্ত তথ্য <span class="font-normal text-gray-400">(প্রতি লাইনে একটি)</span></label>
+                  <textarea rows="3" [(ngModel)]="localConfig.banglaDoctor.additionalInfo" (ngModelChange)="onConfigChange()" class="w-full resize-y rounded border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500"></textarea>
                 </div>
+              </div>
+            </div>
 
-                <!-- Email -->
+            <div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <h3 class="text-sm font-bold uppercase tracking-wide text-blue-700">English Doctor Details — Left Side</h3>
+              <p class="mt-1 text-xs leading-5 text-blue-600">These details appear on the left side of the prescription header. Empty fields stay hidden.</p>
+              <div class="mt-4 grid grid-cols-1 gap-3 border-t border-blue-200 pt-4">
                 <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="checkbox" [(ngModel)]="localConfig.showEmail" (ngModelChange)="onConfigChange()" class="h-4 w-4 text-blue-600 rounded">
-                  </div>
-                  <input type="email" [(ngModel)]="localConfig.email" (ngModelChange)="onConfigChange()" placeholder="e.g. doctor@hospital.com" class="w-full border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" [class.opacity-50]="!localConfig.showEmail">
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Doctor Name</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.name" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
-
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Degrees / Qualifications</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.degrees" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Higher Training</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.higherTraining" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Academic Position / Designation</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.designation" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Specialty</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.specialty" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Department</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.department" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Institute / Hospital</label>
+                  <input type="text" [(ngModel)]="localConfig.englishDoctor.institute" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-700">Registration No.</label>
+                    <input type="text" [(ngModel)]="localConfig.englishDoctor.regNo" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-xs font-semibold text-gray-700">Phone / Emergency Contact</label>
+                    <input type="text" [(ngModel)]="localConfig.englishDoctor.phone" (ngModelChange)="onConfigChange()" class="w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-gray-700">Additional Information <span class="font-normal text-gray-400">(one item per line)</span></label>
+                  <textarea rows="3" [(ngModel)]="localConfig.englishDoctor.additionalInfo" (ngModelChange)="onConfigChange()" class="w-full resize-y rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                </div>
               </div>
             </div>
     
@@ -262,8 +271,8 @@ import { PrescriptionSettingsService } from '../../../../core/services/prescript
               <h2 class="text-xl font-bold text-gray-800">Live Preview</h2>
               <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold uppercase">Real-time Sync</span>
             </div>
-            <div class="bg-gray-200 p-8 rounded-xl border border-dotted border-gray-400 min-h-[400px] flex items-center justify-center">
-              <div class="w-full bg-white shadow-2xl scale-95 origin-top">
+            <div class="flex min-h-[400px] items-center justify-center overflow-hidden rounded-xl border border-dotted border-gray-400 bg-gray-200 p-5">
+              <div class="w-full bg-white shadow-2xl">
                 <app-prescription-header [config]="previewConfig"></app-prescription-header>
               </div>
             </div>
@@ -303,17 +312,14 @@ export class PrescriptionHeaderSetupComponent implements OnInit {
       if (!this.localConfig.patientFields) {
         this.localConfig.patientFields = JSON.parse(JSON.stringify(DEFAULT_HEADER_CONFIG.patientFields));
       }
-      // Sync specialtiesText from specialties array if not set
-      if (!this.localConfig.specialtiesText && this.localConfig.specialties?.length) {
-        this.localConfig.specialtiesText = this.localConfig.specialties.join(', ');
-      }
-      // Ensure new fields have defaults if loading old saved config
-      if (this.localConfig.designation === undefined) this.localConfig.designation = '';
-      if (this.localConfig.showDesignation === undefined) this.localConfig.showDesignation = false;
-      if (this.localConfig.fellowship === undefined) this.localConfig.fellowship = '';
-      if (this.localConfig.showFellowship === undefined) this.localConfig.showFellowship = false;
-      if (this.localConfig.email === undefined) this.localConfig.email = '';
-      if (this.localConfig.showEmail === undefined) this.localConfig.showEmail = false;
+      this.localConfig.banglaDoctor = {
+        ...DEFAULT_HEADER_CONFIG.banglaDoctor,
+        ...(this.localConfig.banglaDoctor || {})
+      };
+      this.localConfig.englishDoctor = {
+        ...DEFAULT_HEADER_CONFIG.englishDoctor,
+        ...(this.localConfig.englishDoctor || {})
+      };
       if (this.localConfig.chamberLogo === undefined) this.localConfig.chamberLogo = '';
       if (this.localConfig.showChamberLogo === undefined) this.localConfig.showChamberLogo = false;
       this.updatePreview();
@@ -343,15 +349,6 @@ export class PrescriptionHeaderSetupComponent implements OnInit {
 
   removeLogo() {
     this.localConfig.chamberLogo = '';
-    this.updatePreview();
-  }
-
-  onSpecialtiesChange() {
-    // Sync text input back to specialties array used by the header component
-    this.localConfig.specialties = this.localConfig.specialtiesText
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
     this.updatePreview();
   }
 

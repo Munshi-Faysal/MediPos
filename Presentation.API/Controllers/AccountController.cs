@@ -59,6 +59,22 @@ public class AccountController(IServiceManager service,
 
     [HttpPost]
     [AllowAnonymous]
+    [Route("RefreshToken")]
+    [ServiceFilter(typeof(ModelStateValidationFilter))]
+    public async Task<IActionResult> RefreshToken(RefreshTokenDto refreshTokenDto)
+    {
+        var response = await accountService.RefreshTokenAsync(refreshTokenDto.RefreshToken);
+        if (!response.Result.Succeeded)
+        {
+            var errorMessage = response.Result.Errors.FirstOrDefault()?.Description ?? "Invalid refresh token.";
+            return Unauthorized(new { message = errorMessage });
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
     [Route("VerifyLoginOtp")]
     [ServiceFilter(typeof(ModelStateValidationFilter))]
     public async Task<IActionResult> VerifyLoginOtp(LoginOtpDto loginOtpDto)

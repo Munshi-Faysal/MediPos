@@ -13,26 +13,22 @@ export interface BodySectionConfig {
     placeholder?: string;
 }
 
-export interface PrescriptionHeaderConfig {
-    doctorName: string;
-    showDoctorName: boolean;
-    designation: string;
-    showDesignation: boolean;
+export interface PrescriptionDoctorDetails {
+    name: string;
     degrees: string;
-    showDegrees: boolean;
-    fellowship: string;
-    showFellowship: boolean;
-    specialties: string[];
-    showSpecialties: boolean;
-    specialtiesText: string;   // comma-separated editable version
+    higherTraining: string;
+    designation: string;
+    specialty: string;
     department: string;
-    showDepartment: boolean;
     institute: string;
-    showInstitute: boolean;
     regNo: string;
-    showRegNo: boolean;
-    email: string;
-    showEmail: boolean;
+    phone: string;
+    additionalInfo: string;
+}
+
+export interface PrescriptionHeaderConfig {
+    banglaDoctor: PrescriptionDoctorDetails;
+    englishDoctor: PrescriptionDoctorDetails;
 
     chamberLogo: string;        // base64 data URL
     showChamberLogo: boolean;
@@ -75,25 +71,30 @@ export interface PrescriptionFooterConfig {
 }
 
 export const DEFAULT_HEADER_CONFIG: PrescriptionHeaderConfig = {
-    doctorName: 'Munshi Faysal',
-    showDoctorName: true,
-    designation: 'Consultant Physician',
-    showDesignation: true,
-    degrees: 'MBBS, MD',
-    showDegrees: true,
-    fellowship: '',
-    showFellowship: false,
-    specialties: ['Medicine Specialist'],
-    showSpecialties: true,
-    specialtiesText: 'Medicine Specialist',
-    department: 'Department Of Medicine',
-    showDepartment: true,
-    institute: 'Demo Medical College',
-    showInstitute: true,
-    regNo: '112589',
-    showRegNo: true,
-    email: '',
-    showEmail: false,
+    banglaDoctor: {
+        name: '',
+        degrees: '',
+        higherTraining: '',
+        designation: '',
+        specialty: '',
+        department: '',
+        institute: '',
+        regNo: '',
+        phone: '',
+        additionalInfo: ''
+    },
+    englishDoctor: {
+        name: 'Munshi Faysal',
+        degrees: 'MBBS, MD',
+        higherTraining: '',
+        designation: 'Consultant Physician',
+        specialty: 'Medicine Specialist',
+        department: 'Department Of Medicine',
+        institute: 'Demo Medical College',
+        regNo: '112589',
+        phone: '',
+        additionalInfo: ''
+    },
     chamberLogo: '',
     showChamberLogo: false,
     chamberName: 'Crescent Diagnostic Center',

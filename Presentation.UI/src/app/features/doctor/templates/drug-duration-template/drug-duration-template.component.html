@@ -45,10 +45,10 @@
                     @for (template of templates(); track template.encryptedId) {
                     <tr class="hover:bg-emerald-50/30 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-bold text-gray-900">{{ template.name }}</div>
+                            <div class="bangla-duration text-sm font-bold text-gray-900">{{ template.name }}</div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-600 truncate max-w-md">{{ template.description }}</div>
+                            <div class="bangla-duration text-sm text-gray-600 truncate max-w-md">{{ template.description }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
@@ -115,7 +115,7 @@
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Template
                         Name</label>
                     <input type="text" [(ngModel)]="templateForm.name"
-                        class="w-full border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 py-3 px-4 font-bold text-lg"
+                        class="bangla-duration w-full border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 py-3 px-4 font-bold text-lg"
                         placeholder="e.g. 7 Days">
                 </div>
                 <!-- Description -->
@@ -123,7 +123,7 @@
                     <label
                         class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
                     <textarea [(ngModel)]="templateForm.description" rows="6"
-                        class="w-full border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 py-3 px-4 text-gray-800 placeholder-gray-300 resize-none font-medium"
+                        class="bangla-duration w-full border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 py-3 px-4 text-gray-800 placeholder-gray-300 resize-none font-medium"
                         placeholder="Description or details..."></textarea>
                 </div>
 

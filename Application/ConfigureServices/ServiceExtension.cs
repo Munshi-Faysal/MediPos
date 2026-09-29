@@ -89,6 +89,15 @@ internal static class ServiceExtension
                             context.Token = accessToken;
                         }
                         return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        if (context.Principal?.FindFirst("token_type")?.Value != "access")
+                        {
+                            context.Fail("Invalid access token type.");
+                        }
+
+                        return Task.CompletedTask;
                     }
                 };
             });

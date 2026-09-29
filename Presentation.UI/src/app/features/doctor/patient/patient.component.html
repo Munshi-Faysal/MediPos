@@ -55,17 +55,46 @@
   }
   <!-- Filters & Search -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-4">
-    <div class="relative max-w-md">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+      <div class="relative w-full xl:max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="filterPatients()"
+          class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition duration-150 ease-in-out"
+          placeholder="Search patients by name, email, or phone..." />
       </div>
-      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="filterPatients()"
-        class="block w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition duration-150 ease-in-out"
-        placeholder="Search patients by name, email, or phone..." />
+
+      <div class="flex items-center gap-1 overflow-x-auto pb-1 xl:pb-0" aria-label="Filter patients by visit period">
+        <button type="button" (click)="setVisitPeriod('all')" [attr.aria-pressed]="activeVisitPeriod === 'all'"
+          data-testid="patient-filter-all"
+          class="shrink-0 inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+          [ngClass]="activeVisitPeriod === 'all' ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'">
+          All <span class="rounded-md px-1.5 py-0.5" [ngClass]="activeVisitPeriod === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'">{{ visitCounts.all }}</span>
+        </button>
+        <button type="button" (click)="setVisitPeriod('today')" [attr.aria-pressed]="activeVisitPeriod === 'today'"
+          data-testid="patient-filter-today"
+          class="shrink-0 inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+          [ngClass]="activeVisitPeriod === 'today' ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'">
+          Today <span class="rounded-md px-1.5 py-0.5" [ngClass]="activeVisitPeriod === 'today' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'">{{ visitCounts.today }}</span>
+        </button>
+        <button type="button" (click)="setVisitPeriod('week')" [attr.aria-pressed]="activeVisitPeriod === 'week'"
+          data-testid="patient-filter-week"
+          class="shrink-0 inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+          [ngClass]="activeVisitPeriod === 'week' ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'">
+          This Week <span class="rounded-md px-1.5 py-0.5" [ngClass]="activeVisitPeriod === 'week' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'">{{ visitCounts.week }}</span>
+        </button>
+        <button type="button" (click)="setVisitPeriod('month')" [attr.aria-pressed]="activeVisitPeriod === 'month'"
+          data-testid="patient-filter-month"
+          class="shrink-0 inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+          [ngClass]="activeVisitPeriod === 'month' ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'">
+          This Month <span class="rounded-md px-1.5 py-0.5" [ngClass]="activeVisitPeriod === 'month' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'">{{ visitCounts.month }}</span>
+        </button>
+      </div>
     </div>
   </div>
   <!-- Patient List -->
@@ -180,7 +209,7 @@
           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
       <h3 class="mt-2 text-sm font-medium text-gray-900">No patients found</h3>
-      <p class="mt-1 text-sm text-gray-500">Try adjusting your search terms or add a new patient.</p>
+      <p class="mt-1 text-sm text-gray-500">Try changing the search or visit period.</p>
     </div>
     }
     @if (!isListLoading && filteredPatients.length > 0) {

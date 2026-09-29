@@ -6,6 +6,7 @@ public class LoginResponseDto
 {
     public required IdentityResult Result { get; set; }
     public string? Token { get; set; }
+    public string? RefreshToken { get; set; }
     public int? UserId { get; set; }
     public int? DoctorId { get; set; }
     public bool Is2FaRequired { get; set; }

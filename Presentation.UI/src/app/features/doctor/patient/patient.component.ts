@@ -41,6 +41,15 @@ export interface VisitRecord {
   prescriptionEncryptedId?: string;
 }
 
+type VisitPeriod = 'all' | 'today' | 'week' | 'month';
+
+interface VisitCounts {
+  all: number;
+  today: number;
+  week: number;
+  month: number;
+}
+
 @Component({
   selector: 'app-patient',
   standalone: true,
@@ -54,6 +63,8 @@ export class PatientComponent implements OnInit {
 
   currentView: 'list' | 'create' | 'view' = 'list';
   searchTerm = '';
+  activeVisitPeriod: VisitPeriod = 'all';
+  visitCounts: VisitCounts = { all: 0, today: 0, week: 0, month: 0 };
   selectedPatient: Patient | null = null;
   isEditing = false;
   isLoading = false;
@@ -98,6 +109,7 @@ export class PatientComponent implements OnInit {
     this.patientService.getAllPatients(1000).subscribe({
       next: (data) => {
         this.patients = (data || []).map(patient => this.mapPatient(patient));
+        this.updateVisitCounts();
         this.filterPatients();
         this.isListLoading = false;
       },
@@ -111,14 +123,20 @@ export class PatientComponent implements OnInit {
 
   filterPatients(): void {
     const term = this.searchTerm.trim().toLowerCase();
-    this.filteredPatients = !term
-      ? [...this.patients]
-      : this.patients.filter(patient =>
-          patient.name.toLowerCase().includes(term) ||
-          patient.phone.toLowerCase().includes(term) ||
-          patient.email.toLowerCase().includes(term)
-        );
+    this.filteredPatients = this.patients.filter(patient => {
+      const matchesSearch = !term ||
+        patient.name.toLowerCase().includes(term) ||
+        patient.phone.toLowerCase().includes(term) ||
+        patient.email.toLowerCase().includes(term);
+
+      return matchesSearch && this.matchesVisitPeriod(patient.lastVisit, this.activeVisitPeriod);
+    });
     this.currentPage = 1;
+  }
+
+  setVisitPeriod(period: VisitPeriod): void {
+    this.activeVisitPeriod = period;
+    this.filterPatients();
   }
 
   goToPage(page: number): void {
@@ -211,6 +229,7 @@ export class PatientComponent implements OnInit {
     this.patientService.deletePatient(patient.encryptedId).subscribe({
       next: () => {
         this.patients = this.patients.filter(item => item.encryptedId !== patient.encryptedId);
+        this.updateVisitCounts();
         this.filterPatients();
         this.deletingPatientId = null;
         this.notification.success('Success', 'Patient removed successfully.');
@@ -234,6 +253,42 @@ export class PatientComponent implements OnInit {
 
   private emptyPatient(): Partial<Patient> {
     return { status: 'Active', gender: 'Male', bloodGroup: '' };
+  }
+
+  private updateVisitCounts(): void {
+    this.visitCounts = {
+      all: this.patients.length,
+      today: this.countPatientsForPeriod('today'),
+      week: this.countPatientsForPeriod('week'),
+      month: this.countPatientsForPeriod('month')
+    };
+  }
+
+  private countPatientsForPeriod(period: Exclude<VisitPeriod, 'all'>): number {
+    return this.patients.filter(patient => this.matchesVisitPeriod(patient.lastVisit, period)).length;
+  }
+
+  private matchesVisitPeriod(lastVisit: Date | null, period: VisitPeriod): boolean {
+    if (period === 'all') return true;
+    if (!lastVisit || Number.isNaN(lastVisit.getTime())) return false;
+
+    const now = new Date();
+    let start: Date;
+    let end: Date;
+
+    if (period === 'today') {
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    } else if (period === 'week') {
+      const daysSinceMonday = (now.getDay() + 6) % 7;
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceMonday);
+      end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
+    } else {
+      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    }
+
+    return lastVisit >= start && lastVisit < end;
   }
 
   private mapPatient(patient: PatientViewModel): Patient {

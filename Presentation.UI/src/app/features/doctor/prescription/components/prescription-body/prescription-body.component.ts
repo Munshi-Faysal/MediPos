@@ -140,7 +140,7 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
                         (focus)="openDoseDropdown(i)" (click)="openDoseDropdown(i)"
                         (input)="onDoseInput($event, i)" (blur)="scheduleDoseDropdownClose(i)"
                         (keydown.escape)="closeDoseDropdown()"
-                        class="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent placeholder-gray-300 text-sm"
+                        class="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent placeholder-gray-300 text-sm font-hindi"
                         placeholder="1+0+1">
                     </div>
 
@@ -154,7 +154,7 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
                           <div class="max-h-56 overflow-y-auto p-1.5">
                             @for (dose of filteredDoseTemplates(); track dose) {
                               <button type="button" (mousedown)="$event.preventDefault()" (click)="selectDose(i, dose)"
-                                class="group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-bold text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-700 focus:bg-emerald-50 focus:outline-none">
+                                class="group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-bold font-hindi text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-700 focus:bg-emerald-50 focus:outline-none">
                                 <span>{{ dose }}</span>
                                 <svg class="h-4 w-4 text-emerald-500 opacity-0 transition group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                               </button>
@@ -168,7 +168,7 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
                         }
                       </div>
                     }
-                    <span class="hidden print:block text-gray-800 text-sm font-bold">{{ med.get('dosage')?.value }}</span>
+                    <span class="hidden print:block text-gray-800 text-sm font-bold font-hindi">{{ med.get('dosage')?.value }}</span>
                   </div>
                   
                   <span class="text-gray-400 text-sm">--</span>
@@ -183,8 +183,8 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
                   
                   <!-- Duration -->
                   <div class="flex-1 min-w-[80px]">
-                    <input type="text" formControlName="duration" list="durationList" class="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent placeholder-gray-300 text-sm print:hidden" placeholder="Duration">
-                    <span class="hidden print:block text-gray-800 text-sm font-bold">{{ med.get('duration')?.value }}</span>
+                    <input type="text" formControlName="duration" list="durationList" class="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none bg-transparent placeholder-gray-300 text-sm font-hindi print:hidden" placeholder="Duration">
+                    <span class="hidden print:block text-gray-800 text-sm font-bold font-hindi">{{ med.get('duration')?.value }}</span>
                   </div>
                 </div>
               </div>
@@ -236,7 +236,7 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
     `,
   styles: [`
     .font-hindi {
-        font-family: 'Noto Sans Bengali', sans-serif;
+        font-family: 'SutonnyMJ', 'SutonnyOMJ', 'Kalpurush', 'Noto Sans Bengali', 'Nirmala UI', 'Vrinda', sans-serif;
     }
     @media print {
         @page {
