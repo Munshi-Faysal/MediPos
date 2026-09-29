@@ -119,6 +119,10 @@ export const routes: Routes = [
           {
             path: 'list',
             loadComponent: () => import('./features/system-admin/drugs/drug-list/drug-list.component').then(m => (m as any).DrugListComponent)
+          },
+          {
+            path: 'quick-filter',
+            loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
           }
         ]
       },
@@ -176,6 +180,10 @@ export const routes: Routes = [
           {
             path: 'list',
             loadComponent: () => import('./features/system-admin/drugs/drug-list/drug-list.component').then(m => (m as any).DrugListComponent)
+          },
+          {
+            path: 'quick-filter',
+            loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
           }
         ]
       },

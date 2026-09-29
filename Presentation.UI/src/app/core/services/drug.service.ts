@@ -60,6 +60,29 @@ export interface DrugViewModel {
     drugDetailList?: DrugDetailViewModel[];
 }
 
+export interface DrugMonographDto {
+    id?: number;
+    brandName: string;
+    genericName?: string;
+    dosageForm?: string;
+    strength?: string;
+    manufacturer?: string;
+    unitPrice?: number;
+    stripPrice?: number;
+    packImageUrl?: string;
+    medExUrl?: string;
+    indications?: string;
+    pharmacology?: string;
+    dosageAdministration?: string;
+    interaction?: string;
+    contraindications?: string;
+    sideEffects?: string;
+    pregnancyLactation?: string;
+    precautionsWarnings?: string;
+    therapeuticClass?: string;
+    storageConditions?: string;
+}
+
 /**
  * Drug Service for managing drugs
  * Uses the unified ApiService for all HTTP requests
@@ -164,5 +187,20 @@ export class DrugService {
      */
     deleteDrug(encryptedId: string): Observable<any> {
         return this.api.delete<any>(`${this.endpoint}/Delete/${encryptedId}`);
+    }
+
+    /**
+     * Get Clinical Monograph details (Indications, Pharmacology, Dosage, etc.)
+     */
+    getMonograph(params: { brandName?: string; genericName?: string; url?: string }): Observable<DrugMonographDto | null> {
+        let reqUrl = `${this.endpoint}/Monograph?`;
+        const q: string[] = [];
+        if (params.brandName) q.push(`brandName=${encodeURIComponent(params.brandName)}`);
+        if (params.genericName) q.push(`genericName=${encodeURIComponent(params.genericName)}`);
+        if (params.url) q.push(`url=${encodeURIComponent(params.url)}`);
+        reqUrl += q.join('&');
+        return this.api.get<{ isSuccess: boolean; data: DrugMonographDto }>(reqUrl).pipe(
+            map(res => res?.data || null)
+        );
     }
 }

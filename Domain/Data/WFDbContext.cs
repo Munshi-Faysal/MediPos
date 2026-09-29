@@ -1,4 +1,4 @@
-﻿using Domain.Models;
+using Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +29,7 @@ public class WfDbContext(DbContextOptions<WfDbContext> options) : IdentityDbCont
     public virtual DbSet<Unit> Units { get; set; }
     public virtual DbSet<DrugMaster> DrugMasters { get; set; }
     public virtual DbSet<DrugDetail> DrugDetails { get; set; }
+    public virtual DbSet<DrugMonograph> DrugMonographs { get; set; }
     public virtual DbSet<ClinicalDept> ClinicalDepts { get; set; }
     public virtual DbSet<Patient> Patients { get; set; }
     public virtual DbSet<Appointment> Appointments { get; set; }
@@ -599,6 +600,23 @@ public class WfDbContext(DbContextOptions<WfDbContext> options) : IdentityDbCont
                 .HasForeignKey(d => d.DrugStrengthId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_DrugDetails_DrugStrength_DrugStrengthId");
+        });
+
+        modelBuilder.Entity<DrugMonograph>(entity =>
+        {
+            entity.ToTable("DrugMonograph");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BrandName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.GenericName).HasMaxLength(200);
+            entity.Property(e => e.DosageForm).HasMaxLength(100);
+            entity.Property(e => e.Strength).HasMaxLength(100);
+            entity.Property(e => e.Manufacturer).HasMaxLength(200);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.StripPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.MedExUrl).HasMaxLength(500);
+            entity.Property(e => e.PackImageUrl).HasMaxLength(500);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Patient>(entity =>

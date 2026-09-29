@@ -14,4 +14,5 @@ public interface IDrugMasterService : IBaseServiceInit<DrugMasterViewModel, Drug
     Task<List<DrugMasterDto>> GetActiveListAsync();
     Task<DrugMasterDto?> GetWithDetailsAsync(string encryptedId);
     Task<IEnumerable<DrugMasterViewModel>> SearchAsync(string term, int take = 50);
+    Task<DrugMonographViewModel?> GetMonographAsync(string? brandName, string? genericName, string? url);
 }

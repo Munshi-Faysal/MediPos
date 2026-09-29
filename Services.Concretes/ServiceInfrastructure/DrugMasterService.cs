@@ -239,4 +239,9 @@ internal sealed class DrugMasterService(
             DrugStrengthList = await repository.DrugStrength.GetDropdownItemsAsync()
         };
     }
+
+    public async Task<DrugMonographViewModel?> GetMonographAsync(string? brandName, string? genericName, string? url)
+    {
+        return await repository.DrugMaster.GetMonographAsync(brandName, genericName, url);
+    }
 }

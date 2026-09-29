@@ -107,4 +107,14 @@ public class DrugController(IServiceManager service) : ControllerBase
     {
         return Ok(await service.DrugMaster.SearchAsync(term, take));
     }
+
+    [HttpGet]
+    [Route("Monograph")]
+    public async Task<IActionResult> GetMonograph([FromQuery] string? brandName, [FromQuery] string? genericName, [FromQuery] string? url)
+    {
+        var result = await service.DrugMaster.GetMonographAsync(brandName, genericName, url);
+        return result is null 
+            ? NotFound(new { isSuccess = false, message = "Monograph details not available." }) 
+            : Ok(new { isSuccess = true, data = result });
+    }
 }

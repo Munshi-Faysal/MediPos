@@ -1,7 +1,8 @@
 import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import type { IScannerControls } from '@zxing/browser';
+// Type fallback when @zxing/browser is not installed
+type IScannerControls = any;
 
 @Component({
   selector: 'app-prescription-barcode-scan',
@@ -29,9 +30,9 @@ export class PrescriptionBarcodeScanComponent implements OnDestroy {
     this.error = '';
     this.scanning = true;
     try {
-      const { BrowserMultiFormatOneDReader } = await import('@zxing/browser');
-      const reader = new BrowserMultiFormatOneDReader();
-      const controls = await reader.decodeFromVideoDevice(undefined, this.cameraPreview.nativeElement, (result, _error, scannerControls) => {
+      const zxing = await import('@zxing/browser' as any);
+      const reader = new zxing.BrowserMultiFormatOneDReader();
+      const controls = await reader.decodeFromVideoDevice(undefined, this.cameraPreview.nativeElement, (result: any, _error: any, scannerControls: any) => {
         if (result && this.scanning) this.openCode(result.getText(), scannerControls);
       });
       if (!this.scanning) controls.stop();

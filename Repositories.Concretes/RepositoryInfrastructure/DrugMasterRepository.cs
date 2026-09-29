@@ -157,4 +157,140 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
 
         return (items, totalCount);
     }
+
+    public async Task<DrugMonographViewModel?> GetMonographAsync(string? brandName, string? genericName, string? url)
+    {
+        var b = brandName?.Trim().ToLower();
+        var g = genericName?.Trim().ToLower();
+        var u = url?.Trim().ToLower();
+
+        // 1. Check DrugMonograph table
+        var monograph = await _context.DrugMonographs
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => 
+                (!string.IsNullOrEmpty(b) && m.BrandName.ToLower() == b) ||
+                (!string.IsNullOrEmpty(u) && m.MedExUrl != null && m.MedExUrl.ToLower() == u) ||
+                (!string.IsNullOrEmpty(g) && m.GenericName != null && m.GenericName.ToLower() == g)
+            );
+
+        if (monograph != null)
+        {
+            return MapToMonographVm(monograph);
+        }
+
+        // 2. If url is missing, check if DrugMasters has MedEx URL
+        string? targetUrl = url;
+        if (string.IsNullOrWhiteSpace(targetUrl) && !string.IsNullOrWhiteSpace(brandName))
+        {
+            targetUrl = await _context.DrugMasters
+                .Where(dm => dm.Name.ToLower() == b && dm.Description != null && dm.Description.StartsWith("http"))
+                .Select(dm => dm.Description)
+                .FirstOrDefaultAsync();
+        }
+
+        // 3. If targetUrl available, fetch live from MedEx and cache into DrugMonograph
+        if (!string.IsNullOrWhiteSpace(targetUrl) && targetUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                var html = await client.GetStringAsync(targetUrl);
+
+                if (!string.IsNullOrWhiteSpace(html))
+                {
+                    var newMonograph = ParseMedExHtml(html, brandName ?? "Unknown", genericName, targetUrl);
+                    _context.DrugMonographs.Add(newMonograph);
+                    await _context.SaveChangesAsync();
+                    return MapToMonographVm(newMonograph);
+                }
+            }
+            catch
+            {
+                // Network or parse exception, fallback gracefully
+            }
+        }
+
+        // 4. Fallback: Query Generic details from database if exists
+        var genericEntity = await _context.Generics
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gen => !string.IsNullOrEmpty(g) && gen.Name.ToLower() == g);
+
+        if (genericEntity != null)
+        {
+            return new DrugMonographViewModel
+            {
+                BrandName = brandName ?? genericEntity.Name,
+                GenericName = genericEntity.Name,
+                Indications = genericEntity.Indication,
+                SideEffects = genericEntity.SideEffects,
+                MedExUrl = targetUrl
+            };
+        }
+
+        return null;
+    }
+
+    private static DrugMonographViewModel MapToMonographVm(DrugMonograph m) => new()
+    {
+        Id = m.Id,
+        BrandName = m.BrandName,
+        GenericName = m.GenericName,
+        DosageForm = m.DosageForm,
+        Strength = m.Strength,
+        Manufacturer = m.Manufacturer,
+        UnitPrice = m.UnitPrice,
+        StripPrice = m.StripPrice,
+        PackImageUrl = m.PackImageUrl,
+        MedExUrl = m.MedExUrl,
+        Indications = m.Indications,
+        Pharmacology = m.Pharmacology,
+        DosageAdministration = m.DosageAdministration,
+        Interaction = m.Interaction,
+        Contraindications = m.Contraindications,
+        SideEffects = m.SideEffects,
+        PregnancyLactation = m.PregnancyLactation,
+        PrecautionsWarnings = m.PrecautionsWarnings,
+        TherapeuticClass = m.TherapeuticClass,
+        StorageConditions = m.StorageConditions
+    };
+
+    private static DrugMonograph ParseMedExHtml(string html, string brandName, string? genericName, string url)
+    {
+        string? ExtractSection(string divId)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                html, 
+                $@"<div id=""{divId}"">[\s\S]*?<div class=""ac-body"">([\s\S]*?)<\/div>", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            if (!match.Success) return null;
+            var val = match.Groups[1].Value.Trim();
+            return System.Text.RegularExpressions.Regex.Replace(val, @"<div class=""tx-0-9[\s\S]*$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Trim();
+        }
+
+        string? packImg = null;
+        var imgMatch = System.Text.RegularExpressions.Regex.Match(html, @"data-src=""(https:\/\/medex\.com\.bd\/storage\/images\/packaging\/[^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (imgMatch.Success) packImg = imgMatch.Groups[1].Value;
+
+        return new DrugMonograph
+        {
+            BrandName = brandName,
+            GenericName = genericName,
+            MedExUrl = url,
+            PackImageUrl = packImg,
+            Indications = ExtractSection("indications"),
+            Pharmacology = ExtractSection("mode_of_action"),
+            DosageAdministration = ExtractSection("dosage"),
+            Interaction = ExtractSection("interaction"),
+            Contraindications = ExtractSection("contraindications"),
+            SideEffects = ExtractSection("side_effects"),
+            PregnancyLactation = ExtractSection("pregnancy_cat"),
+            PrecautionsWarnings = ExtractSection("precautions"),
+            TherapeuticClass = ExtractSection("drug_classes"),
+            StorageConditions = ExtractSection("storage_conditions"),
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
+        };
+    }
 }
