@@ -29,12 +29,29 @@ export class DrugDoseTemplateComponent implements OnInit {
   searchTerm = signal<string>('');
 
   readonly commonDosePresets = [
-    { name: '1+0+0', description: 'Once daily in the morning' },
-    { name: '0+1+0', description: 'Once daily at noon' },
-    { name: '0+0+1', description: 'Once daily at night' },
-    { name: '1+0+1', description: 'Morning and night' },
-    { name: '1+1+1', description: 'Three times daily' },
-    { name: '1/2+0+1/2', description: 'Half tablet morning and night' }
+    { name: '১ + ০ + ০', description: '' },
+    { name: '০ + ১ + ০', description: '' },
+    { name: '০ + ০ + ১', description: '' },
+    { name: '১ + ০ + ১', description: '' },
+    { name: '১ + ১ + ০', description: '' },
+    { name: '০ + ১ + ১', description: '' },
+    { name: '১ + ১ + ১', description: '' },
+    { name: '২ + ০ + ০', description: '' },
+    { name: '০ + ২ + ০', description: '' },
+    { name: '০ + ০ + ২', description: '' },
+    { name: '২ + ০ + ১', description: '' },
+    { name: '১ + ০ + ২', description: '' },
+    { name: '২ + ০ + ২', description: '' },
+    { name: '২ + ১ + ১', description: '' },
+    { name: '১ + ১ + ২', description: '' },
+    { name: '২ + ২ + ২', description: '' },
+    { name: '½ + ০ + ½', description: '' },
+    { name: '½ + ০ + ১', description: '' },
+    { name: '১ + ০ + ½', description: '' },
+    { name: '½ + ½ + ½', description: '' },
+    { name: '১ + ½ + ১', description: '' },
+    { name: '২ + ০ + ½', description: '' },
+    { name: '½ + ০ + ২', description: '' }
   ];
 
   filteredTemplates = computed(() => {

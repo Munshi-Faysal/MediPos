@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { Patient } from '../../../../../core/models/patient.model';
 import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } from '../../../../../core/models/prescription-settings.model';
@@ -12,66 +12,119 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
   template: `
     <div class="header-container font-sans" [formGroup]="parentForm">
       <!-- Top Section: Doctor & Clinic Info -->
-      <div class="prescription-letterhead flex justify-between items-start border-b-2 border-gray-300"
+      <div class="prescription-letterhead border-b-2 border-gray-300"
            [style.background]="getGradient()"
            [class.print-letterhead-blank]="isPrintHeaderHidden">
-    
-        <!-- Left Section: Doctor Info -->
-        <div class="flex p-6 pl-12 items-start">
-          <div class="text-left space-y-1" [style.color]="config.textColor">
-            @if (config.showDoctorName) {
-              <h1 class="text-lg font-bold">{{ config.doctorName }}</h1>
-            }
-            @if (config.showDesignation && config.designation) {
-              <p class="text-sm font-semibold italic">{{ config.designation }}</p>
-            }
-            @if (config.showDegrees) {
-              <p class="font-bold">{{ config.degrees }}</p>
-            }
-            @if (config.showFellowship && config.fellowship) {
-              <p class="font-semibold text-sm">{{ config.fellowship }}</p>
-            }
-            @if (config.showSpecialties) {
-              @for (spec of config.specialties; track spec) {
-                <p class="text-sm">{{ spec }}</p>
+
+        <div class="letterhead-main">
+          <!-- Left Section: English Doctor Info -->
+          <div class="letterhead-primary">
+            <div class="doctor-details english-doctor-details" [style.color]="config.textColor">
+              @if (config.englishDoctor.name) {
+                <h1 class="doctor-name">{{ config.englishDoctor.name }}</h1>
               }
-            }
-            @if (config.showDepartment && config.department) {
-              <p class="text-sm">{{ config.department }}</p>
-            }
-            @if (config.showInstitute && config.institute) {
-              <p class="text-sm">{{ config.institute }}</p>
-            }
-            @if (config.showRegNo) {
-              <p class="text-sm font-semibold mt-2">BMDC Reg. No- {{ config.regNo }}</p>
-            }
-            @if (config.showEmail && config.email) {
-              <p class="text-sm">Email: {{ config.email }}</p>
+              @if (config.englishDoctor.degrees) {
+                <p class="doctor-degrees">{{ config.englishDoctor.degrees }}</p>
+              }
+              @if (config.englishDoctor.higherTraining) {
+                <p class="doctor-training">{{ config.englishDoctor.higherTraining }}</p>
+              }
+              @if (config.englishDoctor.designation) {
+                <p class="doctor-designation">{{ config.englishDoctor.designation }}</p>
+              }
+              @if (config.englishDoctor.specialty) {
+                <p class="doctor-detail">{{ config.englishDoctor.specialty }}</p>
+              }
+              @if (config.englishDoctor.department) {
+                <p class="doctor-detail">{{ config.englishDoctor.department }}</p>
+              }
+              @if (config.englishDoctor.institute) {
+                <p class="doctor-detail">{{ config.englishDoctor.institute }}</p>
+              }
+              @if (config.englishDoctor.regNo) {
+                <p class="doctor-contact">BMDC Reg. No- {{ config.englishDoctor.regNo }}</p>
+              }
+              @if (config.englishDoctor.phone) {
+                <p class="doctor-contact">☎ {{ config.englishDoctor.phone }}</p>
+              }
+              @if (englishAdditionalInfoLines.length) {
+                <div class="doctor-additional-info">
+                  @for (line of englishAdditionalInfoLines; track $index) {
+                    <p class="doctor-additional-line">{{ line }}</p>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Logo remains in the middle. -->
+          <div class="letterhead-logo">
+            @if (config.showChamberLogo && config.chamberLogo) {
+              <img [src]="config.chamberLogo" alt="Chamber Logo">
             }
           </div>
+
+          <!-- Right Section: Bangla Doctor Info -->
+          <div class="letterhead-secondary" [style.color]="config.textColor">
+            <div class="doctor-details bangla-doctor-details">
+              @if (config.banglaDoctor.name) {
+                <h1 class="doctor-name">{{ config.banglaDoctor.name }}</h1>
+              }
+              @if (config.banglaDoctor.degrees) {
+                <p class="doctor-degrees">{{ config.banglaDoctor.degrees }}</p>
+              }
+              @if (config.banglaDoctor.higherTraining) {
+                <p class="doctor-training">{{ config.banglaDoctor.higherTraining }}</p>
+              }
+              @if (config.banglaDoctor.designation) {
+                <p class="doctor-designation">{{ config.banglaDoctor.designation }}</p>
+              }
+              @if (config.banglaDoctor.specialty) {
+                <p class="doctor-detail">{{ config.banglaDoctor.specialty }}</p>
+              }
+              @if (config.banglaDoctor.department) {
+                <p class="doctor-detail">{{ config.banglaDoctor.department }}</p>
+              }
+              @if (config.banglaDoctor.institute) {
+                <p class="doctor-detail">{{ config.banglaDoctor.institute }}</p>
+              }
+              @if (config.banglaDoctor.regNo) {
+                <p class="doctor-contact">বিএমডিসি রেজিঃ {{ config.banglaDoctor.regNo }}</p>
+              }
+              @if (config.banglaDoctor.phone) {
+                <p class="doctor-contact">☎ {{ config.banglaDoctor.phone }}</p>
+              }
+              @if (banglaAdditionalInfoLines.length) {
+                <div class="doctor-additional-info">
+                  @for (line of banglaAdditionalInfoLines; track $index) {
+                    <p class="doctor-additional-line">{{ line }}</p>
+                  }
+                </div>
+              }
+            </div>
+          </div>
         </div>
-    
-        <!-- Right: Chamber Info -->
-        <div class="p-6 pr-10 text-right space-y-1 flex flex-col items-end justify-center" [style.color]="config.textColor">
-          @if (config.showChamberLogo && config.chamberLogo) {
-            <img [src]="config.chamberLogo" class="max-h-14 max-w-[160px] object-contain mb-2" alt="Chamber Logo">
-          }
-          @if (config.showChamberName) {
-            <p class="text-sm font-bold">{{ config.chamberName }}</p>
-          }
-          @if (config.showChamberAddress) {
-            <p class="text-sm">{{ config.chamberAddress }}</p>
-          }
-          @if (config.showMobile) {
-            <p class="text-sm">For Appointment: {{ config.mobile }}</p>
-          }
-          @if (config.showVisitTime) {
-            <p class="text-sm">{{ config.visitTime }}</p>
-          }
-          @if (config.showOffDay) {
-            <p class="text-sm font-bold">{{ config.offDay }}</p>
-          }
-        </div>
+
+        <!-- Chamber details stay below the bilingual doctor header. -->
+        @if (hasVisibleChamberInfo()) {
+          <div class="chamber-info-strip" [style.color]="config.textColor">
+            @if (config.showChamberName && config.chamberName) {
+              <span class="font-bold">{{ config.chamberName }}</span>
+            }
+            @if (config.showChamberAddress && config.chamberAddress) {
+              <span>{{ config.chamberAddress }}</span>
+            }
+            @if (config.showMobile && config.mobile) {
+              <span>For Appointment: {{ config.mobile }}</span>
+            }
+            @if (config.showVisitTime && config.visitTime) {
+              <span>{{ config.visitTime }}</span>
+            }
+            @if (config.showOffDay && config.offDay) {
+              <span class="font-bold">{{ config.offDay }}</span>
+            }
+          </div>
+        }
       </div>
     
       <!-- Dynamic Patient Info Bar -->
@@ -113,6 +166,132 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
         -webkit-print-color-adjust: exact;
         color-adjust: exact;
         width: 100%;
+    }
+    .letterhead-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: start;
+      width: 100%;
+    }
+    .letterhead-primary,
+    .letterhead-secondary {
+      min-width: 0;
+      padding-top: 28px;
+      padding-bottom: 26px;
+    }
+    .letterhead-primary {
+      padding-left: 42px;
+      padding-right: 18px;
+    }
+    .letterhead-secondary {
+      padding-left: 18px;
+      padding-right: 42px;
+      text-align: right;
+    }
+    .doctor-details {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+      text-align: left;
+      overflow-wrap: break-word;
+    }
+    .english-doctor-details {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .english-doctor-details .doctor-name,
+    .english-doctor-details .doctor-degrees,
+    .english-doctor-details .doctor-designation,
+    .english-doctor-details .doctor-contact {
+      font-weight: 700;
+    }
+    .english-doctor-details .doctor-training,
+    .english-doctor-details .doctor-detail,
+    .english-doctor-details .doctor-additional-line {
+      font-weight: 400;
+    }
+    .bangla-doctor-details {
+      font-family: 'SutonnyMJ', 'SutonnyOMJ', 'Kalpurush', 'Noto Sans Bengali', 'Nirmala UI', 'Vrinda', sans-serif;
+      text-align: right;
+    }
+    .doctor-details h1,
+    .doctor-details p {
+      margin: 0;
+    }
+    .doctor-name {
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .bangla-doctor-details .doctor-name {
+      font-size: 19px;
+      letter-spacing: 0;
+      line-height: 1.4;
+    }
+    .doctor-degrees {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .doctor-training {
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .doctor-designation {
+      margin-top: 2px !important;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .doctor-detail,
+    .doctor-contact,
+    .doctor-additional-line {
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .doctor-detail {
+      font-weight: 500;
+    }
+    .doctor-contact {
+      margin-top: 2px !important;
+      font-weight: 700;
+    }
+    .letterhead-logo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 10px 0;
+    }
+    .letterhead-logo:empty {
+      width: 0;
+      padding: 0;
+    }
+    .letterhead-logo img {
+      max-width: 96px;
+      max-height: 60px;
+      object-fit: contain;
+    }
+    .chamber-info-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px 14px;
+      padding: 7px 42px 9px;
+      border-top: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(255, 255, 255, 0.32);
+      font-size: 0.75rem;
+      line-height: 1.25rem;
+    }
+    .doctor-additional-info {
+      margin-top: 6px;
+    }
+    .doctor-additional-line {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
     .patient-info-bar {
       padding: 12px 24px 14px;
@@ -229,22 +408,41 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
   `]
 })
 export class PrescriptionHeaderComponent implements OnChanges {
-  @Input() parentForm!: FormGroup;
+  @Input() parentForm: FormGroup = new FormGroup({
+    patientName: new FormControl(''),
+    patientAge: new FormControl(''),
+    patientGender: new FormControl(''),
+    patientWeight: new FormControl(''),
+    patientPhone: new FormControl(''),
+    patientRegNo: new FormControl(''),
+    patientAddress: new FormControl('')
+  });
   @Input() patient: Patient | null = null;
   @Input() config: PrescriptionHeaderConfig = DEFAULT_HEADER_CONFIG;
   @Input() isPrintHeaderHidden = false;
 
   todayDate: Date = new Date();
   sortedFields: PatientFieldConfig[] = [];
+  banglaAdditionalInfoLines: string[] = [];
+  englishAdditionalInfoLines: string[] = [];
 
   ngOnChanges() {
     this.updateSortedFields();
+    this.banglaAdditionalInfoLines = this.splitInfoLines(this.config?.banglaDoctor?.additionalInfo);
+    this.englishAdditionalInfoLines = this.splitInfoLines(this.config?.englishDoctor?.additionalInfo);
   }
 
   private updateSortedFields() {
     this.sortedFields = (this.config?.patientFields || [])
       .filter(f => f.visible)
       .sort((a, b) => a.order - b.order);
+  }
+
+  private splitInfoLines(value: string | undefined): string[] {
+    return (value || '')
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
   }
 
   isEditable(id: string): boolean {
@@ -267,6 +465,16 @@ export class PrescriptionHeaderComponent implements OnChanges {
   getFieldValue(id: string): string {
     if (id === 'date') return this.todayDate.toLocaleDateString('en-GB');
     return '';
+  }
+
+  hasVisibleChamberInfo(): boolean {
+    return Boolean(
+      (this.config.showChamberName && this.config.chamberName?.trim()) ||
+      (this.config.showChamberAddress && this.config.chamberAddress?.trim()) ||
+      (this.config.showMobile && this.config.mobile?.trim()) ||
+      (this.config.showVisitTime && this.config.visitTime?.trim()) ||
+      (this.config.showOffDay && this.config.offDay?.trim())
+    );
   }
 
   getGradient() {
