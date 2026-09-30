@@ -115,7 +115,7 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
         <h2 class="text-4xl font-serif font-bold italic mb-6">{{ config.labelRx }}</h2>
     
         <!-- Medicine List -->
-        <div class="space-y-6 print:space-y-4" formArrayName="medicines">
+        <div class="space-y-3 print:space-y-2" formArrayName="medicines">
           @for (med of medicines.controls; track $index; let i = $index) {
             <div [formGroupName]=" i" class="group relative">
               <!-- Medicine Name Line -->
@@ -124,7 +124,7 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
                   {{ getMedicineType(i) }}.
                 </span>
                 <span class="font-bold text-gray-900">{{ getMedicineName(i) }}</span>
-                <span class="text-sm text-gray-500">{{ getMedicineStrength(i) }}</span>
+                <span class="text-sm text-gray-500">{{ getDrugUnit(i) }}</span>
                 <!-- Remove Button (Hidden in print) -->
                 <button type="button" (click)="onRemoveMedicine(i)" class="ml-auto text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 print:hidden p-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -236,7 +236,8 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
     `,
   styles: [`
     .font-hindi {
-        font-family: 'SutonnyMJ', 'SutonnyOMJ', 'Kalpurush', 'Noto Sans Bengali', 'Nirmala UI', 'Vrinda', sans-serif;
+        font-family: 'Noto Sans Bengali', 'Nirmala UI', 'Vrinda', sans-serif;
+        font-size: 13px;
     }
     @media print {
         @page {
@@ -449,12 +450,17 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
     if (form === 'Capsule') return 'Cap';
     if (form === 'Syrup') return 'Syp';
     if (form === 'Injection') return 'Inj';
+    if (form === 'Suppository') return 'Supp';
     return form || 'Tab';
   }
 
-  getMedicineStrength(index: number): string {
+  getDrugUnit(index: number): string {
     const med = this.medicines.at(index).get('_medicine')?.value;
-    return med ? med.variation || '' : '';
+    const unit = String(med?.variation || '').trim();
+
+    // Some saved strengths already contain their unit before the API appends it
+    // again (for example, "500 mg+65 mgmg"). Show the unit only once.
+    return unit.replace(/([a-zµμ%]+)\s*\1$/i, '$1');
   }
 
   onAddMedicine() {
