@@ -7,7 +7,9 @@ import { PrescriptionFooterConfig, DEFAULT_FOOTER_CONFIG } from '../../../../../
   standalone: true,
   imports: [],
   template: `
-    <div class="footer-container mt-auto print:fixed print:bottom-0 print:left-0 print:w-full" [style.backgroundColor]="config.backgroundColor" [style.color]="config.textColor">
+    <div class="footer-container mt-auto print:fixed print:bottom-0 print:left-0 print:w-full"
+      [class.print-footer-hidden]="isPrintTextHidden"
+      [style.backgroundColor]="config.backgroundColor" [style.color]="config.textColor">
       <div class="border-t-2 border-gray-800 pt-2 pb-4 text-center">
         <p class="text-sm font-semibold"
           [class.print-footer-text-blank]="isPrintTextHidden">{{ config.disclaimerText }}</p>
@@ -18,7 +20,14 @@ import { PrescriptionFooterConfig, DEFAULT_FOOTER_CONFIG } from '../../../../../
         </div>
       }
     </div>
-    `
+    `,
+  styles: [`
+    @media print {
+      .print-footer-hidden {
+        display: none !important;
+      }
+    }
+  `]
 })
 export class PrescriptionFooterComponent {
   @Input() config: PrescriptionFooterConfig = DEFAULT_FOOTER_CONFIG;

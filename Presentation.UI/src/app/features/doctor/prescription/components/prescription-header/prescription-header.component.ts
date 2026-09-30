@@ -128,8 +128,7 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
       </div>
     
       <!-- Dynamic Patient Info Bar -->
-      <div class="patient-info-bar"
-           [class.print-patient-info-blank]="isPrintHeaderHidden">
+      <div class="patient-info-bar">
         <div class="patient-info-grid">
           @for (field of sortedFields; track field.id) {
             <div class="patient-field" [class.patient-field-date]="field.id === 'date'">
@@ -371,8 +370,7 @@ import { PrescriptionHeaderConfig, DEFAULT_HEADER_CONFIG, PatientFieldConfig } f
       display: none;
     }
     @media print {
-      .print-letterhead-blank,
-      .print-patient-info-blank {
+      .print-letterhead-blank {
         visibility: hidden !important;
       }
       .header-container {

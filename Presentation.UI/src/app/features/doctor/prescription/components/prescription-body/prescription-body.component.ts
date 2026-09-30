@@ -10,7 +10,8 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, PrescriptionBarcodeComponent],
   template: `
-    <div class="flex flex-col md:flex-row min-h-[800px]" [formGroup]="parentForm">
+    <div class="flex flex-col md:flex-row min-h-[800px]" [formGroup]="parentForm"
+         [class.print-without-header]="isPrintWithoutHeader">
       <!-- Left Column: Dynamic Sections -->
       @if (config.showLeftColumn) {
         <div class="clinical-column w-full md:w-1/3 border-r border-slate-200 px-4 pb-4 pt-4 print:w-1/3 print:border-gray-800 print:pt-2 relative">
@@ -292,6 +293,19 @@ import { PrescriptionBarcodeComponent } from '../prescription-barcode/prescripti
         .print\\:w-full {
              width: 100% !important;
         }
+
+        /* No-header prints use pre-printed stationery. Keep the divider within
+           the prescription content area and leave the lower stationery clear. */
+        :host > div.print-without-header {
+            height: auto !important;
+            min-height: 160mm !important;
+            align-items: flex-start !important;
+        }
+        :host > div.print-without-header .print\\:w-1\\/3 {
+            min-height: 160mm !important;
+            height: auto !important;
+            align-self: flex-start !important;
+        }
     }
   `]
 })
@@ -300,6 +314,7 @@ export class PrescriptionBodyComponent implements OnChanges, AfterViewInit {
   @Input() config: PrescriptionBodyConfig = DEFAULT_BODY_CONFIG;
   @Input() patient: Patient | null = null;
   @Input() scanToken: string | null = null;
+  @Input() isPrintWithoutHeader = false;
   @Input() doseTemplates: string[] = [];
   @Input() adviceTemplates: string[] = [];
   @Input() durationTemplates: string[] = [];

@@ -7,6 +7,23 @@ import { AppointmentService } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 
+interface PrescriptionSummary {
+  encryptedId?: string;
+  prescriptionEncryptedId?: string;
+  patientName?: string;
+  patientAge?: number;
+  prescriptionDate: string;
+  status?: string;
+}
+
+interface RecentPrescription {
+  id: string;
+  patientName: string;
+  age: number;
+  date: string;
+  status: string;
+}
+
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
@@ -38,7 +55,7 @@ export class DoctorDashboardComponent implements OnInit {
 
   public doctorDisplayName = signal('Doctor');
 
-  public recentPrescriptions = signal<any[]>([]);
+  public recentPrescriptions = signal<RecentPrescription[]>([]);
 
   public upcomingAppointments = signal<any[]>([]);
 
@@ -133,21 +150,30 @@ export class DoctorDashboardComponent implements OnInit {
     this.prescriptionService.getPrescriptions().subscribe({
       next: (res: any) => {
         // Handle ApiResponse wrapper or direct array
-        const allPrescriptions = Array.isArray(res) ? res : (res.data || []);
+        const allPrescriptions: PrescriptionSummary[] = Array.isArray(res) ? res : (res.data || []);
 
         // Sort by date descending and take top 5
-        const sorted = allPrescriptions.sort((a: any, b: any) =>
+        const sorted = [...allPrescriptions].sort((a, b) =>
           new Date(b.prescriptionDate).getTime() - new Date(a.prescriptionDate).getTime()
         ).slice(0, 5);
 
         // Map to view model expected by template
-        const mapped = sorted.map((p: any) => ({
-          id: p.prescriptionEncryptedId,
-          patientName: p.patientName || 'Unknown',
-          age: p.patientAge || 0,
-          date: p.prescriptionDate,
-          status: 'Completed' // Prescriptions are usually 'Completed' if they exist, or map from p.status if available
-        }));
+        const mapped = sorted.reduce<RecentPrescription[]>((items, prescription) => {
+          // PrescriptionViewModel exposes encryptedId. Keep the older property as a
+          // compatibility fallback, but never render a link without a usable ID.
+          const id = prescription.encryptedId || prescription.prescriptionEncryptedId;
+          if (!id) return items;
+
+          items.push({
+            id,
+            patientName: prescription.patientName || 'Unknown',
+            age: prescription.patientAge || 0,
+            date: prescription.prescriptionDate,
+            status: prescription.status || 'Completed'
+          });
+
+          return items;
+        }, []);
 
         this.recentPrescriptions.set(mapped);
 

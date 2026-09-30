@@ -898,17 +898,15 @@ html.dark #prescription-detail-print :is([class*='border-gray-'], [class*='borde
     visibility: visible !important;
   }
 
-  /* No Header keeps pre-printed header and patient areas empty. */
+  /* No Header leaves the pre-printed letterhead blank but keeps patient details. */
   #prescription-paper .print-letterhead-blank,
-  #prescription-paper .print-letterhead-blank *,
-  #prescription-paper .print-patient-info-blank,
-  #prescription-paper .print-patient-info-blank * {
+  #prescription-paper .print-letterhead-blank * {
     visibility: hidden !important;
   }
 
-  /* Keep footer borders, spacing and credits; hide only its disclaimer text. */
-  #prescription-paper .print-footer-text-blank {
-    visibility: hidden !important;
+  /* Keep the lower area of pre-printed stationery clear in No Header mode. */
+  #prescription-paper .print-footer-hidden {
+    display: none !important;
   }
 
   /* Ensure paper layout */

@@ -133,6 +133,7 @@
     <div class="prescription-body-shell flex-1">
       <app-prescription-body [parentForm]="prescriptionForm" [config]="bodyConfig" [patient]="selectedPatient"
         [scanToken]="prescriptionScanToken"
+        [isPrintWithoutHeader]="hideHeaderOnPrint"
         [doseTemplates]="doseTemplates()" [adviceTemplates]="adviceTemplates()"
         [durationTemplates]="durationTemplates()" [ccTemplates]="ccTemplates()" [oeTemplates]="oeTemplates()"
         [ixTemplates]="ixTemplates()" [dxTemplates]="dxTemplates()" (addMedicineStr)="openMedicineSearch()"
