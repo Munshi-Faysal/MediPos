@@ -54,35 +54,18 @@ export interface NavigationItem {
     
             <!-- Logo -->
             <div class="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0 cursor-pointer" (click)="navigateToHome()">
-              <div class="w-7 h-7 xs:w-7 xs:h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
-              </div>
+              <img
+                src="assets/medipos-icon.png"
+                alt=""
+                aria-hidden="true"
+                class="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-lg flex-shrink-0"
+              />
               <div class="hidden xs:block min-w-0">
                 <h1 class="text-sm xs:text-base sm:text-lg font-bold text-white truncate">MediPOS</h1>
                 <p class="text-xs text-violet-200 truncate">{{ companyName() }}</p>
               </div>
             </div>
           </div>
-    
-          <!-- Center Section - Search -->
-          <div class="flex-1 max-w-md mx-2 sm:mx-4 hidden lg:block">
-            <div class="relative">
-              <input
-                type="text"
-                [(ngModel)]="searchQuery"
-                (ngModelChange)="onSearchChange($event)"
-                placeholder="Search employees, requests, reports..."
-                class="topbar-search form-input pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-full text-sm bg-white border-transparent text-gray-900 placeholder-gray-500 focus:bg-white focus:border-primary-300 focus:ring-2 focus:ring-primary-500/20 rounded-xl shadow-sm"
-                />
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="topbar-search-icon h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
     
             <!-- Right Section -->
             <div class="flex items-center gap-0.5 xs:gap-1 sm:gap-2 flex-shrink-0">

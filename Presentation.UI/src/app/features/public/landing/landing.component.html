@@ -21,18 +21,11 @@
       <div class="flex items-center justify-between">
         <!-- Logo -->
         <div (click)="scrollToSection('hero')" class="flex items-center gap-2.5 group cursor-pointer">
-          <div
-            class="w-10 h-10 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-          </div>
-          <div class="flex flex-col">
-            <span
-              class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-700 via-indigo-700 to-purple-700 tracking-tight">MediPOS</span>
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Healthcare Practice Suite</span>
-          </div>
+          <img
+            src="assets/medipos-logo.png"
+            alt="MediPOS"
+            class="h-11 sm:h-12 w-auto max-w-[160px] sm:max-w-[190px] object-contain group-hover:scale-[1.02] transition-transform duration-300"
+          />
         </div>
 
         <!-- Desktop Navigation Links -->
@@ -918,12 +911,7 @@
         <!-- Col 1: Brand & Bio -->
         <div class="lg:col-span-2 space-y-4">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-violet-500/30">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
-            </div>
+            <img src="assets/medipos-icon.png" alt="" aria-hidden="true" class="w-10 h-10 object-contain rounded-xl" />
             <span class="text-xl font-black text-white tracking-tight">MediPOS</span>
           </div>
           <p class="text-sm text-slate-400 leading-relaxed max-w-sm">

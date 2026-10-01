@@ -17,14 +17,11 @@ import { RealtimeService } from './core/services/realtime.service';
       @if (isLoading()) {
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-background">
           <div class="text-center">
-            <div class="w-16 h-16 mx-auto mb-4">
-              <div class="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center animate-bounce-subtle">
-                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
-              </div>
-            </div>
-            <h2 class="text-xl font-semibold text-on-surface mb-2">MediPOS</h2>
+            <img
+              src="assets/medipos-logo.png"
+              alt="MediPOS"
+              class="w-56 max-w-[70vw] h-auto mx-auto mb-4 animate-bounce-subtle"
+            />
             <p class="text-on-surface-variant">Loading your workspace...</p>
           </div>
         </div>
