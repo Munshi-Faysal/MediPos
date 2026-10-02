@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { PagedResponse, PaginationParams } from '../models';
 
@@ -124,6 +124,15 @@ export class DrugStrengthService {
      */
     changeDrugStrengthActiveStatus(encryptedId: string): Observable<any> {
         return this.api.patch<any>(`${this.endpoint}/ChangeActive/${encryptedId}`, {});
+    }
+
+    /**
+     * Delete drug strength
+     */
+    deleteDrugStrength(encryptedId: string): Observable<any> {
+        return this.api.delete<any>(`${this.endpoint}/Delete/${encryptedId}`).pipe(
+            catchError(() => this.api.patch<any>(`${this.endpoint}/ChangeActive/${encryptedId}`, {}))
+        );
     }
 
     /**

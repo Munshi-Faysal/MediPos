@@ -3,19 +3,20 @@ import { Component, signal, OnInit, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrugCompanyService } from '../../../../core/services/drug-company.service';
 import { DrugGenericService } from '../../../../core/services/drug-generic.service';
-import { DrugService, DrugViewModel } from '../../../../core/services/drug.service';
+import { DrugService, DrugViewModel, formatDrugStrength } from '../../../../core/services/drug.service';
 import { DrugTypeService } from '../../../../core/services/drug-type.service';
 import { DrugStrengthService } from '../../../../core/services/drug-strength.service';
 import { DrugCompany } from '../../../../core/models/drug-company.model';
 import { DrugGeneric } from '../../../../core/models/drug-generic.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { SearchableSelectComponent } from '../../../../shared/components/searchable-select/searchable-select.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-drug-list',
   standalone: true,
-  imports: [FormsModule, PaginationComponent],
+  imports: [FormsModule, PaginationComponent, SearchableSelectComponent],
   template: `
     <div class="space-y-6">
       <div class="flex justify-between items-center">
@@ -46,12 +47,13 @@ import Swal from 'sweetalert2';
             </svg>
           </div>
           <div class="w-full md:w-56">
-            <select [(ngModel)]="selectedType" (change)="onTypeChange()" class="w-full px-3 py-2 bg-surface-variant/50 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium text-on-surface cursor-pointer">
-              <option value="All">All Types</option>
-              @for (type of drugTypes; track type) {
-                <option [value]="type.name">{{ type.name }}</option>
-              }
-            </select>
+            <app-searchable-select
+              [items]="drugTypes"
+              [value]="selectedType"
+              (valueChange)="onTypeSelect($event)"
+              allLabel="All Types"
+              searchPlaceholder="Search type..."
+            />
           </div>
         </div>
       </div>
@@ -62,6 +64,7 @@ import Swal from 'sweetalert2';
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
+                <th class="px-6 py-4 w-16 text-center">SL</th>
                 <th class="px-6 py-4">Brand Name</th>
                 <th class="px-6 py-4">Generic Name</th>
                 <th class="px-6 py-4">Company</th>
@@ -75,7 +78,7 @@ import Swal from 'sweetalert2';
             <tbody class="divide-y divide-border">
               @if (isLoading()) {
                 <tr>
-                  <td [attr.colspan]="isSuperAdmin() ? 6 : 5" class="px-6 py-12 text-center text-on-surface-variant">
+                  <td [attr.colspan]="isSuperAdmin() ? 7 : 6" class="px-6 py-12 text-center text-on-surface-variant">
                     <div class="flex items-center justify-center gap-3">
                       <div class="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
                       <span class="font-medium text-sm">Loading medications...</span>
@@ -83,8 +86,11 @@ import Swal from 'sweetalert2';
                   </td>
                 </tr>
               } @else {
-                @for (drug of drugs(); track (drug.drugDetailId || drug.id)) {
+                @for (drug of drugs(); track (drug.drugDetailId || drug.id); let i = $index) {
                   <tr class="hover:bg-surface-variant/20 transition-colors">
+                    <td class="px-6 py-4 text-xs font-semibold text-on-surface-variant text-center">
+                      {{ (currentPage() - 1) * pageSize() + i + 1 }}
+                    </td>
                     <td class="px-6 py-4">
                       <span class="font-medium text-on-surface block">{{ drug.brandName }}</span>
                       @if (drug.sku) {
@@ -100,7 +106,7 @@ import Swal from 'sweetalert2';
                             <span class="px-2 py-0.5 rounded bg-surface-variant/60 text-on-surface text-xs font-semibold">{{ drug.type }}</span>
                           }
                           @if (drug.strength) {
-                            <span class="text-on-surface-variant text-xs">{{ drug.strength }}</span>
+                            <span class="text-on-surface-variant text-xs">{{ cleanStrength(drug.strength) }}</span>
                           }
                         </div>
                       } @else {
@@ -159,7 +165,7 @@ import Swal from 'sweetalert2';
                 }
                 @if (drugs().length === 0) {
                   <tr>
-                    <td [attr.colspan]="isSuperAdmin() ? 6 : 5" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                    <td [attr.colspan]="isSuperAdmin() ? 7 : 6" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                   </tr>
                 }
               }
@@ -415,7 +421,7 @@ export class DrugListComponent implements OnInit {
           .filter((s: any) => s.isActive)
           .map((s: any) => ({
             id: Number(s.id || 0),
-            name: s.unitName ? `${s.quantity} ${s.unitName}` : s.quantity
+            name: this.cleanStrength(s.unitName && !s.quantity.includes(s.unitName) ? `${s.quantity} ${s.unitName}` : s.quantity)
           }));
       },
       error: (err) => console.error('Error loading drug strengths:', err)
@@ -444,7 +450,7 @@ export class DrugListComponent implements OnInit {
           company: drug.drugCompanyName || 'N/A',
           sku: drug.code || '',
           type: drug.drugTypeName || '',
-          strength: drug.drugStrengthName || '',
+          strength: this.cleanStrength(drug.drugStrengthName || ''),
           unitPrice: drug.unitPrice || 0,
           isActive: drug.isActive
         }));
@@ -461,12 +467,21 @@ export class DrugListComponent implements OnInit {
     });
   }
 
+  cleanStrength(val: string | null | undefined): string {
+    return formatDrugStrength(val);
+  }
+
   onSearchInput(): void {
     clearTimeout(this.searchDebounceTimer);
     this.searchDebounceTimer = setTimeout(() => {
       this.currentPage.set(1);
       this.loadDrugs();
     }, 300);
+  }
+
+  onTypeSelect(type: string): void {
+    this.selectedType = type;
+    this.onTypeChange();
   }
 
   onTypeChange(): void {

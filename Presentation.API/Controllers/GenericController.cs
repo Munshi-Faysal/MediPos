@@ -77,4 +77,12 @@ public class GenericController(IServiceManager service) : ControllerBase
     {
         return Ok(await service.Generic.ChangeActiveAsync(encryptedId));
     }
+
+    [HttpDelete]
+    [Route("Delete/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
+    public async Task<IActionResult> Delete(string encryptedId)
+    {
+        return Ok(await service.Generic.DeleteAsync(encryptedId));
+    }
 }

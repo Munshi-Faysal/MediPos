@@ -85,4 +85,12 @@ public class DrugCompanyController(IServiceManager service) : ControllerBase
     {
         return Ok(await service.DrugCompany.ChangeActiveAsync(encryptedId));
     }
+
+    [HttpDelete]
+    [Route("Delete/{encryptedId}")]
+    [Authorize(Roles = "system-admin,SystemAdmin,System-Admin,SuperAdmin,super-admin,superadmin")]
+    public async Task<IActionResult> Delete(string encryptedId)
+    {
+        return Ok(await service.DrugCompany.DeleteAsync(encryptedId));
+    }
 }

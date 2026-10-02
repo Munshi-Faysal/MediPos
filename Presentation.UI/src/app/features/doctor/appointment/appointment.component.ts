@@ -16,6 +16,8 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { confirmAppAction } from '../../../core/utils/app-alert';
 
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+
 export interface Appointment {
   id: number;
   encryptedId: string;
@@ -35,7 +37,7 @@ export interface Appointment {
 @Component({
   selector: 'app-appointment',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PaginationComponent],
   templateUrl: './appointment.component.html',
   styles: []
 })
@@ -67,8 +69,17 @@ export class AppointmentComponent implements OnInit {
   errorMessage = '';
   formError = '';
 
-  readonly pageSize = 50;
+  pageSize = 20;
   currentPage = 1;
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize = size;
+    this.currentPage = 1;
+  }
 
   ngOnInit(): void {
     this.loadAppointments();

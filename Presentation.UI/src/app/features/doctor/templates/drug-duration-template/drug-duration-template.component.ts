@@ -1,13 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { DrugDurationTemplateService, DrugDurationTemplateViewModel, DrugDurationTemplateDto } from '../../../../core/services/drug-duration-template.service';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-drug-duration-template',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './drug-duration-template.component.html',
   styleUrl: './drug-duration-template.component.scss'
 })
@@ -23,6 +24,15 @@ export class DrugDurationTemplateComponent implements OnInit {
   currentPage = signal<number>(1);
   pageSize = signal<number>(10);
   isLoading = signal<boolean>(false);
+  searchQuery = signal<string>('');
+
+  filteredTemplates = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return this.templates();
+    return this.templates().filter(t =>
+      t.name.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q)
+    );
+  });
 
   // Editor State
   editingTemplate: DrugDurationTemplateViewModel | null = null;
@@ -153,6 +163,12 @@ export class DrugDurationTemplateComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage.set(page);
+    this.loadTemplates();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
     this.loadTemplates();
   }
 }

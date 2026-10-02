@@ -17,7 +17,8 @@ internal sealed class DrugMasterService(
     UserManager<ApplicationUser> userManager,
     IHttpContextAccessor httpContextAccessor,
     IRepositoryManager repository,
-    IMapper mapper) : BaseService(userManager, httpContextAccessor), IDrugMasterService
+    IMapper mapper,
+    ICacheService cache) : BaseService(userManager, httpContextAccessor), IDrugMasterService
 {
     private bool IsValidId(string? id) => !string.IsNullOrWhiteSpace(id) && id != "null" && id != "undefined";
 
@@ -26,12 +27,22 @@ internal sealed class DrugMasterService(
 
     public async Task<PaginatedListViewModel<DrugMasterViewModel>?> GetListAsync(int take, int skip, string? search = null, string? type = null)
     {
-        var (items, totalCount) = await repository.DrugMaster.GetDrugPresentationsAsync(take, skip, search, type);
-        return new PaginatedListViewModel<DrugMasterViewModel>(take)
-        {
-            ItemList = items.ToList(),
-            TotalRecords = totalCount
-        };
+        string cacheKey = $"drugs:list:{search?.Trim().ToLowerInvariant()}:{type?.Trim().ToLowerInvariant()}:{take}:{skip}";
+        return await cache.GetOrCreateAsync(
+            cacheKey,
+            async () =>
+            {
+                var (items, totalCount) = await repository.DrugMaster.GetDrugPresentationsAsync(take, skip, search, type);
+                return new PaginatedListViewModel<DrugMasterViewModel>(take)
+                {
+                    ItemList = items.ToList(),
+                    TotalRecords = totalCount
+                };
+            },
+            slidingExpiration: TimeSpan.FromMinutes(20),
+            absoluteExpiration: TimeSpan.FromHours(2),
+            prefix: "drugs"
+        );
     }
 
     public async Task<DrugMasterViewModel?> GetDetailsAsync(string id)
@@ -50,7 +61,9 @@ internal sealed class DrugMasterService(
             {
                 EncryptedId = d.Id.ToString(),                
                 StrengthName = d.DrugStrength != null 
-                    ? $"{d.DrugStrength.Quantity}{d.DrugStrength.Unit?.Name}" 
+                    ? (!string.IsNullOrWhiteSpace(d.DrugStrength.Unit?.Name) && !d.DrugStrength.Quantity.Contains(d.DrugStrength.Unit.Name)
+                        ? $"{d.DrugStrength.Quantity} {d.DrugStrength.Unit.Name}".Trim()
+                        : d.DrugStrength.Quantity) 
                     : string.Empty,
                 DrugTypeName = d.DrugType?.Name,
                 Description = d.Description,
@@ -122,7 +135,13 @@ internal sealed class DrugMasterService(
             detail.UpdatedDate = entity.UpdatedDate;
         }
         
-        return await repository.DrugMaster.InsertAsync(entity);
+        var result = await repository.DrugMaster.InsertAsync(entity);
+        if (result)
+        {
+            await cache.RemoveByPrefixAsync("drugs");
+            await cache.RemoveByPrefixAsync("mono");
+        }
+        return result;
     }
 
     public async Task<bool> UpdateAsync(DrugMasterDto dto)
@@ -170,7 +189,13 @@ internal sealed class DrugMasterService(
             await repository.DrugDetail.InsertAsync(detail);
         }
         
-        return await repository.DrugMaster.UpdateAsync(existing);
+        var result = await repository.DrugMaster.UpdateAsync(existing);
+        if (result)
+        {
+            await cache.RemoveByPrefixAsync("drugs");
+            await cache.RemoveByPrefixAsync("mono");
+        }
+        return result;
     }
 
 
@@ -181,7 +206,13 @@ internal sealed class DrugMasterService(
         if (existing is null) return false;
         existing.IsActive = !existing.IsActive;
         UpdateAutoFields(existing);
-        return await repository.DrugMaster.UpdateAsync(existing);
+        var result = await repository.DrugMaster.UpdateAsync(existing);
+        if (result)
+        {
+            await cache.RemoveByPrefixAsync("drugs");
+            await cache.RemoveByPrefixAsync("mono");
+        }
+        return result;
     }
 
     public async Task<bool> DeleteAsync(string id)
@@ -196,35 +227,62 @@ internal sealed class DrugMasterService(
             await repository.DrugDetail.DeleteAsync(detail);
         }
 
-        return await repository.DrugMaster.DeleteAsync(existing);
+        var result = await repository.DrugMaster.DeleteAsync(existing);
+        if (result)
+        {
+            await cache.RemoveByPrefixAsync("drugs");
+            await cache.RemoveByPrefixAsync("mono");
+        }
+        return result;
     }
 
     public async Task<List<DrugMasterDto>> GetActiveListAsync()
     {
-        var list = await repository.DrugMaster.GetActiveListAsync();
-        return mapper.Map<List<DrugMasterDto>>(list);
+        const string cacheKey = "drugs:active:list";
+        return await cache.GetOrCreateAsync(
+            cacheKey,
+            async () =>
+            {
+                var list = await repository.DrugMaster.GetActiveListAsync();
+                return mapper.Map<List<DrugMasterDto>>(list);
+            },
+            slidingExpiration: TimeSpan.FromHours(1),
+            absoluteExpiration: TimeSpan.FromHours(6),
+            prefix: "drugs"
+        );
     }
 
     public async Task<IEnumerable<DrugMasterViewModel>> SearchAsync(string term, int take = 50)
     {
-        var entities = await repository.DrugMaster.SearchAsync(term, take);
-        var viewModels = entities.Select(e => {
-            var vm = mapper.Map<DrugMasterViewModel>(e);
-            vm.DrugDetailList = e.DrugDetails.Select(d => new DrugDetailViewModel
+        string cacheKey = $"drugs:search:{term?.Trim().ToLowerInvariant()}:{take}";
+        return await cache.GetOrCreateAsync(
+            cacheKey,
+            async () =>
             {
-                EncryptedId = d.Id.ToString(),
-                StrengthName = d.DrugStrength != null 
-                    ? $"{d.DrugStrength.Quantity}{d.DrugStrength.Unit?.Name}" 
-                    : string.Empty,
-                DrugTypeName = d.DrugType?.Name,
-                Description = d.Description,
-                UnitPrice = d.UnitPrice,
-                IsActive = d.IsActive
-            }).ToList();
-            return vm;
-        }).ToList();
-        
-        return viewModels;
+                var entities = await repository.DrugMaster.SearchAsync(term, take);
+                var viewModels = entities.Select(e => {
+                    var vm = mapper.Map<DrugMasterViewModel>(e);
+                    vm.DrugDetailList = e.DrugDetails.Select(d => new DrugDetailViewModel
+                    {
+                        EncryptedId = d.Id.ToString(),
+                        StrengthName = d.DrugStrength != null 
+                            ? (!string.IsNullOrWhiteSpace(d.DrugStrength.Unit?.Name) && !d.DrugStrength.Quantity.Contains(d.DrugStrength.Unit.Name)
+                                ? $"{d.DrugStrength.Quantity} {d.DrugStrength.Unit.Name}".Trim()
+                                : d.DrugStrength.Quantity) 
+                            : string.Empty,
+                        DrugTypeName = d.DrugType?.Name,
+                        Description = d.Description,
+                        UnitPrice = d.UnitPrice,
+                        IsActive = d.IsActive
+                    }).ToList();
+                    return vm;
+                }).ToList();
+                return viewModels;
+            },
+            slidingExpiration: TimeSpan.FromMinutes(20),
+            absoluteExpiration: TimeSpan.FromHours(2),
+            prefix: "drugs"
+        );
     }
 
     public async Task<DrugMasterInitDto> GetInitObjectAsync()
@@ -242,6 +300,13 @@ internal sealed class DrugMasterService(
 
     public async Task<DrugMonographViewModel?> GetMonographAsync(string? brandName, string? genericName, string? url)
     {
-        return await repository.DrugMaster.GetMonographAsync(brandName, genericName, url);
+        string cacheKey = $"mono:{brandName?.Trim().ToLowerInvariant()}:{genericName?.Trim().ToLowerInvariant()}:{url?.Trim().ToLowerInvariant()}";
+        return await cache.GetOrCreateAsync(
+            cacheKey,
+            async () => await repository.DrugMaster.GetMonographAsync(brandName, genericName, url),
+            slidingExpiration: TimeSpan.FromHours(6),
+            absoluteExpiration: TimeSpan.FromHours(24),
+            prefix: "mono"
+        );
     }
 }

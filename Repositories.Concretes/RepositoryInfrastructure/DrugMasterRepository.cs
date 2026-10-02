@@ -120,13 +120,18 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var s = search.Trim();
-            query = query.Where(dd => 
-                dd.DrugMaster!.Name.Contains(s) ||
-                dd.DrugMaster.Code.Contains(s) ||
-                (dd.DrugMaster.Generic != null && dd.DrugMaster.Generic.Name.Contains(s)) ||
-                (dd.DrugMaster.DrugCompany != null && dd.DrugMaster.DrugCompany.Name.Contains(s))
-            );
+            var terms = search.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var term in terms)
+            {
+                var t = term;
+                query = query.Where(dd => 
+                    dd.DrugMaster!.Name.Contains(t) ||
+                    dd.DrugMaster.Code.Contains(t) ||
+                    (dd.DrugMaster.Generic != null && dd.DrugMaster.Generic.Name.Contains(t)) ||
+                    (dd.DrugMaster.DrugCompany != null && dd.DrugMaster.DrugCompany.Name.Contains(t)) ||
+                    (dd.DrugType != null && dd.DrugType.Name.Contains(t))
+                );
+            }
         }
 
         var totalCount = await query.CountAsync();
@@ -143,12 +148,14 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
                 DrugDetailId = dd.Id,
                 Name = dd.DrugMaster!.Name,
                 Code = dd.DrugMaster!.Code,
-                Description = dd.Description,
+                Description = !string.IsNullOrWhiteSpace(dd.Description) ? dd.Description : dd.DrugMaster!.Description,
                 DrugCompanyName = dd.DrugMaster!.DrugCompany != null ? dd.DrugMaster!.DrugCompany.Name : null,
                 DrugGenericName = dd.DrugMaster!.Generic != null ? dd.DrugMaster!.Generic.Name : null,
                 DrugTypeName = dd.DrugType != null ? dd.DrugType.Name : null,
                 DrugStrengthName = dd.DrugStrength != null 
-                    ? (dd.DrugStrength.Quantity + (dd.DrugStrength.Unit != null ? " " + dd.DrugStrength.Unit.Name : "")) 
+                    ? (dd.DrugStrength.Unit != null && dd.DrugStrength.Unit.Name != null && dd.DrugStrength.Unit.Name != "" && !dd.DrugStrength.Quantity.Contains(dd.DrugStrength.Unit.Name)
+                        ? (dd.DrugStrength.Quantity + " " + dd.DrugStrength.Unit.Name) 
+                        : dd.DrugStrength.Quantity)
                     : null,
                 UnitPrice = dd.UnitPrice,
                 IsActive = dd.IsActive && dd.DrugMaster!.IsActive
@@ -164,31 +171,64 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
         var g = genericName?.Trim().ToLower();
         var u = url?.Trim().ToLower();
 
-        // 1. Check DrugMonograph table
-        var monograph = await _context.DrugMonographs
+        // 1. Check DrugMasters entity to load exact drug details
+        var drugEntity = await _context.DrugMasters
             .AsNoTracking()
-            .FirstOrDefaultAsync(m => 
-                (!string.IsNullOrEmpty(b) && m.BrandName.ToLower() == b) ||
-                (!string.IsNullOrEmpty(u) && m.MedExUrl != null && m.MedExUrl.ToLower() == u) ||
-                (!string.IsNullOrEmpty(g) && m.GenericName != null && m.GenericName.ToLower() == g)
-            );
+            .Include(d => d.Generic)
+            .Include(d => d.DrugCompany)
+            .Include(d => d.DrugDetails)
+                .ThenInclude(dd => dd.DrugType)
+            .Include(d => d.DrugDetails)
+                .ThenInclude(dd => dd.DrugStrength)
+                    .ThenInclude(ds => ds.Unit)
+            .FirstOrDefaultAsync(d => !string.IsNullOrEmpty(b) && d.Name.ToLower() == b);
+
+        if (drugEntity != null)
+        {
+            if (string.IsNullOrEmpty(g) && drugEntity.Generic != null)
+            {
+                g = drugEntity.Generic.Name.Trim().ToLower();
+            }
+        }
+
+        // 2. Prioritize DrugMonograph by exact BrandName, then url, then genericName
+        DrugMonograph? monograph = null;
+        if (!string.IsNullOrEmpty(b))
+        {
+            monograph = await _context.DrugMonographs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.BrandName.ToLower() == b);
+        }
+
+        if (monograph == null && !string.IsNullOrEmpty(u))
+        {
+            monograph = await _context.DrugMonographs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.MedExUrl != null && m.MedExUrl.ToLower() == u);
+        }
+
+        if (monograph == null && !string.IsNullOrEmpty(g))
+        {
+            monograph = await _context.DrugMonographs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.GenericName != null && m.GenericName.ToLower() == g);
+        }
 
         if (monograph != null)
         {
-            return MapToMonographVm(monograph);
+            var vm = MapToMonographVm(monograph);
+            EnrichMonographVm(vm, drugEntity, brandName);
+            return vm;
         }
 
-        // 2. If url is missing, check if DrugMasters has MedEx URL
+        // 3. If url is missing, check if DrugMasters has MedEx URL
         string? targetUrl = url;
-        if (string.IsNullOrWhiteSpace(targetUrl) && !string.IsNullOrWhiteSpace(brandName))
+        if (string.IsNullOrWhiteSpace(targetUrl) && drugEntity != null && !string.IsNullOrWhiteSpace(drugEntity.Description) && drugEntity.Description.StartsWith("http"))
         {
-            targetUrl = await _context.DrugMasters
-                .Where(dm => dm.Name.ToLower() == b && dm.Description != null && dm.Description.StartsWith("http"))
-                .Select(dm => dm.Description)
-                .FirstOrDefaultAsync();
+            targetUrl = drugEntity.Description;
         }
 
-        // 3. If targetUrl available, fetch live from MedEx and cache into DrugMonograph
+        // 4. If targetUrl available, fetch live from MedEx and cache into DrugMonograph
         if (!string.IsNullOrWhiteSpace(targetUrl) && targetUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
         {
             try
@@ -199,10 +239,12 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
 
                 if (!string.IsNullOrWhiteSpace(html))
                 {
-                    var newMonograph = ParseMedExHtml(html, brandName ?? "Unknown", genericName, targetUrl);
+                    var newMonograph = ParseMedExHtml(html, brandName ?? drugEntity?.Name ?? "Unknown", genericName ?? drugEntity?.Generic?.Name, targetUrl);
                     _context.DrugMonographs.Add(newMonograph);
                     await _context.SaveChangesAsync();
-                    return MapToMonographVm(newMonograph);
+                    var vm = MapToMonographVm(newMonograph);
+                    EnrichMonographVm(vm, drugEntity, brandName);
+                    return vm;
                 }
             }
             catch
@@ -211,24 +253,58 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
             }
         }
 
-        // 4. Fallback: Query Generic details from database if exists
+        // 5. Fallback: Query Generic details from database if exists
         var genericEntity = await _context.Generics
             .AsNoTracking()
             .FirstOrDefaultAsync(gen => !string.IsNullOrEmpty(g) && gen.Name.ToLower() == g);
 
-        if (genericEntity != null)
+        if (genericEntity != null || drugEntity != null)
         {
-            return new DrugMonographViewModel
+            var vm = new DrugMonographViewModel
             {
-                BrandName = brandName ?? genericEntity.Name,
-                GenericName = genericEntity.Name,
-                Indications = genericEntity.Indication,
-                SideEffects = genericEntity.SideEffects,
+                BrandName = brandName ?? drugEntity?.Name ?? genericEntity?.Name ?? "Medicine",
+                GenericName = drugEntity?.Generic?.Name ?? genericEntity?.Name,
+                Indications = genericEntity?.Indication,
+                SideEffects = genericEntity?.SideEffects,
                 MedExUrl = targetUrl
             };
+            EnrichMonographVm(vm, drugEntity, brandName);
+            return vm;
         }
 
         return null;
+    }
+
+    private static void EnrichMonographVm(DrugMonographViewModel vm, DrugMaster? drugEntity, string? brandName)
+    {
+        if (!string.IsNullOrEmpty(brandName)) vm.BrandName = brandName;
+        if (drugEntity == null) return;
+
+        if (string.IsNullOrEmpty(vm.GenericName) && drugEntity.Generic != null)
+            vm.GenericName = drugEntity.Generic.Name;
+
+        if (string.IsNullOrEmpty(vm.Manufacturer) && drugEntity.DrugCompany != null)
+            vm.Manufacturer = drugEntity.DrugCompany.Name;
+
+        var firstDetail = drugEntity.DrugDetails.FirstOrDefault();
+        if (firstDetail != null)
+        {
+            if (string.IsNullOrEmpty(vm.DosageForm) && firstDetail.DrugType != null)
+                vm.DosageForm = firstDetail.DrugType.Name;
+
+            if (string.IsNullOrEmpty(vm.Strength) && firstDetail.DrugStrength != null)
+            {
+                var q = firstDetail.DrugStrength.Quantity ?? "";
+                var u = firstDetail.DrugStrength.Unit?.Name ?? "";
+                vm.Strength = (!string.IsNullOrWhiteSpace(u) && !q.Contains(u)) ? $"{q} {u}".Trim() : q;
+            }
+
+            if ((vm.UnitPrice == null || vm.UnitPrice == 0) && firstDetail.UnitPrice > 0)
+                vm.UnitPrice = firstDetail.UnitPrice;
+
+            if ((vm.StripPrice == null || vm.StripPrice == 0) && vm.UnitPrice > 0)
+                vm.StripPrice = vm.UnitPrice * 12;
+        }
     }
 
     private static DrugMonographViewModel MapToMonographVm(DrugMonograph m) => new()
@@ -273,10 +349,35 @@ internal sealed class DrugMasterRepository(WfDbContext context, EncryptionHelper
         var imgMatch = System.Text.RegularExpressions.Regex.Match(html, @"data-src=""(https:\/\/medex\.com\.bd\/storage\/images\/packaging\/[^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (imgMatch.Success) packImg = imgMatch.Groups[1].Value;
 
+        decimal? unitPrice = null;
+        var upMatch = System.Text.RegularExpressions.Regex.Match(html, @"Unit Price:\s*৳\s*([0-9.]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (upMatch.Success && decimal.TryParse(upMatch.Groups[1].Value, out var up)) unitPrice = up;
+
+        decimal? stripPrice = null;
+        var spMatch = System.Text.RegularExpressions.Regex.Match(html, @"Strip Price:\s*৳\s*([0-9.]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (spMatch.Success && decimal.TryParse(spMatch.Groups[1].Value, out var sp)) stripPrice = sp;
+
+        string? dosageForm = null;
+        var dfMatch = System.Text.RegularExpressions.Regex.Match(html, @"<small class=""h1-subtitle"">([^<]+)<\/small>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (dfMatch.Success) dosageForm = dfMatch.Groups[1].Value.Trim();
+
+        string? strength = null;
+        var strMatch = System.Text.RegularExpressions.Regex.Match(html, @"title=""Strength"">([^<]+)<\/div>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (strMatch.Success) strength = strMatch.Groups[1].Value.Trim();
+
+        string? manufacturer = null;
+        var mfgMatch = System.Text.RegularExpressions.Regex.Match(html, @"title=""Pharmaceutical"">[\s\S]*?<a[^>]*>([^<]+)<\/a>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (mfgMatch.Success) manufacturer = mfgMatch.Groups[1].Value.Trim();
+
         return new DrugMonograph
         {
             BrandName = brandName,
             GenericName = genericName,
+            DosageForm = dosageForm,
+            Strength = strength,
+            Manufacturer = manufacturer,
+            UnitPrice = unitPrice,
+            StripPrice = stripPrice,
             MedExUrl = url,
             PackImageUrl = packImg,
             Indications = ExtractSection("indications"),

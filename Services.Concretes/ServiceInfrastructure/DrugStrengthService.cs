@@ -124,4 +124,20 @@ internal sealed class DrugStrengthService(
             UnitList = await repository.Unit.GetDropdownItemsAsync()
         };
     }
+
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        if (string.IsNullOrWhiteSpace(encryptedId) || encryptedId == "null" || encryptedId == "undefined") return false;
+        var id = encryptionHelper.Decrypt(encryptedId);
+        var existing = await repository.DrugStrength.FindByIdAsync(id);
+        if (existing is null) return false;
+
+        var isUsed = await repository.DrugDetail.AnyAsync(x => x.DrugStrengthId == id);
+        if (isUsed)
+        {
+            throw new InvalidOperationException("Cannot delete strength as it is currently assigned to one or more drugs.");
+        }
+
+        return await repository.DrugStrength.DeleteAsync(existing);
+    }
 }

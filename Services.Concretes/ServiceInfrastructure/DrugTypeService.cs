@@ -111,4 +111,20 @@ internal sealed class DrugTypeService(
             DoctorList = await repository.Doctor.GetDropdownItemsAsync()
         };
     }
+
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        if (string.IsNullOrWhiteSpace(encryptedId) || encryptedId == "null" || encryptedId == "undefined") return false;
+        var id = encryptionHelper.Decrypt(encryptedId);
+        var existing = await repository.DrugType.FindByIdAsync(id);
+        if (existing is null) return false;
+
+        var isUsed = await repository.DrugDetail.AnyAsync(x => x.DrugTypeId == id);
+        if (isUsed)
+        {
+            throw new InvalidOperationException("Cannot delete drug type as it is currently assigned to one or more drugs.");
+        }
+
+        return await repository.DrugType.DeleteAsync(existing);
+    }
 }

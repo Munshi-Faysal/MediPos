@@ -1,103 +1,246 @@
-<div class="dose-management mx-auto max-w-7xl space-y-6 p-1 sm:p-2">
+<div class="space-y-6">
   @if (currentView === 'list') {
-    <section class="overflow-hidden rounded-3xl border border-gray-100 bg-white px-5 py-6 shadow-sm sm:px-8 sm:py-8">
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex items-start gap-4">
-          <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 ring-1 ring-primary-100">
-            <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          </div>
-          <div>
-            <p class="mb-1 text-xs font-bold uppercase tracking-[0.22em] text-primary-600">Prescription Library</p>
-            <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">Dose Management</h1>
-            <p class="mt-2 max-w-xl text-sm leading-6 text-gray-500">Save your frequently used dose patterns once. They will appear instantly when you click the dose field in a prescription.</p>
-          </div>
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-on-surface">Dose Management</h1>
+        <p class="text-on-surface-variant">Prescription Library & Frequently Used Patterns</p>
+      </div>
+      <button
+        type="button"
+        (click)="createNew()"
+        class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md flex items-center gap-2 self-start sm:self-auto">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Add New Dose
+      </button>
+    </div>
+
+    <!-- Quick Start Presets -->
+    <div class="bg-surface border border-border rounded-xl p-4 shadow-soft">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="shrink-0 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-primary-600"></span>
+          <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Quick Presets</span>
         </div>
-        <button type="button" (click)="createNew()" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-100">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4" /></svg>
-          Add New Dose
-        </button>
-      </div>
-    </section>
-
-    <section class="grid gap-4 sm:grid-cols-3">
-      <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Total templates</p><p class="mt-1 text-3xl font-black text-gray-900">{{ templates().length }}</p></div><div class="rounded-2xl bg-emerald-50 p-3 text-emerald-600"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div></div>
-      </div>
-      <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Ready to use</p><p class="mt-1 text-3xl font-black text-emerald-600">{{ activeCount() }}</p></div><div class="rounded-2xl bg-emerald-50 p-3 text-emerald-600"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div></div>
-      </div>
-      <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-wider text-gray-400">Paused</p><p class="mt-1 text-3xl font-black text-gray-500">{{ inactiveCount() }}</p></div><div class="rounded-2xl bg-gray-100 p-3 text-gray-500"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div></div>
-      </div>
-    </section>
-
-    <section class="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 sm:p-5">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-        <div class="shrink-0"><p class="text-sm font-extrabold text-emerald-900">Quick start</p><p class="text-xs text-emerald-700">Pick a common pattern, then save it.</p></div>
         <div class="flex flex-wrap gap-2">
           @for (preset of commonDosePresets; track preset.name) {
-            <button type="button" (click)="createFromPreset(preset)" class="bangla-dose rounded-xl border border-emerald-200 bg-white px-3.5 py-2 text-sm font-extrabold text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow">{{ preset.name }}</button>
+            <button
+              type="button"
+              (click)="createFromPreset(preset)"
+              class="bangla-dose px-3 py-1.5 rounded-lg border border-border bg-surface-variant/40 hover:bg-primary-600/10 hover:border-primary-500 hover:text-primary-600 text-xs font-bold text-on-surface transition-all">
+              {{ preset.name }}
+            </button>
           }
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-      <div class="flex flex-col gap-4 border-b border-gray-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div><h2 class="text-lg font-extrabold text-gray-900">Your dose templates</h2><p class="mt-1 text-sm text-gray-500">Only active templates appear in prescription suggestions.</p></div>
-        <label class="relative block w-full sm:w-80">
-          <span class="sr-only">Search dose templates</span>
-          <svg class="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input type="search" [value]="searchTerm()" (input)="updateSearch($event)" placeholder="Search dose or note..." class="w-full rounded-xl border-gray-200 bg-gray-50 py-2.5 pl-11 pr-4 text-sm font-medium text-gray-800 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-emerald-500" />
-        </label>
+    <!-- Search Bar -->
+    <div class="bg-surface border border-border rounded-xl p-4 shadow-soft">
+      <div class="relative w-full max-w-md">
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="updateSearch($event)"
+          placeholder="Search dose pattern or note..."
+          class="w-full pl-10 pr-4 py-2 bg-surface-variant/50 border border-border rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-sm text-on-surface placeholder:text-on-surface-variant/60"
+        >
+        <svg class="w-5 h-5 absolute left-3 top-2.5 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
       </div>
+    </div>
 
-      <div class="relative min-h-56 overflow-x-auto">
-        @if (isLoading()) {
-          <div class="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-sm"><div class="flex flex-col items-center gap-3 text-sm font-semibold text-emerald-700"><div class="h-9 w-9 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>Loading doses...</div></div>
-        }
-        @if (!isLoading() && filteredTemplates().length > 0) {
-          <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50/80"><tr><th class="px-5 py-3.5 text-left text-xs font-extrabold uppercase tracking-wider text-gray-400 sm:px-6">Dose</th><th class="hidden px-5 py-3.5 text-left text-xs font-extrabold uppercase tracking-wider text-gray-400 md:table-cell">Note</th><th class="px-5 py-3.5 text-left text-xs font-extrabold uppercase tracking-wider text-gray-400">Status</th><th class="px-5 py-3.5 text-right text-xs font-extrabold uppercase tracking-wider text-gray-400 sm:px-6">Actions</th></tr></thead>
-            <tbody class="divide-y divide-gray-100">
-              @for (template of filteredTemplates(); track template.encryptedId) {
-                <tr class="group transition hover:bg-emerald-50/40">
-                  <td class="px-5 py-4 sm:px-6"><span class="bangla-dose inline-flex rounded-xl bg-gray-900 px-3 py-1.5 text-sm font-black tracking-wide text-white shadow-sm">{{ template.name }}</span>@if (template.description) {<p class="bangla-dose mt-2 max-w-xs text-xs text-gray-500 md:hidden">{{ template.description }}</p>}</td>
-                  <td class="hidden max-w-md px-5 py-4 text-sm leading-6 text-gray-600 md:table-cell">{{ template.description || 'No note added' }}</td>
-                  <td class="px-5 py-4"><span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold" [ngClass]="template.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'"><span class="h-1.5 w-1.5 rounded-full" [ngClass]="template.isActive ? 'bg-emerald-500' : 'bg-gray-400'"></span>{{ template.isActive ? 'Active' : 'Paused' }}</span></td>
-                  <td class="px-5 py-4 text-right sm:px-6"><div class="inline-flex items-center gap-1 rounded-xl border border-gray-200 bg-white p-1 shadow-sm"><button type="button" (click)="editTemplate(template)" title="Edit dose" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-gray-600 transition hover:bg-emerald-50 hover:text-emerald-700">Edit</button><button type="button" (click)="toggleStatus(template)" [title]="template.isActive ? 'Pause dose' : 'Activate dose'" class="rounded-lg px-2.5 py-1.5 text-xs font-bold transition" [ngClass]="template.isActive ? 'text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50'">{{ template.isActive ? 'Pause' : 'Activate' }}</button><button type="button" (click)="deleteTemplate(template)" [disabled]="deletingId() !== null" title="Delete dose" class="rounded-lg px-2.5 py-1.5 text-xs font-bold text-rose-600 transition hover:bg-rose-50 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-50">{{ deletingId() === template.encryptedId ? 'Deleting...' : 'Delete' }}</button></div></td>
+    <!-- Data Table -->
+    <div class="bg-surface border border-border rounded-xl overflow-hidden shadow-soft">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
+              <th class="px-6 py-4 w-16 text-center">SL</th>
+              <th class="px-6 py-4">Dose Pattern</th>
+              <th class="px-6 py-4">Note / Description</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @if (isLoading()) {
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-on-surface-variant">
+                  <div class="flex items-center justify-center gap-3">
+                    <div class="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="font-medium text-sm">Loading doses...</span>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (template of filteredTemplates(); track template.encryptedId; let i = $index) {
+                <tr class="hover:bg-surface-variant/20 transition-colors">
+                  <td class="px-6 py-4 text-xs font-semibold text-on-surface-variant text-center">
+                    {{ i + 1 }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="bangla-dose inline-flex px-3 py-1 rounded-md bg-surface-variant/70 text-on-surface font-bold text-sm border border-border">
+                      {{ template.name }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-on-surface-variant text-sm">
+                    {{ template.description || 'N/A' }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span [class]="template.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
+                      class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
+                      {{ template.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <!-- Edit Button -->
+                      <button
+                        (click)="editTemplate(template)"
+                        class="p-2 rounded-lg text-primary-600 hover:bg-primary-500/10 hover:text-primary-700 transition-colors"
+                        title="Edit">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </button>
+
+                      <!-- Activate / Deactivate Button -->
+                      <button
+                        (click)="toggleStatus(template)"
+                        [class]="template.isActive ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-500/10' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10'"
+                        class="p-2 rounded-lg transition-colors"
+                        [title]="template.isActive ? 'Deactivate' : 'Activate'">
+                        @if (template.isActive) {
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                          </svg>
+                        } @else {
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                        }
+                      </button>
+
+                      <!-- Delete Button -->
+                      <button
+                        (click)="deleteTemplate(template)"
+                        [disabled]="deletingId() !== null"
+                        class="p-2 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                        title="Delete">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               }
-            </tbody>
-          </table>
-        }
-        @if (!isLoading() && filteredTemplates().length === 0) {
-          <div class="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center"><div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500"><svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><h3 class="text-lg font-extrabold text-gray-900">{{ searchTerm() ? 'No matching dose found' : 'No dose templates yet' }}</h3><p class="mt-1 max-w-sm text-sm text-gray-500">{{ searchTerm() ? 'Try a different search term.' : 'Add your first common dose to make prescription writing faster.' }}</p>@if (!searchTerm()) {<button type="button" (click)="createNew()" class="mt-5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">Create first dose</button>}</div>
-        }
+              @if (filteredTemplates().length === 0) {
+                <tr>
+                  <td colspan="5" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
       </div>
-    </section>
+    </div>
   }
 
   @if (currentView === 'editor') {
-    <div class="mx-auto max-w-3xl py-2 sm:py-6">
-      <button type="button" (click)="showList()" class="mb-4 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-bold text-gray-500 transition hover:text-emerald-700"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>Back to Dose Management</button>
-      <section class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/60">
-        <div class="border-b border-gray-100 bg-white px-6 py-7 sm:px-8">
-          <div class="flex items-center gap-4"><div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 ring-1 ring-primary-100"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><div><p class="text-xs font-bold uppercase tracking-[0.18em] text-primary-600">Dose template</p><h2 class="mt-1 text-2xl font-extrabold text-gray-900">{{ editingTemplate ? 'Edit dose' : 'Create a new dose' }}</h2></div></div>
-        </div>
-        <form class="space-y-6 p-6 sm:p-8" (ngSubmit)="saveTemplate()">
+    <div class="max-w-2xl mx-auto space-y-4">
+      <button
+        type="button"
+        (click)="showList()"
+        class="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Dose List
+      </button>
+
+      <div class="bg-surface border border-border rounded-2xl shadow-soft overflow-hidden">
+        <div class="px-6 py-5 border-b border-border bg-surface flex justify-between items-center">
           <div>
-            <label for="doseName" class="mb-2 block text-sm font-extrabold text-gray-800">Dose pattern <span class="text-red-500">*</span></label>
-            <input id="doseName" name="doseName" type="text" [(ngModel)]="templateForm.name" maxlength="200" autofocus
-              class="bangla-dose w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3.5 text-lg font-extrabold tracking-wide text-gray-900 placeholder-gray-300 focus:border-emerald-500 focus:bg-white focus:ring-emerald-500"
-              placeholder="For example: 1+0+1" />
-            <p class="mt-2 text-xs text-gray-500">Use morning + noon + night format so it is easy to recognize while prescribing.</p>
+            <h2 class="text-xl font-bold text-on-surface">{{ editingTemplate ? 'Edit' : 'Add New' }} Dose Template</h2>
+            <p class="text-xs text-on-surface-variant mt-0.5">Configure dose pattern and prescription notes</p>
           </div>
-          <div><label for="doseDescription" class="mb-2 block text-sm font-extrabold text-gray-800">Note <span class="font-medium text-gray-400">(optional)</span></label><textarea id="doseDescription" name="doseDescription" [(ngModel)]="templateForm.description" rows="4" maxlength="1000" class="bangla-dose w-full resize-none rounded-xl border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-800 placeholder-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-emerald-500" placeholder="For example: Morning and night, after meals"></textarea></div>
-          <label class="flex cursor-pointer items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40"><div><span class="block text-sm font-extrabold text-gray-800">Available in prescription</span><span class="mt-0.5 block text-xs text-gray-500">Turn this off to temporarily hide it from dose suggestions.</span></div><span class="relative inline-flex shrink-0 items-center"><input id="isActive" name="isActive" type="checkbox" [(ngModel)]="templateForm.isActive" class="peer sr-only" /><span class="h-6 w-11 rounded-full bg-gray-300 transition peer-checked:bg-emerald-600 peer-focus:ring-4 peer-focus:ring-emerald-100"></span><span class="absolute left-1 h-4 w-4 rounded-full bg-white shadow transition peer-checked:translate-x-5"></span></span></label>
-          <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end"><button type="button" (click)="showList()" class="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-bold text-gray-600 transition hover:bg-gray-50">Cancel</button><button type="submit" [disabled]="isSaving()" class="inline-flex min-w-40 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">@if (isSaving()) {<span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>Saving...} @else {<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>{{ editingTemplate ? 'Save Changes' : 'Save Dose' }}}</button></div>
+          <button (click)="showList()" class="p-2 hover:bg-surface-variant rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <form class="p-6 space-y-5" (ngSubmit)="saveTemplate()">
+          <div>
+            <label for="doseName" class="block text-xs font-semibold text-on-surface-variant mb-1">
+              Dose Pattern <span class="text-rose-500">*</span>
+            </label>
+            <input
+              id="doseName"
+              name="doseName"
+              type="text"
+              [(ngModel)]="templateForm.name"
+              maxlength="200"
+              autofocus
+              class="bangla-dose w-full px-4 py-2.5 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-bold text-base text-on-surface transition-all placeholder:text-on-surface-variant/50"
+              placeholder="e.g. 1+0+1 or ১+০+১"
+            />
+            <p class="mt-1.5 text-xs text-on-surface-variant">Use morning + noon + night format (e.g. 1+0+1, 0+0+1).</p>
+          </div>
+
+          <div>
+            <label for="doseDescription" class="block text-xs font-semibold text-on-surface-variant mb-1">
+              Note / Timing <span class="font-normal text-on-surface-variant/60">(optional)</span>
+            </label>
+            <textarea
+              id="doseDescription"
+              name="doseDescription"
+              [(ngModel)]="templateForm.description"
+              rows="3"
+              maxlength="1000"
+              class="bangla-dose w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all placeholder:text-on-surface-variant/50 resize-none"
+              placeholder="e.g. খাবার পর সেব্য (After meals)">
+            </textarea>
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <input
+              id="isActive"
+              name="isActive"
+              type="checkbox"
+              [(ngModel)]="templateForm.isActive"
+              class="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-border"
+            />
+            <label for="isActive" class="text-sm font-medium text-on-surface cursor-pointer">
+              Active (Visible in prescription suggestions)
+            </label>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-border">
+            <button
+              type="button"
+              (click)="showList()"
+              class="px-4 py-2 rounded-lg border border-border hover:bg-surface-variant text-on-surface text-sm font-semibold transition-all">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSaving()"
+              class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-bold shadow-md transition-all disabled:opacity-50 flex items-center gap-2">
+              @if (isSaving()) {
+                <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Saving...</span>
+              } @else {
+                <span>{{ editingTemplate ? 'Save Changes' : 'Save Dose' }}</span>
+              }
+            </button>
+          </div>
         </form>
-      </section>
+      </div>
     </div>
   }
 </div>

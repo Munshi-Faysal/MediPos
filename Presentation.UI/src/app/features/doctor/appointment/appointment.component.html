@@ -1,344 +1,445 @@
-<div class="container mx-auto px-4 py-5">
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+<div class="space-y-6">
+  <!-- Standard Page Header -->
+  <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Appointments</h1>
-      <p class="text-sm text-gray-500 mt-1">Manage your schedule and patient visits</p>
+      <h1 class="text-2xl font-bold text-on-surface">Appointments</h1>
+      <p class="text-on-surface-variant">Manage your schedule and patient visits</p>
     </div>
 
-    <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+    <div class="flex items-center gap-2 self-start sm:self-auto">
       @if (currentView !== 'list') {
-      <button type="button" (click)="showList()"
-        class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 px-4 rounded-lg shadow-sm text-sm">
-        Cancel
-      </button>
+        <button type="button" (click)="showList()"
+          class="px-4 py-2 rounded-lg border border-border hover:bg-surface-variant text-on-surface text-sm font-semibold transition-all">
+          Cancel
+        </button>
       }
       @if (currentView === 'list') {
-      <button type="button" (click)="showCreate()"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm flex items-center gap-2 text-sm">
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        New Appointment
-      </button>
+        <button type="button" (click)="showCreate()"
+          class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-md flex items-center gap-2">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Appointment
+        </button>
       }
       @if (currentView === 'view' && selectedAppointment?.status === 'Scheduled') {
-      <button type="button" (click)="showEdit(selectedAppointment!)"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm text-sm">
-        Edit Appointment
-      </button>
+        <button type="button" (click)="showEdit(selectedAppointment!)"
+          class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-md text-sm transition-all">
+          Edit Appointment
+        </button>
       }
       @if (currentView === 'create') {
-      <button type="button" (click)="saveAppointment()" [disabled]="isSaving"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-        {{ isSaving ? 'Saving...' : (isEditing ? 'Update Appointment' : 'Schedule Appointment') }}
-      </button>
+        <button type="button" (click)="saveAppointment()" [disabled]="isSaving"
+          class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-semibold transition-all shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isSaving) {
+            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Saving...</span>
+          } @else {
+            <span>{{ isEditing ? 'Update Appointment' : 'Schedule Appointment' }}</span>
+          }
+        </button>
       }
     </div>
   </div>
 
   @if (currentView === 'list') {
-  @if (errorMessage) {
-  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center justify-between">
-    <span>{{ errorMessage }}</span>
-    <button type="button" (click)="loadAppointments()" class="font-semibold hover:underline">Retry</button>
-  </div>
-  }
-
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-5">
-    <div class="flex flex-col md:flex-row gap-4">
-      <div class="w-full md:w-64">
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Date</label>
-        <input type="date" name="appointmentDate" [(ngModel)]="selectedDate" (change)="onDateChange()"
-          class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border">
+    @if (errorMessage) {
+      <div class="rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-950/30 px-4 py-3 text-sm text-rose-700 dark:text-rose-400 flex items-center justify-between">
+        <span>{{ errorMessage }}</span>
+        <button type="button" (click)="loadAppointments()" class="font-semibold hover:underline">Retry</button>
       </div>
-      <div class="flex-1">
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Search</label>
-        <div class="relative">
-          <svg class="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    }
+
+    <!-- Search and Date Filter Card -->
+    <div class="bg-surface border border-border rounded-xl p-4 shadow-soft">
+      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="relative w-full max-w-md">
+          <input
+            type="text"
+            name="appointmentSearch"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="filterAppointments()"
+            placeholder="Search by patient, contact, or reason..."
+            class="w-full pl-10 pr-4 py-2 bg-surface-variant/50 border border-border rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-sm text-on-surface placeholder:text-on-surface-variant/60"
+          >
+          <svg class="w-5 h-5 absolute left-3 top-2.5 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input type="text" name="appointmentSearch" [(ngModel)]="searchTerm" (ngModelChange)="filterAppointments()"
-            class="block w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-            placeholder="Search by patient, contact, or reason...">
+        </div>
+
+        <div class="w-full md:w-64 flex items-center gap-2">
+          <span class="text-xs font-semibold text-on-surface-variant shrink-0">Date:</span>
+          <input
+            type="date"
+            name="appointmentDate"
+            [(ngModel)]="selectedDate"
+            (change)="onDateChange()"
+            class="w-full px-3 py-2 bg-surface-variant/50 border border-border rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm font-medium text-on-surface transition-all"
+          >
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Time</th>
-            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Patient</th>
-            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Reason</th>
-            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
-            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Contact</th>
-            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-            <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          @for (appointment of paginatedAppointments; track appointment.encryptedId) {
-          <tr (click)="showDetails(appointment)" class="hover:bg-gray-50 cursor-pointer">
-            <td class="px-5 py-3 whitespace-nowrap">
-              <div class="text-sm font-semibold text-gray-900">{{ appointment.dateTime | date:'shortTime' }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.dateTime | date:'MMM d, y' }}</div>
-            </td>
-            <td class="px-5 py-3 whitespace-nowrap">
-              <div class="flex items-center">
-                @if (appointment.patientImage) {
-                <img class="h-9 w-9 rounded-full object-cover border border-gray-200" [src]="appointment.patientImage"
-                  [alt]="appointment.patientName">
-                } @else {
-                <div class="h-9 w-9 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center text-xs font-bold">
-                  {{ initials(appointment.patientName) }}
-                </div>
-                }
-                <span class="ml-3 text-sm font-medium text-gray-900">{{ appointment.patientName }}</span>
-              </div>
-            </td>
-            <td class="px-5 py-3 text-sm text-gray-700">{{ appointment.reason || '-' }}</td>
-            <td class="px-5 py-3 whitespace-nowrap">
-              <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                {{ appointment.type }}
-              </span>
-            </td>
-            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-600">{{ appointment.contact }}</td>
-            <td class="px-5 py-3 whitespace-nowrap">
-              <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full" [ngClass]="{
-                'bg-green-100 text-green-800': appointment.status === 'Completed',
-                'bg-yellow-100 text-yellow-800': appointment.status === 'Scheduled',
-                'bg-red-100 text-red-800': appointment.status === 'Cancelled',
-                'bg-gray-200 text-gray-700': appointment.status === 'No Show'
-              }">{{ appointment.status }}</span>
-            </td>
-            <td class="px-5 py-3 whitespace-nowrap text-right text-sm">
-              <button type="button" (click)="$event.stopPropagation(); showDetails(appointment)"
-                class="text-indigo-600 hover:text-indigo-900 font-medium p-1">View</button>
-              @if (appointment.status === 'Scheduled') {
-              <button type="button" (click)="$event.stopPropagation(); showEdit(appointment)"
-                class="ml-2 text-blue-600 hover:text-blue-900 font-medium p-1">Edit</button>
+    <!-- Data Table -->
+    <div class="bg-surface border border-border rounded-xl overflow-hidden shadow-soft">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
+              <th class="px-6 py-4 w-16 text-center">SL</th>
+              <th class="px-6 py-4">Time</th>
+              <th class="px-6 py-4">Patient</th>
+              <th class="px-6 py-4">Reason</th>
+              <th class="px-6 py-4">Type</th>
+              <th class="px-6 py-4">Contact</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @if (isLoading) {
+              <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-on-surface-variant">
+                  <div class="flex items-center justify-center gap-3">
+                    <div class="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="font-medium text-sm">Loading appointments...</span>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (appointment of paginatedAppointments; track appointment.encryptedId; let i = $index) {
+                <tr (click)="showDetails(appointment)" class="hover:bg-surface-variant/20 transition-colors cursor-pointer">
+                  <td class="px-6 py-4 text-xs font-semibold text-on-surface-variant text-center">
+                    {{ (currentPage - 1) * pageSize + i + 1 }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-on-surface">{{ appointment.dateTime | date:'shortTime' }}</div>
+                    <div class="text-[11px] text-on-surface-variant">{{ appointment.dateTime | date:'MMM d, y' }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                        @if (appointment.patientImage) {
+                          <img class="w-full h-full object-cover border border-border" [src]="appointment.patientImage" [alt]="appointment.patientName">
+                        } @else {
+                          <div class="w-full h-full border border-primary-200 bg-primary-50 text-primary-600 flex items-center justify-center text-xs font-bold">
+                            {{ initials(appointment.patientName) }}
+                          </div>
+                        }
+                      </div>
+                      <span class="text-sm font-semibold text-on-surface hover:text-primary-600 transition-colors">{{ appointment.patientName }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-on-surface">{{ appointment.reason || '-' }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2.5 py-0.5 rounded-md bg-surface-variant/80 text-on-surface text-xs font-semibold border border-border">
+                      {{ appointment.type }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">{{ appointment.contact }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-[10px] font-bold uppercase tracking-wider rounded-full border"
+                      [ngClass]="{
+                        'bg-emerald-500/10 text-emerald-600 border-emerald-500/20': appointment.status === 'Completed',
+                        'bg-amber-500/10 text-amber-600 border-amber-500/20': appointment.status === 'Scheduled',
+                        'bg-rose-500/10 text-rose-600 border-rose-500/20': appointment.status === 'Cancelled',
+                        'bg-surface-variant text-on-surface border-border': appointment.status === 'No Show'
+                      }">
+                      {{ appointment.status }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <!-- View Button -->
+                      <button
+                        type="button"
+                        (click)="$event.stopPropagation(); showDetails(appointment)"
+                        class="p-2 rounded-lg text-primary-600 hover:bg-primary-500/10 hover:text-primary-700 transition-colors"
+                        title="View Details">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                      </button>
+
+                      <!-- Edit Button -->
+                      @if (appointment.status === 'Scheduled') {
+                        <button
+                          type="button"
+                          (click)="$event.stopPropagation(); showEdit(appointment)"
+                          class="p-2 rounded-lg text-primary-600 hover:bg-primary-500/10 hover:text-primary-700 transition-colors"
+                          title="Edit Appointment">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
               }
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    @if (isLoading) {
-    <div class="text-center py-12 text-sm text-gray-500">Loading appointments...</div>
-    } @else if (filteredAppointments.length === 0) {
-    <div class="text-center py-12">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No appointments found</h3>
-      <p class="mt-1 text-sm text-gray-500">No appointments are scheduled for this date.</p>
-    </div>
-    }
-
-    @if (!isLoading && filteredAppointments.length > 0) {
-    <div class="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-gray-600">
-      <span>Showing {{ resultStart }} to {{ resultEnd }} of {{ filteredAppointments.length }} appointments</span>
-      @if (totalPages > 1) {
-      <div class="flex items-center gap-2">
-        <span>50 per page</span>
-        <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"
-          class="px-3 py-1.5 border rounded-md disabled:opacity-40">Previous</button>
-        <span class="font-semibold text-indigo-700">{{ currentPage }} / {{ totalPages }}</span>
-        <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"
-          class="px-3 py-1.5 border rounded-md disabled:opacity-40">Next</button>
+              @if (filteredAppointments.length === 0) {
+                <tr>
+                  <td colspan="8" class="px-6 py-10 text-center text-on-surface-variant">No appointments found for this date.</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
       </div>
-      }
+
+      <!-- Dynamic Pagination -->
+      <app-pagination
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredAppointments.length"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)">
+      </app-pagination>
     </div>
-    }
-  </div>
   }
 
+  <!-- CREATE / EDIT APPOINTMENT FORM -->
   @if (currentView === 'create') {
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 max-w-3xl mx-auto">
-    <h2 class="text-xl font-semibold text-gray-900 mb-5 border-b pb-4">
-      {{ isEditing ? 'Edit Appointment' : 'Schedule New Appointment' }}
-    </h2>
-
-    @if (formError) {
-    <div class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ formError }}</div>
-    }
-
-    <div class="mb-6 bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-      <label class="block text-sm font-medium text-gray-700 mb-2">Find existing patient</label>
-      <div class="flex flex-col sm:flex-row gap-2">
-        <input type="search" name="patientSearch" [(ngModel)]="patientSearchTerm" (keyup.enter)="searchPatient()"
-          class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border"
-          placeholder="Enter patient name or mobile number">
-        <button type="button" (click)="searchPatient()" [disabled]="isSearching"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-sm disabled:opacity-50">
-          {{ isSearching ? 'Searching...' : 'Search' }}
-        </button>
+    <div class="bg-surface border border-border rounded-2xl shadow-soft p-6 md:p-8 max-w-3xl mx-auto space-y-6">
+      <div class="border-b border-border pb-4">
+        <h2 class="text-xl font-bold text-on-surface">
+          {{ isEditing ? 'Edit Appointment' : 'Schedule New Appointment' }}
+        </h2>
+        <p class="text-xs text-on-surface-variant mt-0.5">Select a patient and set visit schedule</p>
       </div>
 
-      @if (foundPatient) {
-      <div class="mt-4 bg-white p-3 rounded-lg border border-green-200 flex items-center gap-3">
-        @if (foundPatient.image) {
-        <img [src]="foundPatient.image" [alt]="foundPatient.name" class="h-10 w-10 rounded-full object-cover">
-        } @else {
-        <div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center text-xs font-bold">
-          {{ initials(foundPatient.name) }}
+      @if (formError) {
+        <div class="rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-950/30 px-4 py-3 text-sm text-rose-700 dark:text-rose-400">
+          {{ formError }}
         </div>
+      }
+
+      <!-- Patient Search Box -->
+      <div class="bg-surface-variant/30 p-4 rounded-xl border border-border space-y-2">
+        <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Find existing patient</label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input
+            type="search"
+            name="patientSearch"
+            [(ngModel)]="patientSearchTerm"
+            (keyup.enter)="searchPatient()"
+            class="w-full px-4 py-2 bg-surface border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all placeholder:text-on-surface-variant/50"
+            placeholder="Enter patient name or mobile number"
+          >
+          <button
+            type="button"
+            (click)="searchPatient()"
+            [disabled]="isSearching"
+            class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-md text-sm transition-all disabled:opacity-50 shrink-0">
+            {{ isSearching ? 'Searching...' : 'Search' }}
+          </button>
+        </div>
+
+        @if (foundPatient) {
+          <div class="mt-3 bg-surface p-3 rounded-lg border border-emerald-500/30 flex items-center gap-3">
+            @if (foundPatient.image) {
+              <img [src]="foundPatient.image" [alt]="foundPatient.name" class="h-10 w-10 rounded-full object-cover">
+            } @else {
+              <div class="h-10 w-10 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center text-xs font-bold">
+                {{ initials(foundPatient.name) }}
+              </div>
+            }
+            <div class="flex-1">
+              <p class="text-sm font-bold text-on-surface">{{ foundPatient.name }}</p>
+              <p class="text-xs text-on-surface-variant">{{ foundPatient.phone }} &middot; {{ foundPatient.gender || 'Gender not specified' }}</p>
+            </div>
+            <button type="button" (click)="clearSelectedPatient()" class="text-xs font-semibold text-primary-600 hover:underline">Change</button>
+          </div>
         }
-        <div class="flex-1">
-          <p class="text-sm font-bold text-gray-900">{{ foundPatient.name }}</p>
-          <p class="text-xs text-gray-500">{{ foundPatient.phone }} &middot; {{ foundPatient.gender || 'Gender not specified' }}</p>
-        </div>
-        <button type="button" (click)="clearSelectedPatient()" class="text-xs font-semibold text-indigo-600 hover:underline">Change</button>
-      </div>
-      }
 
-      @if (patientSearchResults.length > 0 && !foundPatient) {
-      <div class="mt-3 bg-white border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-56 overflow-y-auto">
-        @for (patient of patientSearchResults; track patient.encryptedId) {
-        <button type="button" (click)="selectPatient(patient)"
-          class="w-full px-3 py-2.5 text-left hover:bg-indigo-50 flex items-center justify-between gap-3">
-          <span>
-            <span class="block text-sm font-semibold text-gray-900">{{ patient.name }}</span>
-            <span class="block text-xs text-gray-500">{{ patient.phone }}</span>
-          </span>
-          <span class="text-xs font-semibold text-indigo-600">Select</span>
-        </button>
+        @if (patientSearchResults.length > 0 && !foundPatient) {
+          <div class="mt-2 bg-surface border border-border rounded-lg divide-y divide-border max-h-56 overflow-y-auto">
+            @for (patient of patientSearchResults; track patient.encryptedId) {
+              <button
+                type="button"
+                (click)="selectPatient(patient)"
+                class="w-full px-3 py-2.5 text-left hover:bg-surface-variant/50 flex items-center justify-between gap-3 transition-colors">
+                <span>
+                  <span class="block text-sm font-semibold text-on-surface">{{ patient.name }}</span>
+                  <span class="block text-xs text-on-surface-variant">{{ patient.phone }}</span>
+                </span>
+                <span class="text-xs font-bold text-primary-600">Select</span>
+              </button>
+            }
+          </div>
+        }
+
+        @if (patientSearchMessage) {
+          <p class="mt-2 text-xs text-amber-600">{{ patientSearchMessage }}</p>
         }
       </div>
-      }
 
-      @if (patientSearchMessage) {
-      <p class="mt-3 text-xs text-amber-700">{{ patientSearchMessage }}</p>
-      }
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Patient Name <span class="text-rose-500">*</span></label>
+            <input
+              name="patientName"
+              [(ngModel)]="newAppointment.patientName"
+              type="text"
+              required
+              maxlength="200"
+              [readonly]="!!foundPatient"
+              class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all read-only:bg-surface-variant/60"
+              placeholder="Patient full name"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Contact Number <span class="text-rose-500">*</span></label>
+            <input
+              name="patientContact"
+              [(ngModel)]="newAppointment.contact"
+              type="tel"
+              required
+              maxlength="20"
+              [readonly]="!!foundPatient"
+              class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all read-only:bg-surface-variant/60"
+              placeholder="Patient mobile number"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Date & Time <span class="text-rose-500">*</span></label>
+            <input
+              name="appointmentDateTime"
+              [(ngModel)]="dateTimeValue"
+              [min]="dateTimeMin"
+              type="datetime-local"
+              required
+              class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Appointment Type</label>
+            <select
+              name="appointmentType"
+              [(ngModel)]="newAppointment.type"
+              class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all">
+              <option value="New Visit">New Visit</option>
+              <option value="Follow-up">Follow-up</option>
+              <option value="Consultation">Consultation</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant mb-1">Reason for Visit</label>
+          <input
+            name="appointmentReason"
+            [(ngModel)]="newAppointment.reason"
+            type="text"
+            maxlength="500"
+            class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all"
+            placeholder="e.g. Fever, checkup"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant mb-1">Notes</label>
+          <textarea
+            name="appointmentNotes"
+            [(ngModel)]="newAppointment.notes"
+            rows="3"
+            maxlength="1000"
+            class="w-full px-4 py-2 bg-surface-variant/30 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 text-sm text-on-surface transition-all resize-none"
+            placeholder="Additional notes"></textarea>
+        </div>
+      </div>
     </div>
-
-    <div class="space-y-5">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name *</label>
-          <input name="patientName" [(ngModel)]="newAppointment.patientName" type="text" required maxlength="200"
-            [readonly]="!!foundPatient"
-            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border read-only:bg-gray-50"
-            placeholder="Patient full name">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number *</label>
-          <input name="patientContact" [(ngModel)]="newAppointment.contact" type="tel" required maxlength="20"
-            [readonly]="!!foundPatient"
-            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border read-only:bg-gray-50"
-            placeholder="Patient mobile number">
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Date & Time *</label>
-          <input name="appointmentDateTime" [(ngModel)]="dateTimeValue" [min]="dateTimeMin" type="datetime-local" required
-            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
-          <select name="appointmentType" [(ngModel)]="newAppointment.type"
-            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border">
-            <option value="New Visit">New Visit</option>
-            <option value="Follow-up">Follow-up</option>
-            <option value="Consultation">Consultation</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
-        <input name="appointmentReason" [(ngModel)]="newAppointment.reason" type="text" maxlength="500"
-          class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border"
-          placeholder="e.g. Fever, checkup">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-        <textarea name="appointmentNotes" [(ngModel)]="newAppointment.notes" rows="3" maxlength="1000"
-          class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2.5 border"
-          placeholder="Additional notes"></textarea>
-      </div>
-    </div>
-  </div>
   }
 
+  <!-- APPOINTMENT DETAILS VIEW -->
   @if (currentView === 'view' && selectedAppointment) {
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 max-w-3xl mx-auto overflow-hidden">
-    <div class="bg-gray-50 px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">{{ selectedAppointment.reason || 'Appointment' }}</h2>
-        <p class="text-sm text-gray-500 mt-1">{{ selectedAppointment.type }}</p>
+    <div class="bg-surface border border-border rounded-2xl shadow-soft max-w-3xl mx-auto overflow-hidden">
+      <div class="px-6 py-5 border-b border-border bg-surface-variant/20 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-on-surface">{{ selectedAppointment.reason || 'Appointment' }}</h2>
+          <p class="text-xs text-on-surface-variant mt-0.5">{{ selectedAppointment.type }}</p>
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border self-start"
+          [ngClass]="{
+            'bg-emerald-500/10 text-emerald-600 border-emerald-500/20': selectedAppointment.status === 'Completed',
+            'bg-amber-500/10 text-amber-600 border-amber-500/20': selectedAppointment.status === 'Scheduled',
+            'bg-rose-500/10 text-rose-600 border-rose-500/20': selectedAppointment.status === 'Cancelled',
+            'bg-surface-variant text-on-surface border-border': selectedAppointment.status === 'No Show'
+          }">
+          {{ selectedAppointment.status }}
+        </span>
       </div>
-      <span class="px-3 py-1.5 rounded-full text-sm font-bold self-start" [ngClass]="{
-        'bg-green-100 text-green-800': selectedAppointment.status === 'Completed',
-        'bg-yellow-100 text-yellow-800': selectedAppointment.status === 'Scheduled',
-        'bg-red-100 text-red-800': selectedAppointment.status === 'Cancelled',
-        'bg-gray-200 text-gray-700': selectedAppointment.status === 'No Show'
-      }">{{ selectedAppointment.status }}</span>
+
+      <div class="p-6 space-y-6">
+        <div class="flex items-center gap-4 pb-6 border-b border-border">
+          @if (selectedAppointment.patientImage) {
+            <img [src]="selectedAppointment.patientImage" [alt]="selectedAppointment.patientName"
+              class="h-14 w-14 rounded-full border border-border object-cover">
+          } @else {
+            <div class="h-14 w-14 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center text-lg font-bold">
+              {{ initials(selectedAppointment.patientName) }}
+            </div>
+          }
+          <div>
+            <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Patient</p>
+            <h3 class="text-lg font-bold text-on-surface">{{ selectedAppointment.patientName }}</h3>
+            <p class="text-xs text-on-surface-variant">{{ selectedAppointment.contact }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Date & Time</p>
+            <p class="font-semibold text-sm text-on-surface">{{ selectedAppointment.dateTime | date:'fullDate' }}</p>
+            <p class="text-xs font-bold text-primary-600 mt-0.5">{{ selectedAppointment.dateTime | date:'shortTime' }}</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Notes</p>
+            <p class="text-on-surface bg-surface-variant/30 p-3 rounded-lg text-sm border border-border">
+              {{ selectedAppointment.notes || 'No notes available.' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row flex-wrap gap-3 pt-4 border-t border-border">
+          @if (selectedAppointment.status === 'Scheduled') {
+            <button
+              type="button"
+              (click)="updateStatus('Completed')"
+              [disabled]="isUpdatingStatus"
+              class="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-sm transition-all disabled:opacity-50 shadow-xs">
+              Mark Completed
+            </button>
+            <button
+              type="button"
+              (click)="updateStatus('Cancelled')"
+              [disabled]="isUpdatingStatus"
+              class="flex-1 px-4 py-2.5 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 font-semibold rounded-lg text-sm border border-rose-500/20 transition-all disabled:opacity-50">
+              Cancel Appointment
+            </button>
+            <button
+              type="button"
+              (click)="updateStatus('No Show')"
+              [disabled]="isUpdatingStatus"
+              class="flex-1 px-4 py-2.5 bg-surface-variant text-on-surface hover:bg-surface-variant/80 font-semibold rounded-lg text-sm border border-border transition-all disabled:opacity-50">
+              Mark No Show
+            </button>
+          }
+          @if (selectedAppointment.status !== 'Cancelled' && selectedAppointment.status !== 'No Show') {
+            <button
+              type="button"
+              (click)="openPrescription(selectedAppointment)"
+              class="flex-1 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg text-sm transition-all shadow-md">
+              {{ selectedAppointment.prescriptionEncryptedId ? 'View Prescription' : 'Create Prescription' }}
+            </button>
+          }
+        </div>
+      </div>
     </div>
-
-    <div class="p-6">
-      <div class="flex items-center mb-6 pb-6 border-b border-gray-100">
-        @if (selectedAppointment.patientImage) {
-        <img [src]="selectedAppointment.patientImage" [alt]="selectedAppointment.patientName"
-          class="h-14 w-14 rounded-full border border-gray-200 object-cover mr-4">
-        } @else {
-        <div class="h-14 w-14 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center text-base font-bold mr-4">
-          {{ initials(selectedAppointment.patientName) }}
-        </div>
-        }
-        <div>
-          <p class="text-xs font-medium text-gray-500 uppercase">Patient</p>
-          <h3 class="text-lg font-bold text-gray-900">{{ selectedAppointment.patientName }}</h3>
-          <p class="text-sm text-gray-600">{{ selectedAppointment.contact }}</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <p class="text-xs font-medium text-gray-500 uppercase mb-1">Date & Time</p>
-          <p class="font-medium text-gray-900">{{ selectedAppointment.dateTime | date:'fullDate' }}</p>
-          <p class="text-sm text-indigo-600 mt-1">{{ selectedAppointment.dateTime | date:'shortTime' }}</p>
-        </div>
-        <div>
-          <p class="text-xs font-medium text-gray-500 uppercase mb-1">Notes</p>
-          <p class="text-gray-700 bg-gray-50 p-3 rounded-lg text-sm border border-gray-200">
-            {{ selectedAppointment.notes || 'No notes available.' }}
-          </p>
-        </div>
-      </div>
-
-      <div class="flex flex-col sm:flex-row flex-wrap gap-3 pt-5 border-t border-gray-100">
-        @if (selectedAppointment.status === 'Scheduled') {
-        <button type="button" (click)="updateStatus('Completed')" [disabled]="isUpdatingStatus"
-          class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg disabled:opacity-50">
-          Mark Completed
-        </button>
-        <button type="button" (click)="updateStatus('Cancelled')" [disabled]="isUpdatingStatus"
-          class="flex-1 bg-red-50 text-red-700 hover:bg-red-100 font-medium py-2.5 px-4 rounded-lg border border-red-200 disabled:opacity-50">
-          Cancel Appointment
-        </button>
-        <button type="button" (click)="updateStatus('No Show')" [disabled]="isUpdatingStatus"
-          class="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium py-2.5 px-4 rounded-lg border border-gray-200 disabled:opacity-50">
-          Mark No Show
-        </button>
-        }
-        @if (selectedAppointment.status !== 'Cancelled' && selectedAppointment.status !== 'No Show') {
-        <button type="button" (click)="openPrescription(selectedAppointment)"
-          class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg">
-          {{ selectedAppointment.prescriptionEncryptedId ? 'View Prescription' : 'Create Prescription' }}
-        </button>
-        }
-      </div>
-    </div>
-  </div>
   }
 </div>

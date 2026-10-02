@@ -42,12 +42,19 @@ export class TreatmentTemplateComponent implements OnInit {
     instructionAfter = false;
 
     // Lists
+    listSearchTerm = '';
     addedDrugs: TreatmentDrugViewModel[] = [];
     templates: TreatmentTemplateViewModel[] = [];
     allDrugs: DrugViewModel[] = [];
     filteredDrugs: DrugViewModel[] = [];
     showDrugResult = false;
     isLoading = false;
+
+    get filteredTemplateList(): TreatmentTemplateViewModel[] {
+        const q = this.listSearchTerm.trim().toLowerCase();
+        if (!q) return this.templates;
+        return this.templates.filter(t => t.name.toLowerCase().includes(q));
+    }
 
     // Presets
     dosePresets: string[] = ['1+0+1', '1+1+1', '0+0+1', '1+0+0', '0+1+0', '0+0+0'];

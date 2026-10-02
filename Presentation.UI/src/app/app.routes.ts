@@ -42,6 +42,10 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
       },
+      {
+        path: 'quick-medicine-search',
+        loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
+      },
       // Package and Medicine Routes redirected for Institution Admin
       {
         path: 'packages',
@@ -123,6 +127,10 @@ export const routes: Routes = [
           {
             path: 'quick-filter',
             loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
+          },
+          {
+            path: 'quick-search',
+            loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
           }
         ]
       },
@@ -142,6 +150,10 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./features/system-admin/system-admin-dashboard/system-admin-dashboard.component').then(m => m.SystemAdminDashboardComponent)
+      },
+      {
+        path: 'quick-medicine-search',
+        loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
       },
       {
         path: 'onboarding',
@@ -184,6 +196,10 @@ export const routes: Routes = [
           {
             path: 'quick-filter',
             loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
+          },
+          {
+            path: 'quick-search',
+            loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
           }
         ]
       },
@@ -210,6 +226,10 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./features/doctor/dashboard/doctor-dashboard.component').then(m => m.DoctorDashboardComponent)
+      },
+      {
+        path: 'quick-medicine-search',
+        loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
       },
       {
         path: 'appointments',
@@ -259,6 +279,14 @@ export const routes: Routes = [
           {
             path: 'list',
             loadComponent: () => import('./features/system-admin/drugs/drug-list/drug-list.component').then(m => (m as any).DrugListComponent)
+          },
+          {
+            path: 'quick-filter',
+            loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
+          },
+          {
+            path: 'quick-search',
+            loadComponent: () => import('./features/system-admin/drugs/drug-quick-filter/drug-quick-filter.component').then(m => m.DrugQuickFilterComponent)
           }
         ]
       },

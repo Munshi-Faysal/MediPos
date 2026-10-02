@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, catchError } from 'rxjs';
 import { ApiService } from './api.service';
 import { DrugGeneric } from '../models/drug-generic.model';
 
@@ -81,7 +81,9 @@ export class DrugGenericService {
     }
 
     deleteGeneric(encryptedId: string): Observable<any> {
-        return this.api.patch<any>(`${this.endpoint}/ChangeActive/${encryptedId}`, {});
+        return this.api.delete<any>(`${this.endpoint}/Delete/${encryptedId}`).pipe(
+            catchError(() => this.api.patch<any>(`${this.endpoint}/ChangeActive/${encryptedId}`, {}))
+        );
     }
 
     private mapToModel(vm: GenericViewModel): DrugGeneric {

@@ -894,5 +894,33 @@ public class WfDbContext(DbContextOptions<WfDbContext> options) : IdentityDbCont
                 .HasForeignKey(d => d.DrugDetailId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        modelBuilder.Entity<DrugMaster>(entity =>
+        {
+            entity.HasIndex(e => e.Name).HasDatabaseName("IX_DrugMaster_Name");
+            entity.HasIndex(e => e.Code).HasDatabaseName("IX_DrugMaster_Code");
+            entity.HasIndex(e => e.DrugGenericId).HasDatabaseName("IX_DrugMaster_DrugGenericId");
+            entity.HasIndex(e => e.DrugCompanyId).HasDatabaseName("IX_DrugMaster_DrugCompanyId");
+            entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_DrugMaster_IsActive");
+        });
+
+        modelBuilder.Entity<DrugDetail>(entity =>
+        {
+            entity.HasIndex(e => new { e.DrugMasterId, e.IsActive }).HasDatabaseName("IX_DrugDetail_DrugMasterId_IsActive");
+            entity.HasIndex(e => e.DrugTypeId).HasDatabaseName("IX_DrugDetail_DrugTypeId");
+            entity.HasIndex(e => e.DrugStrengthId).HasDatabaseName("IX_DrugDetail_DrugStrengthId");
+        });
+
+        modelBuilder.Entity<Generic>(entity =>
+        {
+            entity.HasIndex(e => e.Name).HasDatabaseName("IX_Generic_Name");
+        });
+
+        modelBuilder.Entity<DrugMonograph>(entity =>
+        {
+            entity.HasIndex(e => e.BrandName).HasDatabaseName("IX_DrugMonograph_BrandName");
+            entity.HasIndex(e => e.GenericName).HasDatabaseName("IX_DrugMonograph_GenericName");
+            entity.HasIndex(e => e.MedExUrl).HasDatabaseName("IX_DrugMonograph_MedExUrl");
+        });
     }
 }

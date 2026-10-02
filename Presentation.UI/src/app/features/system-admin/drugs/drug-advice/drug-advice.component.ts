@@ -37,44 +37,82 @@ import Swal from 'sweetalert2';
     
         <!-- Data Table -->
         <div class="bg-surface border border-border rounded-xl overflow-hidden shadow-soft">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
-                <th class="px-6 py-4">Instruction Name</th>
-                <th class="px-6 py-4">Full Instruction</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              @for (adv of filteredAdvice(); track adv) {
-                <tr class="hover:bg-surface-variant/20 transition-colors">
-                  <td class="bangla-instruction px-6 py-4 font-medium text-on-surface">{{ adv.name }}</td>
-                  <td class="bangla-instruction px-6 py-4 text-on-surface-variant">{{ adv.description || 'N/A' }}</td>
-                  <td class="px-6 py-4">
-                    <span [class]="adv.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
-                      class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
-                      {{ adv.isActive ? 'Active' : 'Inactive' }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 text-right space-x-2">
-                    <button (click)="editAdvice(adv)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                    <button (click)="toggleStatus(adv)" [class]="adv.isActive ? 'text-rose-600 hover:text-rose-700' : 'text-emerald-600 hover:text-emerald-700'" class="font-medium text-sm">
-                      {{ adv.isActive ? 'Deactivate' : 'Activate' }}
-                    </button>
-                    <button (click)="deleteAdvice(adv)" [disabled]="deletingId() === adv.encryptedId" class="text-red-600 hover:text-red-800 font-medium text-sm disabled:opacity-50">
-                      {{ deletingId() === adv.encryptedId ? 'Deleting...' : 'Delete' }}
-                    </button>
-                  </td>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
+                  <th class="px-6 py-4 w-16 text-center">SL</th>
+                  <th class="px-6 py-4">Instruction Name</th>
+                  <th class="px-6 py-4">Full Instruction</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
-              }
-              @if (filteredAdvice().length === 0) {
-                <tr>
-                  <td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (adv of filteredAdvice(); track adv; let i = $index) {
+                  <tr class="hover:bg-surface-variant/20 transition-colors">
+                    <td class="px-6 py-4 text-xs font-semibold text-on-surface-variant text-center">
+                      {{ i + 1 }}
+                    </td>
+                    <td class="bangla-instruction px-6 py-4 font-medium text-on-surface">{{ adv.name }}</td>
+                    <td class="bangla-instruction px-6 py-4 text-on-surface-variant">{{ adv.description || 'N/A' }}</td>
+                    <td class="px-6 py-4">
+                      <span [class]="adv.isActive ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'"
+                        class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
+                        {{ adv.isActive ? 'Active' : 'Inactive' }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <!-- Edit Button -->
+                        <button
+                          (click)="editAdvice(adv)"
+                          class="p-2 rounded-lg text-primary-600 hover:bg-primary-500/10 hover:text-primary-700 transition-colors"
+                          title="Edit">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+
+                        <!-- Activate / Deactivate Button -->
+                        <button
+                          (click)="toggleStatus(adv)"
+                          [class]="adv.isActive ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-500/10' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10'"
+                          class="p-2 rounded-lg transition-colors"
+                          [title]="adv.isActive ? 'Deactivate' : 'Activate'">
+                          @if (adv.isActive) {
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                            </svg>
+                          } @else {
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          }
+                        </button>
+
+                        <!-- Delete Button -->
+                        <button
+                          (click)="deleteAdvice(adv)"
+                          [disabled]="deletingId() === adv.encryptedId"
+                          class="p-2 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                          title="Delete">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+                @if (filteredAdvice().length === 0) {
+                  <tr>
+                    <td colspan="5" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
     
         <!-- Modal -->

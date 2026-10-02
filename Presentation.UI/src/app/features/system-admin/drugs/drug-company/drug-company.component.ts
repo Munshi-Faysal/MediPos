@@ -44,9 +44,11 @@ import Swal from 'sweetalert2';
     
         <!-- Data Table -->
         <div class="bg-surface border border-border rounded-xl overflow-hidden shadow-soft">
-          <table class="w-full text-left border-collapse">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-variant/30 text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-border">
+                <th class="px-6 py-4 w-16 text-center">SL</th>
                 <th class="px-6 py-4">Company Name</th>
                 <th class="px-6 py-4">Description</th>
                 <th class="px-6 py-4">Status</th>
@@ -56,8 +58,11 @@ import Swal from 'sweetalert2';
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
-              @for (company of paginatedCompanies(); track company) {
+              @for (company of paginatedCompanies(); track company; let i = $index) {
                 <tr class="hover:bg-surface-variant/20 transition-colors">
+                  <td class="px-6 py-4 text-xs font-semibold text-on-surface-variant text-center">
+                    {{ (currentPage() - 1) * pageSize() + i + 1 }}
+                  </td>
                   <td class="px-6 py-4 font-medium text-on-surface">{{ company.name }}</td>
                   <td class="px-6 py-4 text-on-surface-variant">{{ company.description || 'N/A' }}</td>
                   <td class="px-6 py-4">
@@ -67,22 +72,59 @@ import Swal from 'sweetalert2';
                     </span>
                   </td>
                   @if (isSuperAdmin()) {
-                    <td class="px-6 py-4 text-right space-x-2">
-                      <button (click)="editCompany(company)" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Edit</button>
-                      <button (click)="deleteCompany(company.id)" class="text-rose-600 hover:text-rose-700 font-medium text-sm">Delete</button>
+                    <td class="px-6 py-4 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <!-- Edit Button -->
+                        <button
+                          (click)="editCompany(company)"
+                          class="p-2 rounded-lg text-primary-600 hover:bg-primary-500/10 hover:text-primary-700 transition-colors"
+                          title="Edit">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+
+                        <!-- Activate / Deactivate Button -->
+                        <button
+                          (click)="toggleStatus(company)"
+                          [class]="company.isActive ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-500/10' : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10'"
+                          class="p-2 rounded-lg transition-colors"
+                          [title]="company.isActive ? 'Deactivate' : 'Activate'">
+                          @if (company.isActive) {
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                            </svg>
+                          } @else {
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          }
+                        </button>
+
+                        <!-- Delete Button -->
+                        <button
+                          (click)="deleteCompany(company.id)"
+                          class="p-2 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-colors"
+                          title="Delete">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   }
                 </tr>
               }
               @if (filteredCompanies().length === 0) {
                 <tr>
-                  <td [attr.colspan]="isSuperAdmin() ? 4 : 3" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
+                  <td [attr.colspan]="isSuperAdmin() ? 5 : 4" class="px-6 py-10 text-center text-on-surface-variant">No records found.</td>
                 </tr>
               }
             </tbody>
           </table>
+        </div>
 
-          <!-- Dynamic Pagination -->
+        <!-- Dynamic Pagination -->
           <app-pagination
             [currentPage]="currentPage()"
             [pageSize]="pageSize()"
@@ -235,6 +277,20 @@ export class DrugCompanyComponent implements OnInit {
         }
       });
     }
+  }
+
+  toggleStatus(company: DrugCompany): void {
+    if (!this.isSuperAdmin() || !(company as any).encryptedId) return;
+    this.companyService.deleteCompany((company as any).encryptedId).subscribe({
+      next: () => {
+        company.isActive = !company.isActive;
+        this.notificationService.success('Success', `Company status changed to ${company.isActive ? 'Active' : 'Inactive'}`);
+      },
+      error: (err) => {
+        console.error('Error toggling company status:', err);
+        this.notificationService.error('Error', 'Failed to change company status');
+      }
+    });
   }
 
   deleteCompany(id: number): void {

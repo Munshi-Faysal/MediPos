@@ -321,6 +321,16 @@ export class DoctorLayoutComponent implements OnInit, OnDestroy {
         iconClass: 'text-blue-500'
       },
       {
+        id: 'quick-medicine-search',
+        label: 'Quick Medicine Search',
+        route: '/doctor/quick-medicine-search',
+        icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+        type: 'link',
+        order: 1.5,
+        activeClass: 'bg-emerald-50 text-emerald-700 border-emerald-600',
+        iconClass: 'text-emerald-500'
+      },
+      {
         id: 'drug-management',
         label: 'Drug Management',
         route: null,

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 using Presentation.API.ActionFilters;
 using Repositories.Concretes.Base;
 using Repositories.Contracts.Base;
@@ -14,6 +14,7 @@ internal static class DependencyExtension
 {
     internal static void RegisterServices(this IServiceCollection services)
     {
+        services.AddSingleton<ICacheService, CacheService>();
         services.AddScoped<IServiceManager, ServiceManager>();
         services.AddScoped<IAppMailService, AppMailService>();
         services.AddScoped<IAccountService, AccountService>();

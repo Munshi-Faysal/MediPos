@@ -69,6 +69,7 @@ export interface DrugMonographDto {
     manufacturer?: string;
     unitPrice?: number;
     stripPrice?: number;
+    packageInfo?: string;
     packImageUrl?: string;
     medExUrl?: string;
     indications?: string;
@@ -81,6 +82,17 @@ export interface DrugMonographDto {
     precautionsWarnings?: string;
     therapeuticClass?: string;
     storageConditions?: string;
+}
+
+export function formatDrugStrength(val: string | null | undefined): string {
+    if (!val) return '';
+    let s = String(val).trim();
+    let prev = '';
+    while (prev !== s) {
+        prev = s;
+        s = s.replace(/%\s*%/g, '%').replace(/\b([a-zA-Z]+)\s+\1\b/gi, '$1');
+    }
+    return s.trim();
 }
 
 /**
@@ -111,7 +123,11 @@ export class DrugService {
         }
         return this.api.get<ViewResponse<DrugViewModel>>(url).pipe(
             map(response => {
-                const itemList = response?.data?.itemList || [];
+                const rawList = response?.data?.itemList || [];
+                const itemList = rawList.map((item: any) => ({
+                    ...item,
+                    drugStrengthName: formatDrugStrength(item.drugStrengthName)
+                }));
                 const total = response?.data?.totalRecords || itemList.length;
                 return {
                     data: itemList,
@@ -200,7 +216,13 @@ export class DrugService {
         if (params.url) q.push(`url=${encodeURIComponent(params.url)}`);
         reqUrl += q.join('&');
         return this.api.get<{ isSuccess: boolean; data: DrugMonographDto }>(reqUrl).pipe(
-            map(res => res?.data || null)
+            map(res => {
+                const data = res?.data;
+                if (data && data.strength) {
+                    data.strength = formatDrugStrength(data.strength);
+                }
+                return data || null;
+            })
         );
     }
 }

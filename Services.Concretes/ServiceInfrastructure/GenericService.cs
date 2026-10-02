@@ -79,4 +79,19 @@ internal sealed class GenericService(
         var list = await repository.Generic.GetActiveListAsync();
         return mapper.Map<List<GenericDto>>(list);
     }
+
+    public async Task<bool> DeleteAsync(string id)
+    {
+        if (!IsValidId(id)) return false;
+        var existing = await repository.Generic.FindByIdAsync(int.Parse(id));
+        if (existing is null) return false;
+
+        var isUsed = await repository.DrugMaster.AnyAsync(x => x.DrugGenericId == existing.Id);
+        if (isUsed)
+        {
+            throw new InvalidOperationException("Cannot delete generic as it is currently assigned to one or more drugs.");
+        }
+
+        return await repository.Generic.DeleteAsync(existing);
+    }
 }

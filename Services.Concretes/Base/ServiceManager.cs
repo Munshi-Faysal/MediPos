@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -20,7 +20,8 @@ public class ServiceManager(IRepositoryManager repository,
     RoleManager<ApplicationRole> roleManager,
     IAppMailService appMailService,
     IHttpContextAccessor httpContextAccessor,
-    IOptions<DefaultSettings> defaultSettings) : IServiceManager
+    IOptions<DefaultSettings> defaultSettings,
+    ICacheService cacheService) : IServiceManager
 {
     private readonly Lazy<IMenuMasterService> _menuMaster = new(() => new MenuMasterService(userManager, httpContextAccessor));
     private readonly Lazy<IUserService> _user = new(() => new UserService(userManager, repository, httpContextAccessor, mapper));
@@ -42,7 +43,7 @@ public class ServiceManager(IRepositoryManager repository,
     private readonly Lazy<IGenericService> _generic = new(() => new GenericService(userManager, httpContextAccessor, repository, mapper));
     private readonly Lazy<IDrugCompanyService> _drugCompany = new(() => new DrugCompanyService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IUnitService> _unit = new(() => new UnitService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
-    private readonly Lazy<IDrugMasterService> _drugMaster = new(() => new DrugMasterService(userManager, httpContextAccessor, repository, mapper));
+    private readonly Lazy<IDrugMasterService> _drugMaster = new(() => new DrugMasterService(userManager, httpContextAccessor, repository, mapper, cacheService));
     private readonly Lazy<IAppointmentService> _appointment = new(() => new AppointmentService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<IPatientService> _patient = new(() => new PatientService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));
     private readonly Lazy<ITreatmentService> _treatment = new(() => new TreatmentService(userManager, httpContextAccessor, repository, encryptionHelper, mapper));

@@ -11,4 +11,5 @@ public interface IDrugStrengthService : IBaseServiceInit<DrugStrengthViewModel, 
     Task<List<DrugStrengthDto>> GetActiveListAsync();
     Task<List<DrugStrengthDto>> GetActiveByDoctorIdAsync(string encryptedDoctorId);
     Task<List<DrugStrengthDto>> GetActiveForCurrentUserAsync();
+    Task<bool> DeleteAsync(string encryptedId);
 }

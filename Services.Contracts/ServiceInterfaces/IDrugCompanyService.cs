@@ -9,4 +9,5 @@ public interface IDrugCompanyService : IBaseService<DrugCompanyViewModel, DrugCo
     Task<bool> ChangeActiveAsync(string encryptedId);
     Task<List<DrugCompanyDto>> GetActiveListAsync();
     Task<bool> IsNameExistsAsync(string name, string? encryptedExcludeId = null);
+    Task<bool> DeleteAsync(string encryptedId);
 }

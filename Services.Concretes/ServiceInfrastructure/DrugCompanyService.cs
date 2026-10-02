@@ -105,4 +105,20 @@ internal sealed class DrugCompanyService(
         }
         return dtos;
     }
+
+    public async Task<bool> DeleteAsync(string encryptedId)
+    {
+        if (!IsValidId(encryptedId)) return false;
+        var id = encryptionHelper.Decrypt(encryptedId);
+        var existing = await repository.DrugCompany.FindByIdAsync(id);
+        if (existing is null) return false;
+
+        var isUsed = await repository.DrugMaster.AnyAsync(x => x.DrugCompanyId == id);
+        if (isUsed)
+        {
+            throw new InvalidOperationException("Cannot delete company as it is currently assigned to one or more drugs.");
+        }
+
+        return await repository.DrugCompany.DeleteAsync(existing);
+    }
 }

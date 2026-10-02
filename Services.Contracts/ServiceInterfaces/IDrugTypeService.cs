@@ -10,4 +10,5 @@ public interface IDrugTypeService : IBaseServiceInit<DrugTypeViewModel, DrugType
     Task<bool> ChangeActiveAsync(string encryptedId);
     Task<List<DrugTypeDto>> GetActiveByDoctorIdAsync(string encryptedDoctorId);
     Task<List<DrugTypeDto>> GetActiveForCurrentUserAsync();
+    Task<bool> DeleteAsync(string encryptedId);
 }

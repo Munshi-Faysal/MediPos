@@ -79,7 +79,9 @@ internal sealed class DrugStrengthRepository(WfDbContext context,
             .Select(d => new DropdownDto
             {
                 Id = d.Id.ToString(),
-                Value = $"{d.Quantity} {(d.Unit != null ? d.Unit.Name : "")}"
+                Value = d.Unit != null && d.Unit.Name != null && d.Unit.Name != "" && !d.Quantity.Contains(d.Unit.Name)
+                    ? (d.Quantity + " " + d.Unit.Name)
+                    : d.Quantity
             }).ToListAsync();
     }
     public async Task<IEnumerable<DrugStrength>> GetActiveByDoctorIdAsync(int doctorId)
